@@ -26,16 +26,6 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
         super(CISIAMUserAuditor, self).__init__(accounts=accounts, debug=debug)
         self.iam_policy_keys = ['InlinePolicies$*']
 
-    def prep_for_audit(self):
-        """
-        Prepare for the audit by calculating 90 days ago.
-        This is used to check if access keys have been rotated.
-        """
-        super(CISIAMUserAuditor, self).prep_for_audit()
-        now = datetime.datetime.now()
-        then = now - datetime.timedelta(days=90)
-        self.ninety_days_ago = then.replace(tzinfo=tz.gettz('UTC'))
-
     def check_1_1_root_user(self, item):
         """
         CIS Rule 1.1 - Avoid the use of the "root" account [scored]
