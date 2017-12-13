@@ -40,7 +40,7 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
         self.assertEquals(
             iamobj.audit_issues[0].notes,
-            'cis-1.1 - Root Account used in past 24hrs.'
+            'sa-iam-cis-1.1 - Root Account used in past 24hrs.'
         )
 
         # test that root user that has NOT accessed account within 24 hours

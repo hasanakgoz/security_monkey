@@ -34,7 +34,7 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='cis-1.1 - ',
+            description='sa-iam-cis-1.1 - ',
             specific='Root Account used in past 24hrs.'
         )
         one_day_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
@@ -57,5 +57,5 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
                 last_used_date = parser.parse(last_used_date)
 
                 if last_used_date > one_day_ago:
-                    self.add_issue(1, issue, item, notes=notes)
+                    self.add_issue(10, issue, item, notes=notes)
                     return
