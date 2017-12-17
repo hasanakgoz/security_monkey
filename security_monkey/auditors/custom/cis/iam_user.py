@@ -6,11 +6,12 @@
 .. moduleauthor::  Patrick Kelley <pkelley@netflix.com> @monkeysecurity
 
 """
-import datetime
 
+from datetime import datetime, timedelta
 from dateutil import parser
 from dateutil import tz
-from security_monkey.auditor import Categories
+from security_monkey.auditor import Categories, Auditor
+from security_monkey.watchers.custom.iam_cred_report import CredentialReportWatcher
 from security_monkey.watchers.iam.iam_user import IAMUser
 from security_monkey.auditors.iam.iam_policy import IAMPolicyAuditor
 from security_monkey.watchers.iam.managed_policy import ManagedPolicy
@@ -37,7 +38,7 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
             description='sa-iam-cis-1.1 - ',
             specific='Root Account used in past 24hrs.'
         )
-        one_day_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
+        one_day_ago = datetime.now() - timedelta(hours=24)
         one_day_ago = one_day_ago.replace(tzinfo=tz.gettz('UTC'))
 
         date_format = "%Y-%m-%d %H:%M:%S+00:00"
@@ -59,3 +60,66 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
                 if last_used_date > one_day_ago:
                     self.add_issue(10, issue, item, notes=notes)
                     return
+
+
+class IAMUserCredsAuditor(Auditor):
+    index = CredentialReportWatcher.index
+    i_am_singular = CredentialReportWatcher.i_am_singular
+    i_am_plural = CredentialReportWatcher.i_am_plural
+
+    DATE_FORMAT = '%Y-%m-%dT%H:%M:%S+00:00'
+
+    def _parse_date(self, datestring):
+        epoch = datetime.fromtimestamp(0)
+        return (epoch if (datestring.lower() == 'n/a' or datestring.lower() == 'no_information')
+            else datetime.strptime(datestring, self.DATE_FORMAT))
+
+    def _parse_bool(self, boolstring):
+        if boolstring.lower() == 'true':
+            return True
+        else:
+            return False
+
+    def check_1_3_unused_credentials(self, item):
+        """
+        CIS Rule 1.3 - Ensure credentials unused for 90 days or greater are
+        disabled [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.3 - ',
+            specific='Detected active {} unused for over 90 days.'
+        )
+
+        report = item.config
+        now = datetime.now()
+
+        if self._parse_bool(report['password_enabled']):
+            pw_last_used = self._parse_date(report['password_last_used'])
+            if (now - pw_last_used).days > 90:
+                self.add_issue(
+                    10,
+                    issue,
+                    item,
+                    notes=notes.format('password')
+                )
+
+        if self._parse_bool(report['access_key_1_active']):
+            akey1_last_used = self._parse_date(report['access_key_1_last_used_date'])
+            if (now - akey1_last_used).days > 90:
+                self.add_issue(
+                    10,
+                    issue,
+                    item,
+                    notes=notes.format('access key 1')
+                )
+
+        if self._parse_bool(report['access_key_2_active']):
+            akey2_last_used = self._parse_date(report['access_key_2_last_used_date'])
+            if (now - akey2_last_used).days > 90:
+                self.add_issue(
+                    10,
+                    issue,
+                    item,
+                    notes=notes.format('access key 2')
+                )

@@ -13,7 +13,7 @@ class CredentialReportWatcher(Watcher):
     i_am_plural = 'Credential Reports'
 
     def __init__(self, accounts=None, debug=False):
-        super(CredentialReport, self).__init__(accounts=accounts, debug=debug)
+        super(CredentialReportWatcher, self).__init__(accounts=accounts, debug=debug)
 
     def slurp(self):
         """
