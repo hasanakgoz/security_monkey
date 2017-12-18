@@ -36,11 +36,13 @@ class CredentialReportWatcher(Watcher):
                                      source="{}-watcher".format(self.index))
                 continue
 
-            app.logger.debug('Generating credential report for account {}'.format(account))
-            iam.generate_credential_report()
             try:
+                app.logger.debug('Generating credential report for account {}'.format(account))
+                iam.generate_credential_report()
+
                 app.logger.debug('Getting credential report for account {}'.format(account))
                 response = iam.get_credential_report()
+
                 credential_report = csv.DictReader(open(response['Content'], 'rb'))
             except Exception as e:
                 # credential report is not ready yet, pull it the next time
@@ -54,6 +56,7 @@ class CredentialReportWatcher(Watcher):
                     UserReport(
                         account=account,
                         config=user_report,
+                        name=user_report['user'],
                     )
                 )
 
