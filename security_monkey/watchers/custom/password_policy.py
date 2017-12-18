@@ -50,7 +50,7 @@ class PasswordPolicy(Watcher):
         from security_monkey.common.sts_connect import connect
         for account in self.accounts:
             try:
-                iam = connect(account, 'boto3.iam.resource')
+                iam = connect(account, 'boto3.iam.client')
             except Exception as e:
                 exc = BotoConnectionIssue(str(e), 'passwordpolicy', account, None)
                 self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
