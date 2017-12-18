@@ -6,6 +6,7 @@ from security_monkey.exceptions import (
     BotoConnectionIssue,
     CredentialReportException,
 )
+from security_monkey import app, ARN_PREFIX
 
 class CredentialReportWatcher(Watcher):
     index = 'credreport'
