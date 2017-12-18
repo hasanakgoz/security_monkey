@@ -3,7 +3,7 @@
     :platform: Unix
 
 .. version:: $$VERSION$$
-.. moduleauthor::  Patrick Kelley <pkelley@netflix.com> @monkeysecurity
+.. moduleauthor::  Hammad Hai <hammad.a.hai@gmail.com>
 
 """
 
