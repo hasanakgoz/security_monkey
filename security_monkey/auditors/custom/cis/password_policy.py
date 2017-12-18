@@ -26,7 +26,18 @@ class PasswordPolicyAuditor(Auditor):
             description='sa-iam-cis-1.5 - ',
             specific='Password Policy should require uppercase letters.'
         )
-        if not item.config.get('RequireUppercaseCharacters'):
+        if item.config == {}:
+            self.add_issue(
+                10,
+                issue,
+                item,
+                notes=Categories.INFORMATIONAL_NOTES.format(
+                    description='sa-iam-cis-1.5 - ',
+                    specific='Account has no password policy.'
+                )
+            )
+
+        elif not item.config.get('RequireUppercaseCharacters'):
             self.add_issue(
                 10,
                 issue,

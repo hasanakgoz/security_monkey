@@ -44,3 +44,7 @@ class PasswordPolicyTestCase(SecurityMonkeyTestCase):
 
         auditor.check_1_5_uppercase_letters(policy)
         self.assertIs(len(policy.audit_issues), 1)
+        self.assertEquals(
+            policy.audit_issues[0].notes,
+            'sa-iam-cis-1.5 - Account has no password policy.'
+        )

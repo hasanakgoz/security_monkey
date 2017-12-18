@@ -57,16 +57,18 @@ class PasswordPolicy(Watcher):
                                      source="{}-watcher".format(self.index))
                 continue
 
-            response = iam.get_account_password_policy()
-            app.logger.debug('Getting password policy for account {}'.format(account))
-
             try:
+                app.logger.debug('Getting password policy for account {}'.format(account))
+                response = iam.get_account_password_policy()
                 policy_config = response['PasswordPolicy']
             except Exception as e:
-                exc = PasswordPolicyException(str(e), 'passwordpolicy', account, None)
-                self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
-                                     source="{}-watcher".format(self.index))
-                continue
+                if "cannot be found" in str(e):
+                    policy_config = {}
+                else:
+                    exc = PasswordPolicyException(str(e), 'passwordpolicy', account, None)
+                    self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
+                                         source="{}-watcher".format(self.index))
+                    continue
 
             item_list.append(
                 PasswordPolicyItem(
