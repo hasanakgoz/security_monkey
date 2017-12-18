@@ -73,7 +73,8 @@ class PasswordPolicy(Watcher):
             item_list.append(
                 PasswordPolicyItem(
                     account=account,
-                    config=policy_config
+                    config=policy_config,
+                    name=account.name
                 )
             )
 
