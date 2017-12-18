@@ -74,7 +74,7 @@ class PasswordPolicy(Watcher):
                 PasswordPolicyItem(
                     account=account,
                     config=policy_config,
-                    name=account.name
+                    name='{} - Password Policy'.format(account)
                 )
             )
 
