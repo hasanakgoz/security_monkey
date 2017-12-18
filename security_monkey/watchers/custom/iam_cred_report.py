@@ -6,6 +6,7 @@ from security_monkey.exceptions import (
     BotoConnectionIssue,
     CredentialReportException,
 )
+from security_monkey import app, ARN_PREFIX
 
 class CredentialReportWatcher(Watcher):
     index = 'credreport'
@@ -35,12 +36,14 @@ class CredentialReportWatcher(Watcher):
                                      source="{}-watcher".format(self.index))
                 continue
 
-            response = iam.get_credential_report()
-            app.logger.debug('Getting credential report for account {}'.format(account))
-
+            app.logger.debug('Generating credential report for account {}'.format(account))
+            iam.generate_credential_report()
             try:
+                app.logger.debug('Getting credential report for account {}'.format(account))
+                response = iam.get_credential_report()
                 credential_report = csv.DictReader(open(response['Content'], 'rb'))
             except Exception as e:
+                # credential report is not ready yet, pull it the next time
                 exc = CredentialReportException(str(e), 'iamcredreport', account, None)
                 self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
                                      source="{}-watcher".format(self.index))
