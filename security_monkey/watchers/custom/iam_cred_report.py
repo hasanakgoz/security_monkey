@@ -36,20 +36,33 @@ class CredentialReportWatcher(Watcher):
                                      source="{}-watcher".format(self.index))
                 continue
 
-            try:
-                app.logger.debug('Generating credential report for account {}'.format(account))
-                iam.generate_credential_report()
+            timeout = 0
+            error = None
 
-                app.logger.debug('Getting credential report for account {}'.format(account))
-                response = iam.get_credential_report()
-
-                credential_report = csv.DictReader(open(response['Content'], 'rb'))
-            except Exception as e:
-                # credential report is not ready yet, pull it the next time
-                exc = CredentialReportException(str(e), 'iamcredreport', account, None)
-                self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
+            app.logger.debug('Generating credential report for account {}'.format(account))
+            while iam.generate_credential_report()['State'] != "COMPLETE":
+                time.sleep(2)
+                timeout += 1
+                # If no credentail report is delivered within this time fail the check.
+                if timeout > 5:
+                    error = "Timeout: No CredentialReport available."
+                    app.logger.error(error)
+                    exc = CredentialReportException(
+                        error,
+                        'iamcredreport',
+                        account,
+                        None
+                    )
+                    self.slurp_exception((self.index, account, 'universal'), exc, exception_map,
                                      source="{}-watcher".format(self.index))
+                    break
+
+            if error:
                 continue
+
+            app.logger.debug('Getting credential report for account {}'.format(account))
+            response = iam.get_credential_report()
+            credential_report = csv.DictReader(response['Content'].splitlines(), delimiter=',')
 
             for user_report in credential_report:
                 item_list.append(
