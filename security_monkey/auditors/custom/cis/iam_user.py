@@ -6,8 +6,8 @@
 .. moduleauthor::  Hammad Hai <hammad.a.hai@gmail.com>
 
 """
+import datetime
 
-from datetime import datetime, timedelta
 from dateutil import parser
 from dateutil import tz
 from security_monkey.auditor import Categories, Auditor
@@ -38,7 +38,7 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
             description='sa-iam-cis-1.1 - ',
             specific='Root Account used in past 24hrs.'
         )
-        one_day_ago = datetime.now() - timedelta(hours=24)
+        one_day_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
         one_day_ago = one_day_ago.replace(tzinfo=tz.gettz('UTC'))
 
         date_format = "%Y-%m-%d %H:%M:%S+00:00"
@@ -70,9 +70,9 @@ class IAMUserCredsAuditor(Auditor):
     DATE_FORMAT = '%Y-%m-%dT%H:%M:%S+00:00'
 
     def _parse_date(self, datestring):
-        epoch = datetime.fromtimestamp(0)
+        epoch = datetime.datetime.fromtimestamp(0)
         return (epoch if (datestring.lower() == 'n/a' or datestring.lower() == 'no_information')
-            else datetime.strptime(datestring, self.DATE_FORMAT))
+            else datetime.datetime.strptime(datestring, self.DATE_FORMAT))
 
     def _parse_bool(self, boolstring):
         if boolstring.lower() == 'true':
@@ -92,7 +92,7 @@ class IAMUserCredsAuditor(Auditor):
         )
 
         report = item.config
-        now = datetime.now()
+        now = datetime.datetime.now()
 
         if self._parse_bool(report['password_enabled']):
             pw_last_used = self._parse_date(report['password_last_used'])
