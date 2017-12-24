@@ -80,6 +80,41 @@ class IAMUserCredsAuditor(Auditor):
         else:
             return False
 
+    def _is_root(self, report):
+        return report['arn'].split(':')[-1] == 'root'
+
+    def check_1_1_root_user(self, item):
+        """
+        CIS Rule 1.1 - Avoid the use of the "root" account [scored]
+
+        alert when root user has been used within last 24 hours
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.1 - ',
+            specific='Root Account used in past 24hrs.'
+        )
+
+        report = item.config
+        now = datetime.datetime.now()
+
+        if self._is_root(report):
+
+            last_used_date = self._parse_date(report['password_last_used'])
+            if (now - last_used_date).days < 1:
+                self.add_issue(1, issue, item, notes=notes)
+                return
+
+            last_used_date = self._parse_date(report['access_key_1_last_used_date'])
+            if (now - last_used_date).days < 1:
+                self.add_issue(1, issue, item, notes=notes)
+                return
+
+            last_used_date = self._parse_date(report['access_key_2_last_used_date'])
+            if (now - last_used_date).days < 1:
+                self.add_issue(1, issue, item, notes=notes)
+                return
+
     def check_1_3_unused_credentials(self, item):
         """
         CIS Rule 1.3 - Ensure credentials unused for 90 days or greater are
@@ -122,4 +157,46 @@ class IAMUserCredsAuditor(Auditor):
                     issue,
                     item,
                     notes=notes.format('access key 2')
+                )
+
+    def check_1_12_root_key_exists(self, item):
+        """
+        CIS Rule 1.12 - Ensure no root account access key exists (Scored)
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.12 - ',
+            specific='Root account has active access keys.'
+        )
+
+        report = item.config
+
+        if self._is_root(report):
+            if self._parse_bool(report['access_key_1_active']) or self._parse_bool(report['access_key_2_active']):
+                self.add_issue(
+                    10,
+                    issue,
+                    item,
+                    notes=notes
+                )
+
+    def check_1_13_mfa_root_account(self, item):
+        """
+        CIS Rule 1.13 - Ensure MFA is enabled on the root account [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.13 - ',
+            specific='Root account does not have MFA enabled.'
+        )
+
+        report = item.config
+
+        if self._is_root(report):
+            if not self._parse_bool(report['mfa_active']):
+                self.add_issue(
+                    10,
+                    issue,
+                    item,
+                    notes=notes
                 )
