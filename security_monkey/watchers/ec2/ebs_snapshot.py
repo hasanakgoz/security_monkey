@@ -75,6 +75,7 @@ class EBSSnapshot(Watcher):
         self.last_session_datetime = datetime.datetime.now()
         return self.last_session
 
+    @record_exception()
     def get_attribute(self, attribute_name, result_key_name, snapshot, **kwargs):
         ec2 = self.get_session(**kwargs)
         attributes = self.wrap_aws_rate_limited_call(
