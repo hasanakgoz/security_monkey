@@ -72,6 +72,34 @@ class BotoConnectionIssue(SecurityMonkeyException):
             self.tech, self.account, self.region, self.connection_message))
 
 
+class CredentialReportException(SecurityMonkeyException):
+    """Could not parse credential report"""
+    def __init__(self, msg, tech, account, region):
+        self.msg = msg
+        self.tech = tech
+        self.account = account
+        self.region = region
+        app.logger.info(self)
+
+    def __str__(self):
+        return repr("Problem parsing credential report for {}/{}/{}:\n{}".format(
+            self.tech, self.account, self.region, self.msg))
+
+
+class PasswordPolicyException(SecurityMonkeyException):
+    """Could not parse password policy"""
+    def __init__(self, msg, tech, account, region):
+        self.msg = msg
+        self.tech = tech
+        self.account = account
+        self.region = region
+        app.logger.info(self)
+
+    def __str__(self):
+        return repr("Problem parsing password policy for {}/{}/{}:\n{}".format(
+            self.tech, self.account, self.region, self.msg))
+
+
 class S3PermissionsIssue(SecurityMonkeyException):
     """Boto could not read metadata about an S3 bucket. Check permissions."""
     def __init__(self, bucket_name):
