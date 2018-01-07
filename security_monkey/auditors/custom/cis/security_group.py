@@ -28,9 +28,6 @@ from security_monkey import app
 
 class CISSecurityGroupAuditor(SecurityGroupAuditor):
 
-    def __init__(self, accounts=None, debug=False):
-        super(CISSecurityGroupAuditor, self).__init__(accounts=accounts, debug=debug)
-
     def check_4_1_ssh_not_open_to_world(self, item):
         """
         CIS Rule 4.1 - Ensure no security groups allow ingress from 0.0.0.0/0
