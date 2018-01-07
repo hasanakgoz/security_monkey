@@ -20,13 +20,18 @@
 
 """
 
-from security_monkey.auditor import Categories
-from security_monkey.auditors.security_group import SecurityGroupAuditor
+from security_monkey.auditor import Auditor, Categories
 from security_monkey.watchers.security_group import SecurityGroup
 from security_monkey import app
 
 
-class CISSecurityGroupAuditor(SecurityGroupAuditor):
+class CISSecurityGroupAuditor(Auditor):
+    index = SecurityGroup.index
+    i_am_singular = SecurityGroup.i_am_singular
+    i_am_plural = SecurityGroup.i_am_plural
+
+    def __init__(self, accounts=None, debug=False):
+        super(CISSecurityGroupAuditor, self).__init__(accounts=accounts, debug=debug)
 
     def check_4_1_ssh_not_open_to_world(self, item):
         """
