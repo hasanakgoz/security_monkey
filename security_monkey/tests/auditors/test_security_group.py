@@ -23,7 +23,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": 22,
                     "ip_protocol": "ssh",
                     "to_port": 22,
@@ -48,7 +48,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": None,
                     "ip_protocol": "-1",
                     "to_port": None,
@@ -68,13 +68,33 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": None,
                     "ip_protocol": "-1",
                     "to_port": None,
                     "owner_id": None,
                     "group_id": None,
                     "cidr_ip": "1.2.3.4/0",
+                    "name": None
+                },
+            ],
+        }
+
+        auditor.check_4_1_ssh_not_open_to_world(security_group)
+        self.assertIs(len(security_group.audit_issues), 0)
+
+        security_group = MockItem()
+        security_group.config = {
+            "id": "test",
+            "rules": [
+                {
+                    "rule_type": "egress",
+                    "from_port": None,
+                    "ip_protocol": "-1",
+                    "to_port": None,
+                    "owner_id": None,
+                    "group_id": None,
+                    "cidr_ip": "0.0.0.0/0",
                     "name": None
                 },
             ],
@@ -93,7 +113,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": 3389,
                     "ip_protocol": "ssh",
                     "to_port": 3389,
@@ -118,7 +138,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": None,
                     "ip_protocol": "-1",
                     "to_port": None,
@@ -138,13 +158,33 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "id": "test",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": None,
                     "ip_protocol": "-1",
                     "to_port": None,
                     "owner_id": None,
                     "group_id": None,
                     "cidr_ip": "1.2.3.4/0",
+                    "name": None
+                },
+            ],
+        }
+
+        auditor.check_4_2_rdp_not_open_to_world(security_group)
+        self.assertIs(len(security_group.audit_issues), 0)
+
+        security_group = MockItem()
+        security_group.config = {
+            "id": "test",
+            "rules": [
+                {
+                    "rule_type": "egress",
+                    "from_port": None,
+                    "ip_protocol": "-1",
+                    "to_port": None,
+                    "owner_id": None,
+                    "group_id": None,
+                    "cidr_ip": "0.0.0.0/0",
                     "name": None
                 },
             ],
@@ -164,7 +204,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "name": "default",
             "rules": [
                 {
-                    "rule_type": "egress",
+                    "rule_type": "ingress",
                     "from_port": 3389,
                     "ip_protocol": "ssh",
                     "to_port": 3389,

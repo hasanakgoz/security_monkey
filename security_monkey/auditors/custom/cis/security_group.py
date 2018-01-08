@@ -47,23 +47,24 @@ class CISSecurityGroupAuditor(Auditor):
         )
 
         for rule in item.config.get('rules', []):
-            try:
-                if int(rule['from_port']) <= 22 <= int(rule['to_port']) and \
-                        '0.0.0.0/0' in str(rule['cidr_ip']):
-                    self.add_issue(
-                        10,
-                        issue,
-                        item,
-                        notes=notes
-                    )
-            except:
-                if rule['ip_protocol'] == '-1' and '0.0.0.0/0' in str(rule['cidr_ip']):
-                    self.add_issue(
-                        10,
-                        issue,
-                        item,
-                        notes=notes
-                    )
+            if rule['rule_type'] == 'ingress':
+                try:
+                    if int(rule['from_port']) <= 22 <= int(rule['to_port']) and \
+                            '0.0.0.0/0' in str(rule['cidr_ip']):
+                        self.add_issue(
+                            10,
+                            issue,
+                            item,
+                            notes=notes
+                        )
+                except:
+                    if rule['ip_protocol'] == '-1' and '0.0.0.0/0' in str(rule['cidr_ip']):
+                        self.add_issue(
+                            10,
+                            issue,
+                            item,
+                            notes=notes
+                        )
 
     def check_4_2_rdp_not_open_to_world(self, item):
         """
@@ -79,23 +80,24 @@ class CISSecurityGroupAuditor(Auditor):
         )
 
         for rule in item.config.get('rules', []):
-            try:
-                if int(rule['from_port']) <= 3389 <= int(rule['to_port']) and \
-                        '0.0.0.0/0' in str(rule['cidr_ip']):
-                    self.add_issue(
-                        10,
-                        issue,
-                        item,
-                        notes=notes
-                    )
-            except:
-                if rule['ip_protocol'] == '-1' and '0.0.0.0/0' in str(rule['cidr_ip']):
-                    self.add_issue(
-                        10,
-                        issue,
-                        item,
-                        notes=notes
-                    )
+            if rule['rule_type'] == 'ingress':
+                try:
+                    if int(rule['from_port']) <= 3389 <= int(rule['to_port']) and \
+                            '0.0.0.0/0' in str(rule['cidr_ip']):
+                        self.add_issue(
+                            10,
+                            issue,
+                            item,
+                            notes=notes
+                        )
+                except:
+                    if rule['ip_protocol'] == '-1' and '0.0.0.0/0' in str(rule['cidr_ip']):
+                        self.add_issue(
+                            10,
+                            issue,
+                            item,
+                            notes=notes
+                        )
 
     def check_4_4_default_security_groups_restricts_traffic(self, item):
         """
