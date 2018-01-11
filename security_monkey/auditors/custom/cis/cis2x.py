@@ -64,3 +64,29 @@ class CIS2_36_Auditor(Auditor):
                 issue = tag + " - " + str(s3_bucket_name) + " has " + str(acl[key][0]).decode()
                 notes = notes.format(entity=entity)
                 self.add_issue(score=10, issue=issue, item=cloud_trail, notes=notes)
+
+    def check_cis_2_6(self, cloud_trail):
+        """
+        alert if S3 bucket access logging is not enabled on the CloudTrail S3 bucket
+
+        As per AWS CIS Guide:
+            S3 Bucket Access Logging generates a log that contains access records for each request made to your
+            S3 bucket. An access log record contains details about the request, such as the request type, the
+            resources specified in the request worked, and the time and date the request was processed. It is
+            recommended that bucket access logging be enabled on the CloudTrail S3 bucket.
+        """
+
+        tag = "CIS 2.6 Ensure S3 bucket access logging is enabled on the CloudTrail S3 bucket "
+        notes = "Access Logging is not enabled on CloudTrail S3 bucket {s3_bucket_name}"
+
+        s3_bucket_name = cloud_trail.config.get('s3_bucket_name')
+
+        s3_watcher_items = self.get_watcher_support_items(S3.index, cloud_trail.account)
+
+        for item in s3_watcher_items:
+            if item.name != s3_bucket_name:
+                continue
+            logging = item.config.get('Logging', {})
+            if logging == {} or not logging.get('enabled'):
+                notes = notes.format(s3_bucket_name=s3_bucket_name)
+                self.add_issue(10, tag, cloud_trail, notes=notes)
