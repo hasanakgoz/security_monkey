@@ -9,6 +9,7 @@
 """
 from security_monkey.auditor import Auditor, Entity
 from security_monkey.watchers.cloud_trail import CloudTrail
+from security_monkey.watchers.config_recorder import ConfigRecorder
 from security_monkey.watchers.s3 import S3
 
 
@@ -90,3 +91,29 @@ class CIS2_36_Auditor(Auditor):
             if logging == {} or not logging.get('enabled'):
                 notes = notes.format(s3_bucket_name=s3_bucket_name)
                 self.add_issue(10, tag, cloud_trail, notes=notes)
+
+
+class CIS2_5_Auditor(Auditor):
+    index = ConfigRecorder.index
+    i_am_singular = ConfigRecorder.i_am_singular
+    i_am_plural = ConfigRecorder.i_am_plural
+
+    def __init__(self, accounts=None, debug=False):
+        super(CIS2_5_Auditor, self).__init__(accounts=accounts, debug=debug)
+
+    def check_cis_2_5(self, config_recorder):
+        """
+        alert if AWS Config is not enabled on a AWS region
+
+        AWS Config is a web service that performs configuration management of supported AWS resources within
+        your account and delivers log files to you. The recorded information includes the configuration
+        item (AWS resource), relationships between configuration items (AWS resources), any configuration
+        changes between resources. It is recommended to enable AWS Config be enabled in all regions.
+        """
+        tag = "CIS 2.5 Ensure AWS Config Recorder is enabled in all regions"
+        notes = "AWS Config Recorder is not enabled on {region}"
+        config = config_recorder.config
+        if 'recorder' in config.keys() and not config.get('recorder'):
+            region = config.get('region')
+            notes = notes.format(region=region)
+            self.add_issue(10, tag, config_recorder, notes=notes)
