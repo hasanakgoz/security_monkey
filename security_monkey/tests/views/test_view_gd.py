@@ -20,7 +20,14 @@
 
 """
 from security_monkey.tests.views import SecurityMonkeyApiTestCase
-from security_monkey.datastore import Item, ItemAudit, GuardDutyEvent
+from security_monkey.datastore import (
+    Item,
+    ItemAudit,
+    ItemRevision,
+    GuardDutyEvent,
+    Account,
+    AccountType
+)
 from security_monkey.tests import db
 from security_monkey import ARN_PREFIX
 
@@ -32,8 +39,24 @@ class GuardDutyViewsTestCase(SecurityMonkeyApiTestCase):
 
     def test_guard_duty_post_issue(self):
 
+        account_type = AccountType(name='test')
+        db.session.add(account_type)
+        db.session.commit()
+        db.session.refresh(account_type)
+
+        account = Account(
+            active=True,
+            third_party=False,
+            name='TEST',
+            identifier="123",
+            account_type_id=account_type.id
+        )
+        db.session.add(account)
+        db.session.commit()
+        db.session.refresh(account)
+
         test_data = {
-            "account": "726064622671",
+            "account": "123",
             "region": "us-east-1",
             "detail": {
                 "description": "EC2 instance has an unprotected port which is being probed by a known malicious host.",
@@ -180,6 +203,7 @@ class GuardDutyViewsTestCase(SecurityMonkeyApiTestCase):
 
         assert GuardDutyEvent.query.count() == 0
         assert Item.query.count() == 0
+        assert ItemRevision.query.count() == 0
         assert ItemAudit.query.count() == 0
 
         response = self.test_app.post('/api/1/gde', headers=self.token_headers, data=json.dumps(test_data))
@@ -187,4 +211,5 @@ class GuardDutyViewsTestCase(SecurityMonkeyApiTestCase):
         assert response.status_code == 201
         assert GuardDutyEvent.query.count() == 1
         assert Item.query.count() == 1
+        assert ItemRevision.query.count() == 1
         assert ItemAudit.query.count() == 1

@@ -9,6 +9,7 @@ from security_monkey.datastore import (
     Account,
     AccountType,
     Technology,
+    Datastore
 )
 from security_monkey import db, rbac
 
@@ -19,6 +20,8 @@ class GuardDutyEventService(AuthenticatedService):
     ]
 
     def post(self):
+
+        datastore = Datastore()
 
         config = request.get_json(force=True)
         #action_type = config['detail']['service']['action']['actionType']
@@ -34,41 +37,18 @@ class GuardDutyEventService(AuthenticatedService):
         account = Account.query.filter(Account.identifier == config['account']).first()
 
         if not account:
-            account_type = AccountType.query.filter(AccountType.name=='AWS').first()
-
-            if not account_type:
-                account_type = AccountType(name='AWS')
-                db.session.add(account_type)
-                db.session.commit()
-                db.session.refresh(account_type)
-
-            account = Account(
-                active=True,
-                third_party=False,
-                identifier=config['account'],
-                account_type_id=account_type.id,
+            raise Exception(
+                "Account with identifier [{}] not found.".format(config['account'])
             )
-            db.session.add(account)
-            db.session.commit()
-            db.session.refresh(account)
 
-        item = Item.query.filter(
-            Item.region==config['region'],
-            Item.name==config['detail']['type'],
-            Item.tech_id==gd_tech.id,
-            Item.account_id==account.id,
-        ).first()
-
-        if not item:
-            item = Item(
-                region=config['region'],
-                name=config['detail']['type'],
-                tech_id=gd_tech.id,
-                account_id=account.id,
-            )
-            db.session.add(item)
-            db.session.commit()
-            db.session.refresh(item)
+        item = datastore.store(
+            gd_tech.name,
+            config['region'],
+            account.name,
+            config['detail']['type'],
+            True,
+            config
+        )
 
         issue = ItemAudit(
             score=int(config['detail']['severity']),
