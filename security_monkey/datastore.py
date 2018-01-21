@@ -489,6 +489,17 @@ class WatcherConfig(db.Model):
     active = Column(Boolean(), nullable=False)
 
 
+class GuardDutyEvent(db.Model):
+    """
+    Data model to store GuardDuty events
+    """
+    __tablename__ = "guarddutyevent"
+    id = Column(Integer, primary_key=True)
+    config = deferred(Column(JSON))
+    date_created = Column(DateTime(), default=datetime.datetime.utcnow, nullable=False, index=True)
+    item_id = Column(Integer, ForeignKey("item.id"), nullable=False, index=True)
+
+
 class Datastore(object):
     def __init__(self, debug=False):
         pass

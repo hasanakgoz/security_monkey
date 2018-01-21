@@ -137,7 +137,7 @@ sentry = None
 
 ### FLASK API ###
 from flask_restful import Api
-api = Api(app)
+api = Api(app, decorators=[csrf.exempt])
 
 from security_monkey.views.account import AccountGetPutDelete
 from security_monkey.views.account import AccountPostList
@@ -231,6 +231,9 @@ from security_monkey.views.watcher_config import WatcherConfigGetList
 from security_monkey.views.watcher_config import WatcherConfigPut
 api.add_resource(WatcherConfigGetList, '/api/1/watcher_config')
 api.add_resource(WatcherConfigPut, '/api/1/watcher_config/<int:id>')
+
+from security_monkey.views.guard_duty_event import GuardDutyEventService
+api.add_resource(GuardDutyEventService, '/api/1/gde')
 
 ## Jira Sync
 from security_monkey.jirasync import JiraSync
