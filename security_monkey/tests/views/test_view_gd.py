@@ -26,7 +26,8 @@ from security_monkey.datastore import (
     ItemRevision,
     GuardDutyEvent,
     Account,
-    AccountType
+    AccountType,
+    AuditorSettings
 )
 from security_monkey.tests import db
 from security_monkey import ARN_PREFIX
@@ -205,6 +206,7 @@ class GuardDutyViewsTestCase(SecurityMonkeyApiTestCase):
         assert Item.query.count() == 0
         assert ItemRevision.query.count() == 0
         assert ItemAudit.query.count() == 0
+        assert AuditorSettings.query.count() == 0
 
         response = self.test_app.post('/api/1/gde', headers=self.token_headers, data=json.dumps(test_data))
 
@@ -213,3 +215,4 @@ class GuardDutyViewsTestCase(SecurityMonkeyApiTestCase):
         assert Item.query.count() == 1
         assert ItemRevision.query.count() == 1
         assert ItemAudit.query.count() == 1
+        assert AuditorSettings.query.count() == 1

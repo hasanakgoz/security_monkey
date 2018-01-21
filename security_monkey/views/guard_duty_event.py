@@ -9,6 +9,7 @@ from security_monkey.datastore import (
     Account,
     AccountType,
     Technology,
+    AuditorSettings,
     Datastore
 )
 from security_monkey import db, rbac
@@ -50,11 +51,30 @@ class GuardDutyEventService(AuthenticatedService):
             config
         )
 
+        auditor_settings = AuditorSettings.query.filter(
+            AuditorSettings.auditor_class=='GuardDuty',
+            AuditorSettings.tech_id==gd_tech.id,
+            AuditorSettings.account_id==account.id
+        ).first()
+
+        if not auditor_settings:
+            auditor_settings = AuditorSettings(
+                disabled=False,
+                issue_text='Guard Duty',
+                auditor_class='GuardDuty',
+                tech_id=gd_tech.id,
+                account_id=account.id
+            )
+            db.session.add(auditor_settings)
+            db.session.commit()
+            db.session.refresh(auditor_settings)
+
         issue = ItemAudit(
             score=int(config['detail']['severity']),
             issue=config['detail']['title'],
             notes=config['detail']['description'],
             item_id=item.id,
+            auditor_setting_id=auditor_settings.id,
         )
         db.session.add(issue)
         db.session.commit()
