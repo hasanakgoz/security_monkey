@@ -19,6 +19,8 @@
 .. moduleauthor:: Bridgewater OSS <opensource@bwater.com>
 """
 
+import json
+
 from security_monkey.tests import SecurityMonkeyTestCase
 from security_monkey import db
 from flask_security import SQLAlchemyUserDatastore
@@ -47,17 +49,23 @@ class SecurityMonkeyApiTestCase(SecurityMonkeyTestCase):
         db.session.commit()
         db.session.refresh(user)
 
+        return user
+
     def login(self, email=None, password=None):
+        csrf_flag = self.app.config['WTF_CSRF_ENABLED']
+        self.app.config['WTF_CSRF_ENABLED'] = False
+
         email = email or self.user.email
         password = password or 'password'
         response = self.test_app.post(
             '/login',
-            data={'email': email, 'password': password},
-            follow_redirects=False
+            data=json.dumps({'email': email, 'password': password}),
+            headers={'content-type': 'application/json'},
         )
-        self.headers = {
-            'cookie': response.headers[3][1],
+
+        self.token_headers = {
+            'Authentication-Token': json.loads(response.data)['response']['user']['authentication_token'],
             'Content-Type': 'application/json'
         }
 
-        return response
+        self.app.config['WTF_CSRF_ENABLED'] = csrf_flag
