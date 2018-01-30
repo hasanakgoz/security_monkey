@@ -12,6 +12,8 @@ dependencies:
   code_transformers: ">=0.2.5 <0.3.0"
   dart_to_js_script_rewriter: ">=0.0.2 <0.1.0"
   aws_policy_expander_minimizer: ">=0.0.5 <0.1.0"
+  chartjs: "^0.4.0+1"
+#  d3: "^0.2.0"
 dev_dependencies:
   unittest: '0.11.0+2'
 transformers:
@@ -19,6 +21,7 @@ transformers:
  - dart_to_js_script_rewriter
  - $dart2js:
     csp: true
+#    sourceMaps: true
     checked: false
     minify: true
     verbose: true

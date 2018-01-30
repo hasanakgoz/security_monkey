@@ -6,8 +6,13 @@ import 'dart:math';
 import 'dart:js'; // select2 is still in JavaScript
 import 'dart:html'; // select2 querySelector
 import 'dart:convert';
+import 'dart:core';
 import 'package:di/di.dart';
 import 'dart:async';
+
+// Dashboard Graphs
+import 'package:chartjs/chartjs.dart';
+//import 'package:d3/d3.dart';
 
 // NG-infinite-scroll
 import 'package:ng_infinite_scroll/ng_infinite_scroll.dart';
