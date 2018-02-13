@@ -1,36 +1,37 @@
-import 'package:hammock/hammock.dart';
-import 'package:angular/angular.dart';
-
-import 'network_whitelist_entry.dart';
-import 'Account.dart';
-import 'auditorsetting.dart';
-import 'Issue.dart';
-import 'Item.dart';
-import 'Revision.dart';
-import 'RevisionComment.dart';
-import 'ItemComment.dart';
-import 'UserSetting.dart';
-import 'ignore_entry.dart';
-import 'User.dart';
-import 'Role.dart';
-import 'account_config.dart';
-import 'AccountBulkUpdate.dart';
-import 'auditscore.dart';
-import 'techmethods.dart';
-import 'AccountPatternAuditScore.dart';
-import 'watcher_config.dart';
-
 @MirrorsUsed(
-        targets: const[
-            Account, IgnoreEntry, Issue, AuditorSetting,
-            Item, ItemComment, NetworkWhitelistEntry,
-            Revision, RevisionComment, UserSetting, User, Role,
-            AccountConfig, AccountBulkUpdate, AuditScore,
-            TechMethods, AccountPatternAuditScore, WatcherConfig],
-        override: '*')
+    targets: const[
+      Account, IgnoreEntry, Issue, AuditorSetting,
+      Item, ItemComment, NetworkWhitelistEntry,
+      Revision, RevisionComment, UserSetting, User, Role,
+      AccountConfig, AccountBulkUpdate, AuditScore,
+      TechMethods, AccountPatternAuditScore, WatcherConfig
+    ],
+    override: '*')
 import 'dart:mirrors';
 
+import 'package:angular/angular.dart';
+import 'package:hammock/hammock.dart';
 import 'package:security_monkey/util/constants.dart';
+
+import 'Account.dart';
+import 'AccountBulkUpdate.dart';
+import 'AccountPatternAuditScore.dart';
+import 'GuardDutyEvent.dart';
+import 'Issue.dart';
+import 'Item.dart';
+import 'ItemComment.dart';
+import 'Revision.dart';
+import 'RevisionComment.dart';
+import 'Role.dart';
+import 'User.dart';
+import 'UserSetting.dart';
+import 'account_config.dart';
+import 'auditorsetting.dart';
+import 'auditscore.dart';
+import 'ignore_entry.dart';
+import 'network_whitelist_entry.dart';
+import 'techmethods.dart';
+import 'watcher_config.dart';
 
 Resource serializeAccount(Account account) => resource("accounts", account.id, account.toJson());
 Resource serializeAccountBulkUpdate(AccountBulkUpdate bulk_update) => resource("accounts_bulk", "batch", bulk_update.toJson());
@@ -48,6 +49,22 @@ final serializeAuditorSettingEntry = serializer("auditorsettings", ["account", "
 final serializeAuditScore = serializer("auditscores", ["id", "method", "score", "technology", "disabled"]);
 final serializeAccountPatternAuditScore = serializer("accountpatternauditscores", ["id", "account_type", "account_field", "account_pattern", "score", "itemauditscores_id"]);
 final serializeWatcherConfig = serializer("watcher_config", ["index", "interval", "active", "remove_items"]);
+final serializeWorldMapGuardDutyData = serializer("worldmapguarddutydata", [
+  "lat",
+  "lon",
+  "count",
+  "cityName",
+  "countryName",
+  "localPort",
+  "localPortName",
+  "remoteIpV4",
+  "remoteOrg",
+  "remoteOrgASN",
+  "remoteOrgASNOrg",
+  "remoteOrgISP"
+]);
+final serializeTop10CountriesGaurdDutyData = serializer(
+    "top10countryguarddutydata", ["count", "countryName"]);
 
 createHammockConfig(Injector inj) {
     return new HammockConfig(inj)
@@ -172,7 +189,21 @@ createHammockConfig(Injector inj) {
                     "deserializer": {
                         "query": deserializeWatcherConfig
                     }
+                },
+              "worldmapguarddutydata": {
+                "type": WorldMapGuardDutyData,
+                "serializer": serializeWorldMapGuardDutyData,
+                "deserializer": {
+                  "query": deserializeWorldMapGuardDutyData
                 }
+              },
+              "top10countryguarddutydata": {
+                "type": Top10CountriesGaurdDutyData,
+                "serializer": serializeTop10CountriesGaurdDutyData,
+                "deserializer": {
+                  "query": deserializeTop10CountriesGaurdDutyData
+                }
+              }
             })
             ..urlRewriter.baseUrl = '$API_HOST'
             ..requestDefaults.withCredentials = true
@@ -212,6 +243,12 @@ deserializeUser(r) => new User.fromMap(r.content);
 deserializeRole(r) => new Role.fromMap(r.content);
 deserializeAccountPatternAuditScore(r) => new AccountPatternAuditScore.fromMap(r.content);
 deserializeWatcherConfig(r) => new WatcherConfig.fromMap(r.content);
+
+deserializeWorldMapGuardDutyData(r) =>
+    new WorldMapGuardDutyData.fromMap(r.content);
+
+deserializeTop10CountriesGaurdDutyData(r) =>
+    new Top10CountriesGaurdDutyData.fromMap(r.content);
 
 class JsonApiOrgFormat extends JsonDocumentFormat {
     resourceToJson(Resource res) {

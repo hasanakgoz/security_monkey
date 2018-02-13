@@ -20,34 +20,28 @@
 .. moduleauthor:: Patrick Kelley <pkelley@netflix.com> @monkeysecurity
 
 """
-from flask_security.core import UserMixin, RoleMixin
-from flask_security.signals import user_registered
-from sqlalchemy import BigInteger
-
-from auth.models import RBACUserMixin
-
-from security_monkey import db, app
-
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Unicode, Text
-from sqlalchemy.dialects.postgresql import CIDR
-from sqlalchemy.schema import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, backref, column_property
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import select, func
-
-from sqlalchemy.orm import deferred
-
+import datetime
+import hashlib
+import json
+import traceback
 from copy import deepcopy
+
 import dpath.util
 from dpath.exceptions import PathNotFound
+from flask_security.core import UserMixin, RoleMixin
+from sqlalchemy import BigInteger
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Unicode, Text
+from sqlalchemy import select, func
+from sqlalchemy.dialects.postgresql import CIDR
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import deferred
+from sqlalchemy.orm import relationship, column_property
+from sqlalchemy.schema import ForeignKey, UniqueConstraint
+
+from auth.models import RBACUserMixin
+from security_monkey import db, app
 from security_monkey.common.utils import sub_dict
-
-import datetime
-import json
-import hashlib
-import traceback
-
 
 association_table = db.Table(
     'association',
@@ -487,6 +481,17 @@ class WatcherConfig(db.Model):
     index = Column(db.String(80), unique=True)
     interval = Column(Integer, nullable=False)
     active = Column(Boolean(), nullable=False)
+
+
+class GuardDutyEvent(db.Model):
+    """
+    Meant to model a specific GuardDuty Event, like a network probe.
+    """
+    __tablename__ = "guarddutyevent"
+    id = Column(Integer, primary_key=True)
+    config = deferred(Column(JSON))
+    date_created = db.Column(db.DateTime(),nullable=False)
+    item_id = Column(Integer, nullable=False)
 
 
 class Datastore(object):

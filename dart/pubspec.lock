@@ -71,12 +71,6 @@ packages:
     description: csslib
     source: hosted
     version: "0.11.0+4"
-  d3:
-    description:
-      name: d3
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   dart_to_js_script_rewriter:
     description: dart_to_js_script_rewriter
     source: hosted

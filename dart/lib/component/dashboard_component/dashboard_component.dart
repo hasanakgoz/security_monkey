@@ -27,8 +27,7 @@ class DashboardComponent implements ShadowRootAware {
 
   // Vulnerability Severity Chart Variables
   bool vulnSevScoresLoaded = false;
-  List<int> vulnSevScores = [0,0,0];
-
+  List<int> vulnSevScores = [0, 0, 0];
 
   Map<String, String> accountFilterParams = {
     'page': '1',
@@ -80,6 +79,7 @@ class DashboardComponent implements ShadowRootAware {
     'count': '1000000000' // This should retrieve all
   };
 
+  Map<String, String> guardDutyEventFilterParams = {};
   DashboardComponent(this.routeProvider, this.router, this.store) {
     store.list(Account, params: accountFilterParams).then((accountItems) {
       this.accounts = new List();
@@ -266,14 +266,34 @@ class DashboardComponent implements ShadowRootAware {
   }
 
   void onShadowRoot(ShadowRoot shadowRoot) {
+    loadSeverityBarChartData();
+    loadTechnologyPieChartData();
+    loadWorldMap();
+    loadTop10CountryBarChart();
+
+//    loadSeverityBarChartData();
+//    loadTechnologyPieChartData();
+//    loadTop10CountryBarChart();
+  }
+
+  Future loadTechnologyPieChartData() async {
+    store.list(Item, params: itemFilterParams).then((items) {
+      List<Item> allItems = [items].expand((x) => x).toList();
+      loadTechnologyPieChart(allItems);
+    });
+  }
+
+  Future loadSeverityBarChartData() async {
     store.list(Issue, params: severityChartFilterParams).then((issues) {
-      int _low =0, _medium=0,_high=0;
+      int _low = 0,
+          _medium = 0,
+          _high = 0;
       for (Issue issue in issues) {
-        if(issue.score < 5){
+        if (issue.score < 5) {
           _low++;
-        } else if ( issue.score >=5 && issue.score <=10) {
+        } else if (issue.score >= 5 && issue.score <= 10) {
           _medium++;
-        } else if (issue.score > 10){
+        } else if (issue.score > 10) {
           _high++;
         }
       }
@@ -281,26 +301,24 @@ class DashboardComponent implements ShadowRootAware {
       this.vulnSevScores[SEVERITY_MEDIUM] = _medium;
       this.vulnSevScores[SEVERITY_HIGH] = _high;
 
-      loadSeverityBarChart(shadowRoot);
-    });
-
-    store.list(Item, params: itemFilterParams).then((items) {
-      List<Item> allItems = [items].expand((x) => x).toList();
-      loadTechnologyPieChart(shadowRoot, allItems);
+      loadSeverityBarChart();
     });
   }
 
-  void loadSeverityBarChart(ShadowRoot shadowRoot) {
-    List<String> severityLabels = <String>['High - ' + this.vulnSevScores[SEVERITY_HIGH].toString(),
-                                        'Medium - ' + this.vulnSevScores[SEVERITY_MEDIUM].toString(),
-                                        'Low - ' + this.vulnSevScores[SEVERITY_LOW].toString()];
+  Future loadSeverityBarChart() async {
+    List<String> severityLabels = <String>[
+      'High - ' + this.vulnSevScores[SEVERITY_HIGH].toString(),
+      'Medium - ' + this.vulnSevScores[SEVERITY_MEDIUM].toString(),
+      'Low - ' + this.vulnSevScores[SEVERITY_LOW].toString()
+    ];
     ChartDataSets chartDataSet = new ChartDataSets(
         label: 'Vulnerabilities by Severity',
         backgroundColor: [
-      'rgba(214,145,73,1)',
-      'rgba(237,194,79,1)',
-      'rgba(116,172,87,1)'
-    ], data: this.vulnSevScores);
+          'rgba(214,145,73,1)',
+          'rgba(237,194,79,1)',
+          'rgba(116,172,87,1)'
+        ],
+        data: this.vulnSevScores);
 
     LinearChartData chartJsdata = new LinearChartData(
         labels: severityLabels, datasets: <ChartDataSets>[chartDataSet]);
@@ -308,15 +326,13 @@ class DashboardComponent implements ShadowRootAware {
     LinearTickOptions yTickOptions = new LinearTickOptions(beginAtZero: true);
     ChartYAxe yAxisOptions = new ChartYAxe(ticks: yTickOptions);
     ChartScales chartScale = new ChartScales(yAxes: [yAxisOptions]);
-    ChartOptions chartOptions = new ChartOptions(
-        responsive: true,
-        scales: chartScale);
+    ChartOptions chartOptions =
+    new ChartOptions(responsive: false, scales: chartScale);
     ChartLegendOptions chartLegendOptions =
         new ChartLegendOptions(display: false, position: 'top');
     ChartLegendLabelOptions chartLegendLabelOptions =
         new ChartLegendLabelOptions(
-            fontSize: 18,
-            fontColor: 'rgb(168, 168, 168)');
+            fontSize: 18, fontColor: 'rgb(168, 168, 168)');
     chartLegendOptions.labels = chartLegendLabelOptions;
     chartOptions.responsive = true;
     chartOptions.scales = chartScale;
@@ -325,13 +341,13 @@ class DashboardComponent implements ShadowRootAware {
     ChartConfiguration config = new ChartConfiguration(
         type: 'bar', data: chartJsdata, options: chartOptions);
 
-    CanvasElement _canvas = document.querySelector('#severitycanvas') as CanvasElement;
+    CanvasElement _canvas =
+    document.querySelector('#severitycanvas') as CanvasElement;
 
     new Chart(_canvas, config);
   }
 
-  void loadTechnologyPieChart(ShadowRoot shadowRoot, List<Item> allItems) {
-
+  Future loadTechnologyPieChart(List<Item> allItems) async {
     List<String> pieLabels = new List<String>();
     List<String> pieColors = new List<String>();
     List<int> pieData = new List<int>();
@@ -348,27 +364,40 @@ class DashboardComponent implements ShadowRootAware {
     }
     // build arrays for ChartJS
     techCountMap.forEach((k, v) {
-      double percent = (v*100/totalItems);
+      double percent = (v * 100 / totalItems);
       pieData.add(percent.round());
-      pieLabels.add('${k[0].toUpperCase()}${k.substring(1)} ' + v.toString() +  ' - ' + percent.round().toString() + '%');
+      pieLabels.add('${k[0].toUpperCase()}${k.substring(1)} ' +
+          v.toString() +
+          ' - ' +
+          percent.round().toString() +
+          '%');
       String color = dynamicColors();
       pieColors.add(color);
     });
 
     ChartDataSets chartDataSet = new ChartDataSets(
-        label: 'Vulnerabilities by Technology', data: pieData, backgroundColor: pieColors);
+        label: 'Vulnerabilities by Technology',
+        data: pieData,
+        backgroundColor: pieColors);
 
     LinearChartData chartJsdata = new LinearChartData(
         labels: pieLabels, datasets: <ChartDataSets>[chartDataSet]);
 
+    ChartTitleOptions chartTitleOptions = new ChartTitleOptions();
     ChartOptions chartOptions = new ChartOptions();
 
-    ChartLegendOptions chartLegendOptions = new ChartLegendOptions(display: true, position: 'right');
-    ChartLegendLabelOptions chartLegendLabelOptions = new ChartLegendLabelOptions(fontColor: 'rgb(168, 168, 168)');
+    ChartLegendOptions chartLegendOptions =
+    new ChartLegendOptions(display: false, position: 'right');
+    ChartLegendLabelOptions chartLegendLabelOptions =
+    new ChartLegendLabelOptions(fontColor: 'rgb(168, 168, 168)');
     chartLegendOptions.labels = chartLegendLabelOptions;
-    chartOptions.responsive = true;
-//    chartOptions.maintainAspectRatio = false;
+    chartTitleOptions.text = "Vulnerabilities by Technology";
+
+    chartOptions.responsive = false;
     chartOptions.legend = chartLegendOptions;
+    chartOptions.maintainAspectRatio = false;
+//    chartOptions.title = chartTitleOptions;
+
 
     ChartConfiguration config = new ChartConfiguration(
         type: 'pie', data: chartJsdata, options: chartOptions);
@@ -379,13 +408,85 @@ class DashboardComponent implements ShadowRootAware {
     new Chart(_canvas, config);
   }
 
-  String dynamicColors(){
+  Future loadWorldMap() async {
+    Map countryDataMap = new Map();
+    int mapDataCtr = 0;
+    store.list(WorldMapGuardDutyData, params: guardDutyEventFilterParams).then((
+        items) {
+      HTMLElement mapElement = document.querySelector('#worldmap');
+      for (WorldMapGuardDutyData item in items) {
+        Element circleMarker = new Element.tag("leaflet-circle");
+        circleMarker.setAttribute("latitude", item.lat.toString());
+        circleMarker.setAttribute("longitude", item.lon.toString());
+        circleMarker.setAttribute("radius", (item.count * 500).toString());
+        circleMarker.setAttribute("color", "crimson");
+        circleMarker.setAttribute("fillColor", "crimson");
+        circleMarker.setAttribute("fillOpacity", "0.5");
+        circleMarker.setAttribute("fill", "true");
+        mapElement.children.add(circleMarker);
+      }
+    });
+  }
+
+  Future loadTop10CountryBarChart() async {
+    List<String> barLabels = new List<String>();
+    List<int> barValues = new List<int>();
+    List<String> barColors = new List<String>();
+
+
+    store.list(Top10CountriesGaurdDutyData, params: guardDutyEventFilterParams)
+        .then((items) {
+      for (Top10CountriesGaurdDutyData item in items) {
+        barLabels.add(item.countryName);
+        barValues.add(item.probeCount);
+        barColors.add(dynamicColors());
+      }
+      ChartDataSets chartDataSet = new ChartDataSets(
+          label: 'Top Countries',
+          backgroundColor: barColors,
+          data: barValues);
+
+      LinearChartData chartJsdata = new LinearChartData(
+          labels: barLabels, datasets: <ChartDataSets>[chartDataSet]);
+
+      LinearTickOptions yTickOptions = new LinearTickOptions(beginAtZero: true);
+      ChartYAxe yAxisOptions = new ChartYAxe(ticks: yTickOptions);
+      ChartScales chartScale = new ChartScales(yAxes: [yAxisOptions]);
+      ChartOptions chartOptions =
+      new ChartOptions(responsive: true, scales: chartScale);
+      ChartLegendOptions chartLegendOptions =
+      new ChartLegendOptions(display: false, position: 'top');
+      ChartLegendLabelOptions chartLegendLabelOptions =
+      new ChartLegendLabelOptions(
+          fontSize: 18, fontColor: 'rgb(168, 168, 168)');
+      chartLegendOptions.labels = chartLegendLabelOptions;
+      chartOptions.responsive = true;
+      chartOptions.scales = chartScale;
+      chartOptions.legend = chartLegendOptions;
+
+      ChartConfiguration config = new ChartConfiguration(
+          type: 'bar', data: chartJsdata, options: chartOptions);
+
+      CanvasElement _canvas =
+      document.querySelector('#countrycanvas') as CanvasElement;
+
+      new Chart(_canvas, config);
+    });
+  }
+
+
+  String dynamicColors() {
     Random random = new Random();
     int r = random.nextInt(255);
     int g = random.nextInt(255);
     int b = random.nextInt(255);
-    return "rgb(" + r.toString() + "," + g.toString() + "," + b.toString() + ")";
+    return "rgb(" +
+        r.toString() +
+        "," +
+        g.toString() +
+        "," +
+        b.toString() +
+        ")";
   }
-
 
 }

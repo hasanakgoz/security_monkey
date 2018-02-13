@@ -19,7 +19,6 @@
 .. moduleauthor:: Patrick Kelley <patrick@netflix.com>
 
 """
-import os
 import stat
 
 ### VERSION ###
@@ -28,9 +27,7 @@ __version__ = '0.9.3'
 ### FLASK ###
 from flask import Flask
 from flask import render_template
-from flask.helpers import make_response
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 import os
 
 app = Flask(__name__, static_url_path='/static')
@@ -231,6 +228,14 @@ from security_monkey.views.watcher_config import WatcherConfigGetList
 from security_monkey.views.watcher_config import WatcherConfigPut
 api.add_resource(WatcherConfigGetList, '/api/1/watcher_config')
 api.add_resource(WatcherConfigPut, '/api/1/watcher_config/<int:id>')
+
+# GuardDutyEvent Data -> WorldMap Data API
+from security_monkey.views.guard_duty_event import GuardDutyEventMapPointsList
+api.add_resource(GuardDutyEventMapPointsList, '/api/1/worldmapguarddutydata')
+# GuardDutyEvent Data -> Top 10 Countries List
+from security_monkey.views.guard_duty_event import GuardDutyEventTop10Countries
+api.add_resource(GuardDutyEventTop10Countries, '/api/1/top10countryguarddutydata')
+
 
 ## Jira Sync
 from security_monkey.jirasync import JiraSync
