@@ -485,15 +485,15 @@ class WatcherConfig(db.Model):
 
 class GuardDutyEvent(db.Model):
     """
-    Meant to model a specific GuardDuty Event, like a network probe.
+    Data model to store GuardDuty events
     """
     __tablename__ = "guarddutyevent"
     id = Column(Integer, primary_key=True)
     config = deferred(Column(JSON))
-    date_created = db.Column(db.DateTime(),nullable=False)
-    item_id = Column(Integer, nullable=False)
+    date_created = Column(DateTime(), default=datetime.datetime.utcnow, nullable=False, index=True)
+    item_id = Column(Integer, ForeignKey("item.id"), nullable=False, index=True)
 
-
+    
 class Datastore(object):
     def __init__(self, debug=False):
         pass

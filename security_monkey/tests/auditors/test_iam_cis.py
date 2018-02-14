@@ -16,24 +16,26 @@ class MockIAMObj:
 class CISIAMTestCase(SecurityMonkeyTestCase):
 
     def test_1_1_root_user(self):
-        from security_monkey.auditors.custom.cis.iam_user import CISIAMUserAuditor
-        auditor = CISIAMUserAuditor(accounts=['TEST_ACCOUNT'])
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
+        auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
         auditor.prep_for_audit()
 
         now = datetime.now()
         now = now.replace(tzinfo=tz.gettz('UTC'))
 
         one_hour_ago = now - timedelta(hours=1)
-        one_hour_ago = one_hour_ago.strftime('%Y-%m-%d %H:%M:%S+00:00')
+        one_hour_ago = one_hour_ago.strftime(
+            IAMUserCredsAuditor.DATE_FORMAT
+        )
 
         # test that root user that has accessed account through pw in past 24
         # hours will alert
         iamobj = MockIAMObj()
         iamobj.config = {
-            "CreateDate": one_hour_ago,
-            "PasswordLastUsed": one_hour_ago,
-            "UserId": "AIDAJL6UJJSHWR74QASKA",
-            "Arn": "arn:aws:iam::726064622671:root",
+            "password_last_used": one_hour_ago,
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_last_used_date": "N/A",
+            "access_key_2_last_used_date": "N/A",
         }
         auditor.check_1_1_root_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 1)
@@ -46,14 +48,16 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         # test that root user that has NOT accessed account within 24 hours
         # does not alert
         over_24_hours_ago = now - timedelta(hours=25)
-        over_24_hours_ago = over_24_hours_ago.strftime('%Y-%m-%d %H:%M:%S+00:00')
+        over_24_hours_ago = over_24_hours_ago.strftime(
+            IAMUserCredsAuditor.DATE_FORMAT
+        )
 
         iamobj = MockIAMObj()
         iamobj.config = {
-            "CreateDate": over_24_hours_ago,
-            "PasswordLastUsed": over_24_hours_ago,
-            "UserId": "AIDAJL6UJJSHWR74QASKA",
-            "Arn": "arn:aws:iam::726064622671:root",
+            "password_last_used": over_24_hours_ago,
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_last_used_date": "N/A",
+            "access_key_2_last_used_date": "N/A",
         }
         auditor.check_1_1_root_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
@@ -61,51 +65,34 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         # test that non root user doesnt alert
         iamobj = MockIAMObj()
         iamobj.config = {
-            "CreateDate": one_hour_ago,
-            "PasswordLastUsed": one_hour_ago,
-            "UserId": "AIDAJL6UJJSHWR74QASKA",
-            "Arn": "arn:aws:iam::726064622671:user/rootman",
+            "password_last_used": one_hour_ago,
+            "arn": "arn:aws:iam::726064622671:user/rootman",
+            "access_key_1_last_used_date": "N/A",
+            "access_key_2_last_used_date": "N/A",
         }
         auditor.check_1_1_root_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
 
-        # test that root user didnt use passwod within 24 hours, but created
-        # access key
+        # test that root user didnt use passwod within 24 hours, but used
+        # access key 1
         iamobj = MockIAMObj()
         iamobj.config = {
-            "CreateDate": over_24_hours_ago,
-            "PasswordLastUsed": over_24_hours_ago,
-            "UserId": "AIDAJL6UJJSHWR74QASKA",
-            "Arn": "arn:aws:iam::726064622671:root",
-            "AccessKeys": [
-                {
-                    "UserName": "ServiceCatalogAdmin",
-                    "Status": "Active",
-                    "CreateDate": one_hour_ago,
-                    "AccessKeyId": "AKIAJN5B4PH4WMS5JRDQ",
-                }
-            ],
+            "password_last_used": over_24_hours_ago,
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_last_used_date": one_hour_ago,
+            "access_key_2_last_used_date": "N/A",
         }
         auditor.check_1_1_root_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 1)
 
-        # test that root user didnt use passwod within 24 hours, and created
-        # access key over 24 hours ago, but used it within 24 hours
+        # test that root user didnt use passwod within 24 hours, but used
+        # access key 2
         iamobj = MockIAMObj()
         iamobj.config = {
-            "CreateDate": over_24_hours_ago,
-            "PasswordLastUsed": over_24_hours_ago,
-            "UserId": "AIDAJL6UJJSHWR74QASKA",
-            "Arn": "arn:aws:iam::726064622671:root",
-            "AccessKeys": [
-                {
-                    "UserName": "ServiceCatalogAdmin",
-                    "Status": "Active",
-                    "CreateDate": over_24_hours_ago,
-                    "LastUsedDate": one_hour_ago,
-                    "AccessKeyId": "AKIAJN5B4PH4WMS5JRDQ",
-                }
-            ],
+            "password_last_used": over_24_hours_ago,
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_last_used_date": "N/A",
+            "access_key_2_last_used_date": one_hour_ago,
         }
         auditor.check_1_1_root_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 1)
@@ -178,4 +165,67 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         }
 
         auditor.check_1_3_unused_credentials(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_12_root_key_exists(self):
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
+        auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_active": "true",
+            "access_key_2_active": "false",
+        }
+        auditor.check_1_12_root_key_exists(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.12 - Root account has active access keys.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_active": "false",
+            "access_key_2_active": "true",
+        }
+        auditor.check_1_12_root_key_exists(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:root",
+            "access_key_1_active": "false",
+            "access_key_2_active": "false",
+        }
+        auditor.check_1_12_root_key_exists(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_13_mfa_root_account(self):
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
+        auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:root",
+            "mfa_active": "false",
+        }
+        auditor.check_1_13_mfa_root_account(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.13 - Root account does not have MFA enabled.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:user/notroot",
+            "mfa_active": "false",
+        }
+        auditor.check_1_13_mfa_root_account(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)

@@ -134,7 +134,7 @@ sentry = None
 
 ### FLASK API ###
 from flask_restful import Api
-api = Api(app)
+api = Api(app, decorators=[csrf.exempt])
 
 from security_monkey.views.account import AccountGetPutDelete
 from security_monkey.views.account import AccountPostList
@@ -229,13 +229,19 @@ from security_monkey.views.watcher_config import WatcherConfigPut
 api.add_resource(WatcherConfigGetList, '/api/1/watcher_config')
 api.add_resource(WatcherConfigPut, '/api/1/watcher_config/<int:id>')
 
+# Start: Inherit from webui-threatalert-branding by Pritam
 # GuardDutyEvent Data -> WorldMap Data API
 from security_monkey.views.guard_duty_event import GuardDutyEventMapPointsList
 api.add_resource(GuardDutyEventMapPointsList, '/api/1/worldmapguarddutydata')
 # GuardDutyEvent Data -> Top 10 Countries List
 from security_monkey.views.guard_duty_event import GuardDutyEventTop10Countries
 api.add_resource(GuardDutyEventTop10Countries, '/api/1/top10countryguarddutydata')
+# End: Inherit from webui-threatalert-branding by Pritam
 
+# Start: Inherit from Develop Branch
+from security_monkey.views.guard_duty_event import GuardDutyEventService
+api.add_resource(GuardDutyEventService, '/api/1/gde')
+# End: Inherit from Develop Branch
 
 ## Jira Sync
 from security_monkey.jirasync import JiraSync
