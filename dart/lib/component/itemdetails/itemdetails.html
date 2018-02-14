@@ -12,7 +12,7 @@
   </div>
   <div class="panel panel-info">
       <div class="panel-heading">Discovery Timeline<span class="pull-right badge">{{item.revisions.length}}</span></div>
-      <div class="panel-body"><small>Jumplist of revisions Security Monkey has discovered.</small></div>
+      <div class="panel-body"><small>Jumplist of revisions ThreatAlert has discovered.</small></div>
       <div class="list-group">
           <a ng-repeat="rev in item.revisions" class="list-group-item" ng-click="scrollTo(rev.id)">
             {{rev.date_created | date:'medium'}}

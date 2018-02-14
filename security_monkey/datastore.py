@@ -20,34 +20,28 @@
 .. moduleauthor:: Patrick Kelley <pkelley@netflix.com> @monkeysecurity
 
 """
-from flask_security.core import UserMixin, RoleMixin
-from flask_security.signals import user_registered
-from sqlalchemy import BigInteger
-
-from auth.models import RBACUserMixin
-
-from security_monkey import db, app
-
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Unicode, Text
-from sqlalchemy.dialects.postgresql import CIDR
-from sqlalchemy.schema import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, backref, column_property
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import select, func
-
-from sqlalchemy.orm import deferred
-
+import datetime
+import hashlib
+import json
+import traceback
 from copy import deepcopy
+
 import dpath.util
 from dpath.exceptions import PathNotFound
+from flask_security.core import UserMixin, RoleMixin
+from sqlalchemy import BigInteger
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Unicode, Text
+from sqlalchemy import select, func
+from sqlalchemy.dialects.postgresql import CIDR
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import deferred
+from sqlalchemy.orm import relationship, column_property
+from sqlalchemy.schema import ForeignKey, UniqueConstraint
+
+from auth.models import RBACUserMixin
+from security_monkey import db, app
 from security_monkey.common.utils import sub_dict
-
-import datetime
-import json
-import hashlib
-import traceback
-
 
 association_table = db.Table(
     'association',
@@ -499,7 +493,7 @@ class GuardDutyEvent(db.Model):
     date_created = Column(DateTime(), default=datetime.datetime.utcnow, nullable=False, index=True)
     item_id = Column(Integer, ForeignKey("item.id"), nullable=False, index=True)
 
-
+    
 class Datastore(object):
     def __init__(self, debug=False):
         pass

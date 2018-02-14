@@ -1,0 +1,74 @@
+.navbar,
+.btn,
+.btn-default,
+.btn-primary,
+.navbar-inverse,
+.navbar .navbar-nav .dropdown-menu,
+.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{
+    background-color: #11203A;
+    color: white;
+}
+
+.navbar .navbar-nav .dropdown-menu,
+.navbar .navbar-toggle {
+    border-color: #1d4f8e;
+}
+.navbar .navbar-nav .dropdown-menu .dropdown-divider {
+    border-top-color: #1d4f8e;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary,
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default,
+.navbar-inverse .dropdown-menu > li > a:hover, .navbar-inverse .dropdown-menu > .active > a, .navbar-inverse .dropdown-menu > .active > a:hover,
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus,
+.navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus,
+.navbar-expand .navbar-nav .show .dropdown-menu .dropdown-item.active,
+.navbar .navbar-nav .dropdown-menu .dropdown-item.active,
+.navbar .navbar-nav .nav-item.active .nav-link,
+.navbar .navbar-nav .nav-item.active .nav-link:hover,
+.navbar .navbar-nav .nav-item.active .nav-link:focus,
+.navbar .navbar-nav .nav-item.show .nav-link,
+.navbar .navbar-nav .nav-item.show .nav-link:hover,
+.navbar .navbar-nav .nav-item.show .nav-link:focus,
+.navbar .navbar-toggle:hover,
+.navbar .navbar-toggle:focus {
+    color: white;
+    background-color: #1d4f8e;
+}
+
+.dropdown-menu .divider {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.panel-info{
+    border-color: #21518c;
+}
+.panel-info > .panel-heading {
+    color: #ffffff;
+    background-color: #21518c;
+    border-color: #21518c;
+}
+
+
+@media (max-width: 575px) {
+    .navbar-expand-sm .navbar-nav .show .dropdown-menu .dropdown-item.active {
+        background-color: #1d4f8e;
+    }
+}
+
+@media (max-width: 767px) {
+    .navbar-expand-md .navbar-nav .show .dropdown-menu .dropdown-item.active {
+        background-color: #1d4f8e;
+    }
+}
+
+@media (max-width: 991px) {
+    .navbar-expand-lg .navbar-nav .show .dropdown-menu .dropdown-item.active {
+        background-color: #1d4f8e;
+    }
+}
+
+@media (max-width: 1199px) {
+    .navbar-expand-xl .navbar-nav .show .dropdown-menu .dropdown-item.active {
+        background-color: #1d4f8e;
+    }
+}

@@ -45,6 +45,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  chartjs:
+    description:
+      name: chartjs
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0+1"
   cli_util:
     description: cli_util
     source: hosted
@@ -75,6 +81,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.3.5+1"
+  func:
+    description:
+      name: func
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   glob:
     description:
       name: glob
@@ -109,6 +121,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.8.10+4"
+  js:
+    description:
+      name: js
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.1"
   logging:
     description: logging
     source: hosted
@@ -221,3 +239,5 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.9"
+sdks:
+  dart: ">=1.19.0-dev.0.0 <2.0.0"
