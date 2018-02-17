@@ -279,11 +279,12 @@ class GuardDutyEventService(AuthenticatedService):
             db.session.commit()
             db.session.refresh(gd_tech)
 
-        account = Account.query.filter(Account.identifier == config['account']).first()
+        identifier = config['detail']['accountId']
+        account = Account.query.filter(Account.identifier == identifier).first()
 
         if not account:
             raise Exception(
-                "Account with identifier [{}] not found.".format(config['account'])
+                "Account with identifier [{}] not found.".format(identifier)
             )
 
         item = datastore.store(
