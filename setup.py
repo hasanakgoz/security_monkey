@@ -68,6 +68,7 @@ setup(
         'pyjwt>=1.01',
         'netaddr',
         'swag-client>=0.3.1',
+        'pandas==0.22.0',
         'idna==2.5'  # Pinning to idna to avoid a dependency problem with requests.
         # First identified as a problem by Qmando - https://github.com/requests/requests/pull/4223
     ],
