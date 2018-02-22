@@ -229,3 +229,41 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         }
         auditor.check_1_13_mfa_root_account(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_14_hardware_mfa_root_account(self):
+        from security_monkey.auditors.custom.cis.iam_user import CISIAMUserAuditor
+        auditor = CISIAMUserAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "MfaDevices": {
+                "arn:aws:iam::726064622671:mfa/root-account-mfa-device": {
+                    "UserName": "<root>",
+                    "SerialNumber": "arn:aws:iam::726064622671:mfa/root-account-mfa-device",
+                    "EnableDate": "2017-01-23 14:39:41+00:00"
+                }
+            },
+            "Arn": "arn:aws:iam::726064622671:root",
+        }
+        auditor.check_1_14_root_hardware_mfa_enabled(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.14 - Root account not using hardware MFA.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "MfaDevices": {
+                "arn:aws:iam::726064622671:mfa/root-account-mfa-device": {
+                    "UserName": "<root>",
+                    "SerialNumber": "arn:aws:iam::726064622671:mfa/something-else",
+                    "EnableDate": "2017-01-23 14:39:41+00:00"
+                }
+            },
+            "Arn": "arn:aws:iam::726064622671:root",
+        }
+        auditor.check_1_14_root_hardware_mfa_enabled(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)

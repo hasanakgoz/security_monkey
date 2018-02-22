@@ -61,6 +61,27 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
                     self.add_issue(10, issue, item, notes=notes)
                     return
 
+    def check_1_14_root_hardware_mfa_enabled(self, item):
+        """
+        CIS Rule 1.14 - Ensure hardware MFA is enabled on the root account [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.14 - ',
+            specific='Root account not using hardware MFA.'
+        )
+
+        report = item.config
+
+        if item.config.get('Arn', '').split(':')[-1] == 'root':
+            user_mfas = item.config.get('MfaDevices', {})
+
+            for key, value in user_mfas.iteritems():
+                serial = value.get('SerialNumber', '')
+                if "mfa/root-account-mfa-device" in serial:
+                    self.add_issue(10, issue, item, notes=notes)
+                    return
+
 
 class IAMUserCredsAuditor(Auditor):
     index = CredentialReportWatcher.index
@@ -200,3 +221,4 @@ class IAMUserCredsAuditor(Auditor):
                     item,
                     notes=notes
                 )
+
