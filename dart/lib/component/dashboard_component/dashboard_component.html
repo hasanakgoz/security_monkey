@@ -1,3 +1,22 @@
+<div style="display:flow-root;">
+    <div>
+
+    </div>
+    <!-- Accounts Filter Dropdown -->
+    <div class="pull-right" ng-switch="isAccountSelectDisabled()">
+        Accounts:
+        <div ng-switch-when="true" style="display: inline">
+        <i  class="fa fa-spinner fa-spin" style="color:darkblue"></i>
+            Loading...
+        </div>
+        <select ng-switch-when="false"
+                ng-disabled="isAccountSelectDisabled()" id="AccountChooser" ng-model="selectedAccount"
+                ng-change="newAccountSelected()">
+            <option value="__all_accounts__">All Accounts</option>
+            <option ng-repeat="account in accounts" value="{{ account.name }}">{{ account.name }}</option>
+        </select>
+    </div>
+</div>
 <!-- Charts Component -->
 <div>
     <style type="text/css">
@@ -39,13 +58,65 @@
             width: 100%;
         }
 
+        .spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height: 60px;
+            width: 60px;
+            margin: 0px auto;
+            -webkit-animation: rotation .6s infinite linear;
+            -moz-animation: rotation .6s infinite linear;
+            -o-animation: rotation .6s infinite linear;
+            animation: rotation .6s infinite linear;
+            border-left: 6px solid rgba(0, 174, 239, .15);
+            border-right: 6px solid rgba(0, 174, 239, .15);
+            border-bottom: 6px solid rgba(0, 174, 239, .15);
+            border-top: 6px solid rgba(0, 174, 239, .8);
+            border-radius: 100%;
+        }
+
+        @-webkit-keyframes rotation {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(359deg);
+            }
+        }
+
+        @-moz-keyframes rotation {
+            from {
+                -moz-transform: rotate(0deg);
+            }
+            to {
+                -moz-transform: rotate(359deg);
+            }
+        }
+
+        @-o-keyframes rotation {
+            from {
+                -o-transform: rotate(0deg);
+            }
+            to {
+                -o-transform: rotate(359deg);
+            }
+        }
+
+        @keyframes rotation {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(359deg);
+            }
+        }
 
     </style>
     <div class="col-lg-6">
         <div class="wrapper">
             <div><h3 class="charthead">Vulnerabilities by Severity</h3></div>
             <div class="chart-container">
-
                 <canvas id="severitycanvas"></canvas>
             </div>
         </div>
@@ -54,12 +125,12 @@
         <div class="wrapper">
             <div><h3 class="charthead">Vulnerabilities by Technology</h3></div>
             <div class="chart-container">
-                <canvas id="categorycanvas" height="400"></canvas>
+                <canvas id="categorycanvas"></canvas>
             </div>
         </div>
     </div>
 </div>
-<hr/>
+
 <div>
     <div class="col-lg-6">
         <div class="wrapper">
@@ -80,8 +151,6 @@
 
 
 <div>
-
-
     <!-- Accounts Summary Component -->
     <div class="col-lg-3">
         <div class="panel panel-info">
