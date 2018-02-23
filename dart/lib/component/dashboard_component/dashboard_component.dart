@@ -277,11 +277,10 @@ class DashboardComponent implements ShadowRootAware {
   }
 
   void loadDashboardCharts() {
-    //    Display Loading Message on the Chart Controls
-    String loadingMessage = "Loading...";
-    showChartSpinner("countrycanvas", loadingMessage);
-    showChartSpinner("severitycanvas", loadingMessage);
-    showChartSpinner("categorycanvas", loadingMessage);
+    //    Display Loading Spinner on the Chart Controls
+    showChartSpinner("countrycanvas");
+    showChartSpinner("severitycanvas");
+    showChartSpinner("categorycanvas");
 
     loadSeverityBarChartData();
     loadTechnologyPieChartData();
@@ -364,7 +363,12 @@ class DashboardComponent implements ShadowRootAware {
 
     CanvasElement _canvas =
         document.querySelector('#severitycanvas') as CanvasElement;
-    _canvas.parent.classes.remove('spinner');
+    DIVElement spinnerDiv =
+        _canvas.parent.querySelector('.spinner') as DivElement;
+    spinnerDiv.remove();
+    if (this.vulnSevScores.length == 0) {
+      showNoDataMessage("#severitycanvas");
+    }
 
     this.vulnSevChart = new Chart(_canvas, config);
     this.vulnSevChartLoading = false;
@@ -425,8 +429,14 @@ class DashboardComponent implements ShadowRootAware {
 
     CanvasElement _canvas =
         document.querySelector('#categorycanvas') as CanvasElement;
+    DIVElement spinnerDiv =
+        _canvas.parent.querySelector('.spinner') as DivElement;
+    spinnerDiv.remove();
 
-    _canvas.parent.classes.remove('spinner');
+    if (pieData.length == 0) {
+      showNoDataMessage("#categorycanvas");
+    }
+
     this.vulnTechChart = new Chart(_canvas, config);
     this.vulnTechChartLoading = false;
   }
@@ -440,6 +450,7 @@ class DashboardComponent implements ShadowRootAware {
         .list(WorldMapGuardDutyData, params: this.guardDutyEventFilterParams)
         .then((items) {
       Element mapElement = document.querySelector('#worldmap');
+      removeNoDataDIV(mapElement.parent);
       for (Element element in mapElement.querySelectorAll("leaflet-circle")) {
         element.remove();
       }
@@ -453,6 +464,9 @@ class DashboardComponent implements ShadowRootAware {
         circleMarker.setAttribute("fillOpacity", "0.5");
         circleMarker.setAttribute("fill", "true");
         mapElement.children.add(circleMarker);
+      }
+      if (items.length == 0) {
+        showNoDataMessage("#worldmap");
       }
     });
   }
@@ -505,22 +519,60 @@ class DashboardComponent implements ShadowRootAware {
 
       CanvasElement _canvas =
           document.querySelector('#countrycanvas') as CanvasElement;
-      _canvas.parent.classes.remove('spinner');
+
+      DIVElement spinnerDiv =
+          _canvas.parent.querySelector('.spinner') as DivElement;
+      spinnerDiv.remove();
+
+      if (barLabels.length == 0) {
+        showNoDataMessage("#countrycanvas");
+      }
       this.topCountryChart = new Chart(_canvas, config);
       this.topCountryChartLoading = false;
     });
   }
 
-  void showChartSpinner(String canvasElement, String message) {
+  void showChartSpinner(String canvasElement) {
     // Due to a bug in ChartJS destroy function there is need to recreate Canvas Element
 
     CanvasElement canvas = document.getElementById(canvasElement);
+    Element parent = canvas.parent;
+
+    //Remove Canvas
+    canvas.remove();
+
+    //Remove NoData Message If Any
+    removeNoDataDIV(parent);
+
+    //Add Canvas
     CanvasElement newCanvas = new CanvasElement();
     newCanvas.setAttribute('id', canvasElement);
-    Element parent = canvas.parent;
-    canvas.remove();
     parent.children.add(newCanvas);
-    parent.classes.add('spinner');
+
+    //Add Spinner
+    DivElement spinnerDiv = new DivElement();
+    spinnerDiv.classes.add('spinner');
+    parent.children.add(spinnerDiv);
+  }
+
+  void removeNoDataDIV(Element parent) {
+     //Remove NoData Message If Any
+    DIVElement noDataDiv = parent.querySelector('.nodata') as DivElement;
+    if (noDataDiv != null) {
+      noDataDiv.remove();
+    }
+  }
+
+  void showNoDataMessage(String canvasElement) {
+    print("No data error message for " + canvasElement);
+    CanvasElement canvas = document.querySelector(canvasElement);
+    Element parent = canvas.parent;
+    DivElement messageDiv = new DivElement();
+    messageDiv.className = 'nodata center-block';
+    String message =
+        "<div class='alert alert-warning inner text-center'><strong>No Data Available!</strong></div>";
+    messageDiv.innerHtml = message;
+    parent.children.add(messageDiv);
   }
 
   String dynamicColors() {
