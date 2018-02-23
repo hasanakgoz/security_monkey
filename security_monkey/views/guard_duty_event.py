@@ -103,6 +103,12 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
         #   and coalesce(fixed, FALSE) = FALSE
         #   and g.config -> 'detail' -> 'service' -> 'action' -> 'portProbeAction' -> 'portProbeDetails' is not NULL;
         #     """
+        self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        args = self.reqparse.parse_args()
+        for k, v in args.items():
+            if not v:
+                del args[k]
+
 
         # Read more about filtering:
         # https://docs.sqlalchemy.org/en/latest/orm/query.html
@@ -114,25 +120,31 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
             .filter((coalesce(ItemAudit.justified, False) == False), (coalesce(ItemAudit.fixed, False) == False),
                     (GuardDutyEvent.config[
                          ('detail', 'service', 'action', 'portProbeAction', 'portProbeDetails')] != None))
+        if 'accounts' in args:
+            accounts = args['accounts'].split(',')
+            query = query.join((Account, Account.id == Item.account_id))
+            query = query.filter(Account.name.in_(accounts))
 
         records = query.all()
+        items = []
 
-        import pandas as pd
-        from ..flatten import flatten_json
-        flatten_records = (flatten_json(record[1][0]) for record in records)
-        fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
-            columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
-                     'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
-                     'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
-                     'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
-                     'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
-                     'remoteIpDetails_organization_isp': 'remoteOrgISP',
-                     'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
+        if len(records) > 0:
+            import pandas as pd
+            from ..flatten import flatten_json
+            flatten_records = (flatten_json(record[1][0]) for record in records)
+            fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
+                columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
+                         'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
+                         'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
+                         'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
+                         'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
+                         'remoteIpDetails_organization_isp': 'remoteOrgISP',
+                         'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
 
-        mapdata_dataframe = fulldata_dataFrame.groupby(['lat', 'lon']).size().reset_index(name='count').merge(
-            fulldata_dataFrame.drop_duplicates(keep='first', subset=['lat', 'lon']), on=['lat', 'lon'], how='left')
+            mapdata_dataframe = fulldata_dataFrame.groupby(['lat', 'lon']).size().reset_index(name='count').merge(
+                fulldata_dataFrame.drop_duplicates(keep='first', subset=['lat', 'lon']), on=['lat', 'lon'], how='left')
 
-        items = mapdata_dataframe.to_dict('records')
+            items = mapdata_dataframe.to_dict('records')
 
         marshaled_dict = {
             'page': 1,
@@ -208,6 +220,11 @@ class GuardDutyEventTop10Countries(AuthenticatedService):
             :statuscode 200: no error
             :statuscode 401: Authentication Error. Please Login.
         """
+        self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        args = self.reqparse.parse_args()
+        for k, v in args.items():
+            if not v:
+                del args[k]
 
         # Reference query as provided by Rick
         #     select
@@ -232,23 +249,30 @@ class GuardDutyEventTop10Countries(AuthenticatedService):
                     (GuardDutyEvent.config[
                          ('detail', 'service', 'action', 'portProbeAction', 'portProbeDetails')] != None))
 
+        if 'accounts' in args:
+            accounts = args['accounts'].split(',')
+            query = query.join((Account, Account.id == Item.account_id))
+            query = query.filter(Account.name.in_(accounts))
+
         records = query.all()
+        items = []
 
-        import pandas as pd
-        from ..flatten import flatten_json
-        flatten_records = (flatten_json(record[1][0]) for record in records)
-        fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
-            columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
-                     'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
-                     'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
-                     'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
-                     'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
-                     'remoteIpDetails_organization_isp': 'remoteOrgISP',
-                     'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
+        if len(records) > 0:
+            import pandas as pd
+            from ..flatten import flatten_json
+            flatten_records = (flatten_json(record[1][0]) for record in records)
+            fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
+                columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
+                         'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
+                         'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
+                         'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
+                         'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
+                         'remoteIpDetails_organization_isp': 'remoteOrgISP',
+                         'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
 
-        # Sorting and Limiting the resultset to 10
-        items = fulldata_dataFrame.groupby(['countryName']).size().reset_index(
-            name='count').sort_values(['count'], ascending=False).head(10).to_dict('records')
+            # Sorting and Limiting the resultset to 10
+            items = fulldata_dataFrame.groupby(['countryName']).size().reset_index(
+                name='count').sort_values(['count'], ascending=False).head(10).to_dict('records')
 
         marshaled_dict = {
             'page': 1,
