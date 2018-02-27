@@ -230,6 +230,12 @@ api.add_resource(WatcherConfigGetList, '/api/1/watcher_config')
 api.add_resource(WatcherConfigPut, '/api/1/watcher_config/<int:id>')
 
 # Start: Inherit from webui-threatalert-branding by Pritam
+# Vulnerabilities By Technology Chart Data
+from security_monkey.views.charts import VulnerabilitiesByTech
+api.add_resource(VulnerabilitiesByTech, '/api/1/vulnbytech')
+# Vulnerabilities By Severity Chart Data
+from security_monkey.views.charts import VulnerabilitiesBySeverity
+api.add_resource(VulnerabilitiesBySeverity, '/api/1/vulnbyseverity')
 # GuardDutyEvent Data -> WorldMap Data API
 from security_monkey.views.guard_duty_event import GuardDutyEventMapPointsList
 api.add_resource(GuardDutyEventMapPointsList, '/api/1/worldmapguarddutydata')

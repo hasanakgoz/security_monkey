@@ -295,8 +295,8 @@ class DashboardComponent implements ShadowRootAware {
     this.itemFilterParams['accounts'] =
         this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
 
-    store.list(Item, params: itemFilterParams).then((items) {
-      List<Item> allItems = [items].expand((x) => x).toList();
+    store.list(VulnByTech, params: itemFilterParams).then((items) {
+      List<VulnByTech> allItems = [items].expand((x) => x).toList();
       loadTechnologyPieChart(allItems);
     });
   }
@@ -306,21 +306,12 @@ class DashboardComponent implements ShadowRootAware {
     // Set selected account as filter for Vulnerability by Severity Chart
     this.severityChartFilterParams['accounts'] =
         this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
-    store.list(Issue, params: severityChartFilterParams).then((issues) {
-      int _low = 0, _medium = 0, _high = 0;
-      for (Issue issue in issues) {
-        if (issue.score < 5) {
-          _low++;
-        } else if (issue.score >= 5 && issue.score <= 10) {
-          _medium++;
-        } else if (issue.score > 10) {
-          _high++;
-        }
+    store.list(VulnBySeverity, params: severityChartFilterParams).then((items) {
+      for (VulnBySeverity item in items) {
+        this.vulnSevScores[SEVERITY_LOW] = item.low;
+        this.vulnSevScores[SEVERITY_MEDIUM] = item.medium;
+        this.vulnSevScores[SEVERITY_HIGH] = item.high;
       }
-      this.vulnSevScores[SEVERITY_LOW] = _low;
-      this.vulnSevScores[SEVERITY_MEDIUM] = _medium;
-      this.vulnSevScores[SEVERITY_HIGH] = _high;
-
       loadSeverityBarChart();
     });
   }
@@ -374,34 +365,21 @@ class DashboardComponent implements ShadowRootAware {
     this.vulnSevChartLoading = false;
   }
 
-  Future loadTechnologyPieChart(List<Item> allItems) async {
+  Future loadTechnologyPieChart(List<VulnByTech> allItems) async {
     List<String> pieLabels = new List<String>();
     List<String> pieColors = new List<String>();
     List<int> pieData = new List<int>();
-    int totalItems = allItems.length;
-    // Calculate Technology Pie Chart Data Points
-    Map techCountMap = new Map();
-    for (var item in allItems) {
-      // Add item score to technology map
-      if (techCountMap.containsKey(item.technology)) {
-        techCountMap[item.technology]++;
-      } else {
-        techCountMap[item.technology] = 1;
-      }
-    }
-    // build arrays for ChartJS
-    techCountMap.forEach((k, v) {
-      double percent = (v * 100 / totalItems);
-      pieData.add(percent.round());
-      pieLabels.add('${k[0].toUpperCase()}${k.substring(1)} ' +
-          v.toString() +
+
+    for (VulnByTech item in allItems) {
+      pieData.add(item.percentage);
+      pieLabels.add('${item.technology[0].toUpperCase()}${item.technology.substring(1)} ' +
+          item.count.toString() +
           ' - ' +
-          percent.round().toString() +
+          item.percentage.toString() +
           '%');
       String color = dynamicColors();
       pieColors.add(color);
-    });
-
+    }
     ChartDataSets chartDataSet = new ChartDataSets(
         label: 'Vulnerabilities by Technology',
         data: pieData,
@@ -484,7 +462,6 @@ class DashboardComponent implements ShadowRootAware {
         .list(Top10CountriesGaurdDutyData, params: guardDutyEventFilterParams)
         .then((items) {
       for (Top10CountriesGaurdDutyData item in items) {
-        print("loadTop10CountryBarChart::Processing Item " + item.countryName);
         barLabels.add(item.countryName);
         barValues.add(item.probeCount);
         barColors.add(dynamicColors());
@@ -556,7 +533,7 @@ class DashboardComponent implements ShadowRootAware {
   }
 
   void removeNoDataDIV(Element parent) {
-     //Remove NoData Message If Any
+    //Remove NoData Message If Any
     DIVElement noDataDiv = parent.querySelector('.nodata') as DivElement;
     if (noDataDiv != null) {
       noDataDiv.remove();
@@ -564,7 +541,6 @@ class DashboardComponent implements ShadowRootAware {
   }
 
   void showNoDataMessage(String canvasElement) {
-    print("No data error message for " + canvasElement);
     CanvasElement canvas = document.querySelector(canvasElement);
     Element parent = canvas.parent;
     DivElement messageDiv = new DivElement();
