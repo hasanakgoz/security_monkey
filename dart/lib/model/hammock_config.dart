@@ -17,6 +17,7 @@ import 'Account.dart';
 import 'AccountBulkUpdate.dart';
 import 'AccountPatternAuditScore.dart';
 import 'GuardDutyEvent.dart';
+import 'charts.dart';
 import 'Issue.dart';
 import 'Item.dart';
 import 'ItemComment.dart';
@@ -63,8 +64,9 @@ final serializeWorldMapGuardDutyData = serializer("worldmapguarddutydata", [
   "remoteOrgASNOrg",
   "remoteOrgISP"
 ]);
-final serializeTop10CountriesGaurdDutyData = serializer(
-    "top10countryguarddutydata", ["count", "countryName"]);
+final serializeTop10CountriesGaurdDutyData = serializer("top10countryguarddutydata", ["count", "countryName"]);
+final serializeVulnByTech = serializer("vulnbytech", ["technology", "count", "percentage"]);
+final serializeVulnBySeverity = serializer("vulnbyseverity", ["low", "medium", "high"]);
 
 createHammockConfig(Injector inj) {
     return new HammockConfig(inj)
@@ -203,6 +205,20 @@ createHammockConfig(Injector inj) {
                 "deserializer": {
                   "query": deserializeTop10CountriesGaurdDutyData
                 }
+              },
+              "vulnbytech": {
+                "type": VulnByTech,
+                "serializer": serializeVulnByTech,
+                "deserializer": {
+                  "query": deserializeVulnByTech
+                }
+              },
+              "vulnbyseverity": {
+                "type": VulnBySeverity,
+                "serializer": serializeVulnBySeverity,
+                "deserializer": {
+                  "query": deserializeVulnBySeverity
+                }
               }
             })
             ..urlRewriter.baseUrl = '$API_HOST'
@@ -244,11 +260,11 @@ deserializeRole(r) => new Role.fromMap(r.content);
 deserializeAccountPatternAuditScore(r) => new AccountPatternAuditScore.fromMap(r.content);
 deserializeWatcherConfig(r) => new WatcherConfig.fromMap(r.content);
 
-deserializeWorldMapGuardDutyData(r) =>
-    new WorldMapGuardDutyData.fromMap(r.content);
+deserializeWorldMapGuardDutyData(r) => new WorldMapGuardDutyData.fromMap(r.content);
 
-deserializeTop10CountriesGaurdDutyData(r) =>
-    new Top10CountriesGaurdDutyData.fromMap(r.content);
+deserializeTop10CountriesGaurdDutyData(r) => new Top10CountriesGaurdDutyData.fromMap(r.content);
+deserializeVulnByTech(r) => new VulnByTech.fromMap(r.content);
+deserializeVulnBySeverity(r) => new VulnBySeverity.fromMap(r.content);
 
 class JsonApiOrgFormat extends JsonDocumentFormat {
     resourceToJson(Resource res) {
