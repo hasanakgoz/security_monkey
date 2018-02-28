@@ -2,7 +2,6 @@
     <div>
 
     </div>
-    <!-- Accounts Filter Dropdown -->
 </div>
 <!-- Charts Component -->
 <div>
@@ -120,6 +119,7 @@
     </style>
 
     <div class="container-fluid">
+    <!-- Accounts Filter Dropdown -->
         <div class="row">
             <div class="col-lg-12 text-right pull-right" ng-switch="isAccountSelectDisabled()">
                 <p>
@@ -237,7 +237,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="highScoreItem in selectedItems | orderBy:'-totalScore()' | limitTo:10">
+                        <tr ng-repeat="highScoreItem in selectedItems | orderBy:'-totalScore()' | limitTo:20">
                             <td>{{highScoreItem.account}}</td>
                             <td>{{highScoreItem.technology}}</td>
                             <td><a href="#/viewitem/{{highScoreItem.id}}">{{highScoreItem.name}}</a></td>

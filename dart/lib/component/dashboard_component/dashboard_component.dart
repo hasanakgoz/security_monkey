@@ -66,7 +66,7 @@ class DashboardComponent implements ShadowRootAware {
     'enabledonly': 'true',
     'summary': true,
     'page': '1',
-    'count': '10'
+    'count': '20'
   };
 
   Map<String, String> severityChartFilterParams = {
@@ -96,10 +96,9 @@ class DashboardComponent implements ShadowRootAware {
         account['selected_for_action'] = selectAll;
         account['id'] = accountItem.id;
         account['name'] = accountItem.name;
-        account['items'] = new List();
         account['total_score'] = 0;
         this.accounts.add(account);
-        fetchItems(account);
+        fetchItems(account['name']);
       }
       accountsLoaded = true;
       recalculateAgingIssueSummary();
@@ -107,168 +106,23 @@ class DashboardComponent implements ShadowRootAware {
   }
 
   void fetchItems(account) {
-    itemFilterParams['accounts'] = account['name'];
+    itemFilterParams['accounts'] = account;
     store.list(Item, params: itemFilterParams).then((items) {
-      account['items'] = items;
-      if (account['selected_for_action']) {
-        this.selectedItems =
-            [this.selectedItems, account['items']].expand((x) => x).toList();
-      }
+      this.selectedItems =
+          [this.selectedItems, items].expand((x) => x).toList();
       highScoreSummaryLoaded = true;
-      recalculateSummaryScores();
     });
-  }
-
-  void recalculateSummaryScores() {
-    technologySummaryLoaded = false;
-    techScoreMap = new Map();
-    accountScoreMap = new Map();
-    for (var item in selectedItems) {
-      // Add item score to technology map
-      if (techScoreMap.containsKey(item.technology)) {
-        techScoreMap[item.technology] =
-            techScoreMap[item.technology] + item.totalScore();
-      } else {
-        techScoreMap[item.technology] = item.totalScore();
-      }
-      // Add item score to account score map
-      if (accountScoreMap.containsKey(item.account)) {
-        accountScoreMap[item.account] =
-            accountScoreMap[item.account] + item.totalScore();
-      } else {
-        accountScoreMap[item.account] = item.totalScore();
-      }
-    }
-    // angular.dart does not support iterating over hash map so convert to array
-    technologies = new List();
-    techScoreMap.forEach((k, v) {
-      technologies.add({'name': k, 'score': v});
-    });
-    technologySummaryLoaded = true;
-
-    // Update accounts['total_score'] after items have been parsed
-    for (var account in accounts) {
-      if (accountScoreMap.containsKey(account['name'])) {
-        account['total_score'] = accountScoreMap[account['name']];
-      }
-    }
   }
 
   void recalculateAgingIssueSummary() {
     agingIssueSummaryLoaded = false;
-    agingIssueFilterParams['accounts'] = selectedAccountsParam();
+    agingIssueFilterParams['accounts'] =
+        this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
 
     store.list(Issue, params: agingIssueFilterParams).then((issues) {
       this.agingIssues = issues;
       this.agingIssueSummaryLoaded = true;
     });
-  }
-
-  void recalculateAllSummaries() {
-    var selectedAccountsList = selectedAccounts();
-    // Combine selected accounts items
-    this.selectedItems = new List();
-    for (var account in selectedAccountsList) {
-      this.selectedItems =
-          [this.selectedItems, account['items']].expand((x) => x).toList();
-    }
-    recalculateSummaryScores();
-    recalculateAgingIssueSummary();
-    // High Score Items is updated when selectedItems changes
-  }
-
-  String selectedAccountsParam() {
-    var selectedAccountNamesList = selectedAccountNames();
-    if (selectedAccountNamesList.length > 0) {
-      return selectedAccountNamesList.join(',');
-    } else {
-      return 'NONE';
-    }
-  }
-
-  List selectedAccounts() {
-    var accountsArray = new List();
-    for (var account in accounts) {
-      if (account['selected_for_action']) {
-        accountsArray.add(account);
-      }
-    }
-    return accountsArray;
-  }
-
-  List selectedAccountNames() {
-    var accountNamesArray = new List();
-    for (var account in accounts) {
-      if (account['selected_for_action']) {
-        accountNamesArray.add(account['name']);
-      }
-    }
-    return accountNamesArray;
-  }
-
-  String getAccountFilter() {
-    var accountFilters = new List();
-    for (var account in accounts) {
-      if (account['selected_for_action']) {
-        accountFilters.add(account['name']);
-      }
-    }
-
-    if (accountFilters.length == accounts.length) {
-      return '-';
-    } else if (accountFilters.length > 0) {
-      return accountFilters.join('%2C');
-    } else {
-      return 'None';
-    }
-  }
-
-  void selectAllToggle() {
-    selectAll = !selectAll;
-    for (var account in accounts) {
-      account['selected_for_action'] = selectAll;
-    }
-  }
-
-  // Sorting
-  var sort_params = {
-    'account': {
-      'sorting_column': 'total_score',
-      'sort_asc': false,
-      'sort_value': '-score'
-    },
-    'technology': {
-      'sorting_column': 'score',
-      'sorc_asc': false,
-      'sort_value': '-score'
-    }
-  };
-
-  void sortColumn(var table, var column) {
-    if (sort_params[table]['sorting_column'] == column) {
-      sort_params[table]['sort_asc'] = !sort_params[table]['sort_asc'];
-      if (sort_params[table]['sort_asc']) {
-        sort_params[table]['sort_value'] = column;
-      } else {
-        sort_params[table]['sort_value'] = '-' + column;
-      }
-    } else {
-      sort_params[table]['sorting_column'] = column;
-      sort_params[table]['sort_asc'] = true;
-      sort_params[table]['sort_value'] = column;
-    }
-  }
-
-  String classForColumn(var table, var column) {
-    if (sort_params[table]['sorting_column'] == column) {
-      if (sort_params[table]['sort_asc']) {
-        return "glyphicon glyphicon glyphicon-sort-by-attributes";
-      } else {
-        return "glyphicon glyphicon glyphicon-sort-by-attributes-alt";
-      }
-    } else {
-      return "glyphicon glyphicon-sort";
-    }
   }
 
   void onShadowRoot(ShadowRoot shadowRoot) {
@@ -354,7 +208,7 @@ class DashboardComponent implements ShadowRootAware {
 
     CanvasElement _canvas =
         document.querySelector('#severitycanvas') as CanvasElement;
-    DIVElement spinnerDiv =
+    DivElement spinnerDiv =
         _canvas.parent.querySelector('.spinner') as DivElement;
     spinnerDiv.remove();
     if (this.vulnSevScores.length == 0) {
@@ -372,11 +226,13 @@ class DashboardComponent implements ShadowRootAware {
 
     for (VulnByTech item in allItems) {
       pieData.add(item.percentage);
-      pieLabels.add('${item.technology[0].toUpperCase()}${item.technology.substring(1)} ' +
-          item.count.toString() +
-          ' - ' +
-          item.percentage.toString() +
-          '%');
+      pieLabels
+          .add('${item.technology[0].toUpperCase()}${item.technology.substring(
+              1)} ' +
+              item.count.toString() +
+              ' - ' +
+              item.percentage.toString() +
+              '%');
       String color = dynamicColors();
       pieColors.add(color);
     }
@@ -407,7 +263,7 @@ class DashboardComponent implements ShadowRootAware {
 
     CanvasElement _canvas =
         document.querySelector('#categorycanvas') as CanvasElement;
-    DIVElement spinnerDiv =
+    DivElement spinnerDiv =
         _canvas.parent.querySelector('.spinner') as DivElement;
     spinnerDiv.remove();
 
@@ -497,7 +353,7 @@ class DashboardComponent implements ShadowRootAware {
       CanvasElement _canvas =
           document.querySelector('#countrycanvas') as CanvasElement;
 
-      DIVElement spinnerDiv =
+      DivElement spinnerDiv =
           _canvas.parent.querySelector('.spinner') as DivElement;
       spinnerDiv.remove();
 
@@ -534,7 +390,7 @@ class DashboardComponent implements ShadowRootAware {
 
   void removeNoDataDIV(Element parent) {
     //Remove NoData Message If Any
-    DIVElement noDataDiv = parent.querySelector('.nodata') as DivElement;
+    DivElement noDataDiv = parent.querySelector('.nodata') as DivElement;
     if (noDataDiv != null) {
       noDataDiv.remove();
     }
@@ -573,12 +429,18 @@ class DashboardComponent implements ShadowRootAware {
       this.vulnTechChart.destroy();
       this.topCountryChart.destroy();
       this.loadDashboardCharts();
+      recalculateAgingIssueSummary();
+      this.selectedItems.clear();
+      highScoreSummaryLoaded = false;
+      fetchItems(this.selectedAccount == '__all_accounts__'
+          ? ''
+          : this.selectedAccount);
     });
   }
 
   bool isAccountSelectDisabled() {
     return (this.vulnSevChartLoading ||
         this.vulnTechChartLoading ||
-        this.topCountryChartLoading);
+        this.topCountryChartLoading || !highScoreSummaryLoaded);
   }
 }
