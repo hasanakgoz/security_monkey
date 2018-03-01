@@ -82,6 +82,20 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
                     self.add_issue(10, issue, item, notes=notes)
                     return
 
+    def check_1_16_no_inline_policies(self, item):
+        """
+        CIS Rule 1.16 - Ensure IAM policies are attached only to groups or roles [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.16 - ',
+            specific='IAM user has inline policy attached.'
+        )
+
+        report = item.config
+        if report['InlinePolicies']:
+            self.add_issue(10, issue, item, notes=notes)
+
 
 class IAMUserCredsAuditor(Auditor):
     index = CredentialReportWatcher.index

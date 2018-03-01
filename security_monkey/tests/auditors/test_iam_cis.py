@@ -267,3 +267,40 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         }
         auditor.check_1_14_root_hardware_mfa_enabled(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_16_no_inline_policies(self):
+        from security_monkey.auditors.custom.cis.iam_user import CISIAMUserAuditor
+        auditor = CISIAMUserAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'InlinePolicies': {
+                "AmazonSesSendingAccess": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": "ses:SendRawEmail",
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        }
+                    ]
+                }
+            }
+        }
+
+        auditor.check_1_16_no_inline_policies(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.16 - IAM user has inline policy attached.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'InlinePolicies': {}
+        }
+
+        auditor.check_1_16_no_inline_policies(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
