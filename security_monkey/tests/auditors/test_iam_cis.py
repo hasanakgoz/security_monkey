@@ -304,3 +304,33 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
 
         auditor.check_1_16_no_inline_policies(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_21_instance_roles_used(self):
+        from security_monkey.auditors.custom.cis.ec2_instance import EC2InstanceAuditor
+        auditor = EC2InstanceAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'iam_instance_profile': {}
+        }
+
+
+        auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.21 - Instance not assigned IAM role for EC2.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'iam_instance_profile': {
+                'Arn': 'blahblah',
+                'Id': 123,
+            }
+        }
+
+        auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
