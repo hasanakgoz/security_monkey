@@ -315,7 +315,6 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
             'iam_instance_profile': {}
         }
 
-
         auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
         self.assertIs(len(iamobj.audit_issues), 1)
         self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')

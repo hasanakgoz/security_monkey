@@ -28,4 +28,3 @@ class EC2InstanceAuditor(Auditor):
         )
         if not item.config.get('iam_instance_profile'):
             self.add_issue(10, issue, item, notes=notes)
-
