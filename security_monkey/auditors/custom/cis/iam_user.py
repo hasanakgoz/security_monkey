@@ -7,6 +7,7 @@
 
 """
 import datetime
+import re
 
 from dateutil import parser
 from dateutil import tz
@@ -236,3 +237,21 @@ class IAMUserCredsAuditor(Auditor):
                     notes=notes
                 )
 
+    def check_1_23_no_active_initial_access_keys_with_iam_user(self, item):
+        """
+        CIS Rule 1.23 - Do not setup access keys during initial user setup for
+        all IAM users that have a console password (Not Scored)
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.23 - ',
+            specific='Users with keys created at user creation time found.'
+        )
+
+        report = item.config
+
+        # ignore root
+        if not self._is_root(report):
+            for meta in report.get('access_key_metadata', []):
+                if meta['CreateDate'] == self._parse_date(report['user_creation_time']):
+                    self.add_issue(10, issue, item, notes=notes)

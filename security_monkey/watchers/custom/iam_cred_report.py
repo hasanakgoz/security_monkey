@@ -66,6 +66,11 @@ class CredentialReportWatcher(Watcher):
             credential_report = csv.DictReader(response['Content'].splitlines(), delimiter=',')
 
             for user_report in credential_report:
+                access_keys = iam.list_access_keys(
+                    UserName=str(user_report['user'])
+                )
+                user_report['access_key_metadata'] = access_keys['AccessKeyMetadata']
+
                 item_list.append(
                     UserReport(
                         account=account,

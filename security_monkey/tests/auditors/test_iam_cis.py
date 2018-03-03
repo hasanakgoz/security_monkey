@@ -333,3 +333,30 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
 
         auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_23_no_active_initial_access_keys_with_iam_user(self):
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
+        auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:user/notroot",
+            "user": "test-user",
+            "user_creation_time": "2016-12-01T22:19:58+00:00",
+            "access_key_metadata": [
+                {
+                    'UserName': 'test-user',
+                    'AccessKeyId': 'blahblah',
+                    'Status': 'Active',
+                    'CreateDate': datetime(2016, 12, 1, 22, 19, 58),
+                },
+            ],
+        }
+        auditor.check_1_23_no_active_initial_access_keys_with_iam_user(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.23 - Users with keys created at user creation time found.'
+        )
