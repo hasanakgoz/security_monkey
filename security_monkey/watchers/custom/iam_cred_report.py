@@ -66,10 +66,15 @@ class CredentialReportWatcher(Watcher):
             credential_report = csv.DictReader(response['Content'].splitlines(), delimiter=',')
 
             for user_report in credential_report:
-                access_keys = iam.list_access_keys(
-                    UserName=str(user_report['user'])
-                )
-                user_report['access_key_metadata'] = access_keys['AccessKeyMetadata']
+                try:
+                    access_keys = iam.list_access_keys(
+                        UserName=str(user_report['user'])
+                    )
+                except Exception as e:
+                    app.logger.error('Access keys not available for {}'.format(user_report['user']))
+                    access_keys = {}
+
+                user_report['access_key_metadata'] = access_keys.get('AccessKeyMetadata', [])
 
                 item_list.append(
                     UserReport(
