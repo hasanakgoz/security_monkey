@@ -229,3 +229,134 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         }
         auditor.check_1_13_mfa_root_account(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_14_hardware_mfa_root_account(self):
+        from security_monkey.auditors.custom.cis.iam_user import CISIAMUserAuditor
+        auditor = CISIAMUserAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "MfaDevices": {
+                "arn:aws:iam::726064622671:mfa/root-account-mfa-device": {
+                    "UserName": "<root>",
+                    "SerialNumber": "arn:aws:iam::726064622671:mfa/root-account-mfa-device",
+                    "EnableDate": "2017-01-23 14:39:41+00:00"
+                }
+            },
+            "Arn": "arn:aws:iam::726064622671:root",
+        }
+        auditor.check_1_14_root_hardware_mfa_enabled(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.14 - Root account not using hardware MFA.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "MfaDevices": {
+                "arn:aws:iam::726064622671:mfa/root-account-mfa-device": {
+                    "UserName": "<root>",
+                    "SerialNumber": "arn:aws:iam::726064622671:mfa/something-else",
+                    "EnableDate": "2017-01-23 14:39:41+00:00"
+                }
+            },
+            "Arn": "arn:aws:iam::726064622671:root",
+        }
+        auditor.check_1_14_root_hardware_mfa_enabled(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_16_no_inline_policies(self):
+        from security_monkey.auditors.custom.cis.iam_user import CISIAMUserAuditor
+        auditor = CISIAMUserAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'InlinePolicies': {
+                "AmazonSesSendingAccess": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": "ses:SendRawEmail",
+                            "Resource": "*",
+                            "Effect": "Allow"
+                        }
+                    ]
+                }
+            }
+        }
+
+        auditor.check_1_16_no_inline_policies(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.16 - IAM user has inline policy attached.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'InlinePolicies': {}
+        }
+
+        auditor.check_1_16_no_inline_policies(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_21_instance_roles_used(self):
+        from security_monkey.auditors.custom.cis.ec2_instance import EC2InstanceAuditor
+        auditor = EC2InstanceAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'iam_instance_profile': {}
+        }
+
+        auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.21 - Instance not assigned IAM role for EC2.'
+        )
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            'iam_instance_profile': {
+                'Arn': 'blahblah',
+                'Id': 123,
+            }
+        }
+
+        auditor.check_1_21_ensure_iam_instance_roles_used(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 0)
+
+    def test_1_23_no_active_initial_access_keys_with_iam_user(self):
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
+        auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
+        auditor.prep_for_audit()
+
+        iamobj = MockIAMObj()
+        iamobj.config = {
+            "arn": "arn:aws:iam::726064622671:user/notroot",
+            "user": "test-user",
+            "user_creation_time": "2016-12-01T22:19:58+00:00",
+            "access_key_metadata": [
+                {
+                    'UserName': 'test-user',
+                    'AccessKeyId': 'blahblah',
+                    'Status': 'Active',
+                    'CreateDate': datetime(2016, 12, 1, 22, 19, 58),
+                },
+            ],
+        }
+        auditor.check_1_23_no_active_initial_access_keys_with_iam_user(iamobj)
+        self.assertIs(len(iamobj.audit_issues), 1)
+        self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            iamobj.audit_issues[0].notes,
+            'sa-iam-cis-1.23 - Users with keys created at user creation time found.'
+        )

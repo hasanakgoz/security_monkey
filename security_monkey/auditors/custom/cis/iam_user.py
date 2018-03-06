@@ -7,6 +7,7 @@
 
 """
 import datetime
+import re
 
 from dateutil import parser
 from dateutil import tz
@@ -60,6 +61,41 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
                 if last_used_date > one_day_ago:
                     self.add_issue(10, issue, item, notes=notes)
                     return
+
+    def check_1_14_root_hardware_mfa_enabled(self, item):
+        """
+        CIS Rule 1.14 - Ensure hardware MFA is enabled on the root account [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.14 - ',
+            specific='Root account not using hardware MFA.'
+        )
+
+        report = item.config
+
+        if item.config.get('Arn', '').split(':')[-1] == 'root':
+            user_mfas = item.config.get('MfaDevices', {})
+
+            for key, value in user_mfas.iteritems():
+                serial = value.get('SerialNumber', '')
+                if "mfa/root-account-mfa-device" in serial:
+                    self.add_issue(10, issue, item, notes=notes)
+                    return
+
+    def check_1_16_no_inline_policies(self, item):
+        """
+        CIS Rule 1.16 - Ensure IAM policies are attached only to groups or roles [scored]
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.16 - ',
+            specific='IAM user has inline policy attached.'
+        )
+
+        report = item.config
+        if report['InlinePolicies']:
+            self.add_issue(10, issue, item, notes=notes)
 
 
 class IAMUserCredsAuditor(Auditor):
@@ -200,3 +236,22 @@ class IAMUserCredsAuditor(Auditor):
                     item,
                     notes=notes
                 )
+
+    def check_1_23_no_active_initial_access_keys_with_iam_user(self, item):
+        """
+        CIS Rule 1.23 - Do not setup access keys during initial user setup for
+        all IAM users that have a console password (Not Scored)
+        """
+        issue = Categories.INFORMATIONAL
+        notes = Categories.INFORMATIONAL_NOTES.format(
+            description='sa-iam-cis-1.23 - ',
+            specific='Users with keys created at user creation time found.'
+        )
+
+        report = item.config
+
+        # ignore root
+        if not self._is_root(report):
+            for meta in report.get('access_key_metadata', []):
+                if meta['CreateDate'] == self._parse_date(report['user_creation_time']):
+                    self.add_issue(10, issue, item, notes=notes)

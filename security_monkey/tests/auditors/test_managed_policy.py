@@ -35,6 +35,16 @@ FULL_ADMIN_POLICY_BARE = """
 """
 
 
+class MockObj:
+    def __init__(self):
+        self.config = {}
+        self.audit_issues = []
+        self.index = "unittestindex"
+        self.region = "unittestregion"
+        self.account = "unittestaccount"
+        self.name = "unittestname"
+
+
 class ManagedPolicyAuditorTestCase(SecurityMonkeyTestCase):
 
     def test_issue_on_non_aws_policy(self):
@@ -99,3 +109,34 @@ class ManagedPolicyAuditorTestCase(SecurityMonkeyTestCase):
         auditor.check_star_privileges(policyobj)
         self.assertIs(len(policyobj.audit_issues), 1,
                       "Managed Policy should have 1 alert but has {}".format(len(policyobj.audit_issues)))
+
+    def test_1_22_ensure_incident_management_roles(self):
+        from security_monkey.auditors.custom.cis.managed_policy import ManagedPolicyAuditor
+        auditor = ManagedPolicyAuditor(accounts=['TEST_ACCOUNT'])
+
+        obj = MockObj()
+        obj.config = {
+            "arn": "arn:aws:iam::aws:policy/AWSSupportAccess",
+            "attached_groups": [],
+            "attached_roles": [],
+            "attached_users": [],
+        }
+
+        auditor.check_1_22_ensure_incident_management_roles(obj)
+        self.assertIs(len(obj.audit_issues), 1)
+        self.assertEquals(obj.audit_issues[0].issue, 'Informational')
+        self.assertEquals(
+            obj.audit_issues[0].notes,
+            'sa-iam-cis-1.22 - AWSSupportAccess policy not created.'
+        )
+
+        obj = MockObj()
+        obj.config = {
+            "arn": "arn:aws:iam::aws:policy/somethingelse",
+            "attached_groups": [],
+            "attached_roles": [],
+            "attached_users": [],
+        }
+
+        auditor.check_1_22_ensure_incident_management_roles(obj)
+        self.assertIs(len(obj.audit_issues), 0)
