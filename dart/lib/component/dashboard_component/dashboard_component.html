@@ -39,7 +39,6 @@
             position: relative;
             margin: auto;
             height: 300px;
-            /*min-height: 300px;*/
             width: 90%;
         }
 
@@ -69,7 +68,7 @@
             width: 100%;
             display: flex;
             align-items: center;
-            z-index: 9999;
+            z-index: 1020; /* 1030 is the z-index for Navigation Bar*/
             /*margin: 0px auto;*/
         }
 
@@ -119,7 +118,7 @@
     </style>
 
     <div class="container-fluid">
-    <!-- Accounts Filter Dropdown -->
+        <!-- Accounts Filter Dropdown -->
         <div class="row">
             <div class="col-lg-12 text-right pull-right" ng-switch="isAccountSelectDisabled()">
                 <p>
@@ -156,7 +155,6 @@
                 </div>
             </div>
         </div>
-        <!--<div class="clearfix"></div>-->
         <div class="row">
             <div class="col-lg-6">
                 <div class="wrapper">
@@ -175,79 +173,49 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- POA&M Items Component -->
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">POA&M Items for {{selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
+                    </div>
+                    <div class="panel-body" ng-switch="poamItemsLoaded">
+                        <div ng-switch-when="false">
+                            <p>Loading . . .</p>
+                        </div>
+                        <table class="table table-striped" ng-switch-when="true">
+                            <thead>
+                            <tr>
+                                <th style="min-width: 105px">POA&M ID</th>
+                                <th>Control[s]</th>
+                                <th>Weakness Name</th>
+                                <th>Weakness Description</th>
+                                <th style="min-width: 115px">Original Detection Date</th>
+                                <th>Original Risk Rating</th>
+                                <th>Comments</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="poamItem in poamItems">
+                                <td>{{poamItem.poam_id}}</td>
+                                <td>{{poamItem.control}}</td>
+                                <td>{{poamItem.weakness_name}}</td>
+                                <td>{{poamItem.weakness_description}}</td>
+                                <td>{{poamItem.create_date | date:'short'}}</td>
+                                <td>{{poamItem.score}}</td>
+                                <td>{{poamItem.comments }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-
 <div>
-    <div class="row">
-        <div class="col-lg-6">
-            <!-- Aging Issue Component -->
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Aging Issues</h3>
-                </div>
-                <div class="panel-body" ng-switch="agingIssueSummaryLoaded">
-                    <div ng-switch-when="false">
-                        <p>Loading . . .</p>
-                    </div>
-                    <table class="table table-striped" ng-switch-when="true">
-                        <thead>
-                        <tr>
-                            <th>Account</th>
-                            <th>Technology</th>
-                            <th>Item Name</th>
-                            <th>Issue</th>
-                            <th>Score</th>
-                            <th>Issue Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="agingIssue in agingIssues">
-                            <td>{{agingIssue.item.account}}</td>
-                            <td>{{agingIssue.item.technology}}</td>
-                            <td><a href="#/viewitem/{{agingIssue.item_id}}">{{agingIssue.item.name}}</a></td>
-                            <td>{{agingIssue.issue}}</td>
-                            <td>{{agingIssue.score}}</td>
-                            <td>{{agingIssue.justified_date | date:'short'}}</td>
-                            <td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <!-- High Score Component -->
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">High Score Items</h3>
-                </div>
-                <div class="panel-body" ng-switch="highScoreSummaryLoaded">
-                    <div ng-switch-when="false">
-                        <p>Loading . . .</p>
-                    </div>
-                    <table class="table table-striped" ng-switch-when="true">
-                        <thead>
-                        <tr>
-                            <th>Account</th>
-                            <th>Technology</th>
-                            <th>Name</th>
-                            <th>Score</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="highScoreItem in selectedItems | orderBy:'-totalScore()' | limitTo:20">
-                            <td>{{highScoreItem.account}}</td>
-                            <td>{{highScoreItem.technology}}</td>
-                            <td><a href="#/viewitem/{{highScoreItem.id}}">{{highScoreItem.name}}</a></td>
-                            <td>{{highScoreItem.totalScore()}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div>
 
+    </div>
 </div>

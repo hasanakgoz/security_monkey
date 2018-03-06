@@ -230,6 +230,9 @@ api.add_resource(WatcherConfigGetList, '/api/1/watcher_config')
 api.add_resource(WatcherConfigPut, '/api/1/watcher_config/<int:id>')
 
 # Start: Inherit from webui-threatalert-branding by Pritam
+# Get a List of POA&M Items
+from security_monkey.views.poam import POAMItemList
+api.add_resource(POAMItemList, '/api/1/poamitems')
 # Vulnerabilities By Technology Chart Data
 from security_monkey.views.charts import VulnerabilitiesByTech
 api.add_resource(VulnerabilitiesByTech, '/api/1/vulnbytech')
