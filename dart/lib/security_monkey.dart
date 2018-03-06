@@ -19,6 +19,7 @@ import 'model/AccountBulkUpdate.dart';
 import 'model/AccountPatternAuditScore.dart';
 import 'model/GuardDutyEvent.dart';
 import 'model/charts.dart';
+import 'model/POAMItem.dart';
 import 'model/Issue.dart';
 import 'model/Item.dart';
 import 'model/ItemComment.dart';

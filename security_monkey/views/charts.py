@@ -190,3 +190,4 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
             'items': marshaled_items
         }
         return marshaled_dict, 200
+

@@ -17,6 +17,7 @@ import 'Account.dart';
 import 'AccountBulkUpdate.dart';
 import 'AccountPatternAuditScore.dart';
 import 'GuardDutyEvent.dart';
+import 'POAMItem.dart';
 import 'charts.dart';
 import 'Issue.dart';
 import 'Item.dart';
@@ -67,6 +68,7 @@ final serializeWorldMapGuardDutyData = serializer("worldmapguarddutydata", [
 final serializeTop10CountriesGaurdDutyData = serializer("top10countryguarddutydata", ["count", "countryName"]);
 final serializeVulnByTech = serializer("vulnbytech", ["technology", "count", "percentage"]);
 final serializeVulnBySeverity = serializer("vulnbyseverity", ["low", "medium", "high"]);
+final serializePOAMItem = serializer("poamitems", ["poam_id","score","control","weakness_name","weakness_description","poam_comments","create_date"]);
 
 createHammockConfig(Injector inj) {
     return new HammockConfig(inj)
@@ -219,6 +221,13 @@ createHammockConfig(Injector inj) {
                 "deserializer": {
                   "query": deserializeVulnBySeverity
                 }
+              },
+              "poamitems": {
+                "type": POAMItem,
+                "serializer": serializePOAMItem,
+                "deserializer": {
+                  "query": deserializePOAMItem
+                }
               }
             })
             ..urlRewriter.baseUrl = '$API_HOST'
@@ -265,6 +274,7 @@ deserializeWorldMapGuardDutyData(r) => new WorldMapGuardDutyData.fromMap(r.conte
 deserializeTop10CountriesGaurdDutyData(r) => new Top10CountriesGaurdDutyData.fromMap(r.content);
 deserializeVulnByTech(r) => new VulnByTech.fromMap(r.content);
 deserializeVulnBySeverity(r) => new VulnBySeverity.fromMap(r.content);
+deserializePOAMItem(r) => new POAMItem.fromMap(r.content);
 
 class JsonApiOrgFormat extends JsonDocumentFormat {
     resourceToJson(Resource res) {

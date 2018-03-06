@@ -12,8 +12,7 @@ class DashboardComponent implements ShadowRootAware {
 
   List accounts;
   List technologies;
-  List<Item> selectedItems;
-  List<Issue> agingIssues;
+  List<Issue> poamItems;
   Map techScoreMap;
   Map accountScoreMap;
   RouteProvider routeProvider;
@@ -21,8 +20,7 @@ class DashboardComponent implements ShadowRootAware {
   ObjectStore store;
   bool accountsLoaded = false;
   bool technologySummaryLoaded = false;
-  bool highScoreSummaryLoaded = false;
-  bool agingIssueSummaryLoaded = false;
+  bool poamItemsLoaded = false;
   bool selectAll = true;
 
   // New Account List Dropdown
@@ -41,48 +39,18 @@ class DashboardComponent implements ShadowRootAware {
     'count': '1000000000' // This should retrieve all
   };
 
-  Map<String, String> itemFilterParams = {
-    'regions': '',
-    'technologies': '',
+  Map<String, String> vulnbytechFilterParams = {
     'accounts': '',
-    'accounttypes': '',
-    'names': '',
-    'active': true,
-    'searchconfig': null,
-    'summary': true,
-    'page': '1',
-    'count': '1000000000' // This should retrieve all
   };
 
-  Map<String, String> agingIssueFilterParams = {
-    'regions': '',
-    'technologies': '',
+  Map<String, String> poamItemFilterParams = {
     'accounts': '',
-    'accounttypes': '',
-    'names': '',
-    'active': null,
-    'searchconfig': null,
-    'justified': false,
-    'enabledonly': 'true',
-    'summary': true,
-    'page': '1',
-    'count': '20'
+    'page': '0',
+    'count': '10'
   };
 
   Map<String, String> severityChartFilterParams = {
-    'regions': '',
-    'technologies': '',
     'accounts': '',
-    'accounttypes': '',
-    'names': '',
-    'active': null,
-    'searchconfig': null,
-    'justified': false,
-    'fixed': false, // This is mock param as the API by default implements this
-    'enabledonly': 'true',
-    'summary': true,
-    'page': '1',
-    'count': '1000000000' // This should retrieve all
   };
 
   Map<String, String> guardDutyEventFilterParams = {'accounts': ''};
@@ -90,7 +58,6 @@ class DashboardComponent implements ShadowRootAware {
   DashboardComponent(this.routeProvider, this.router, this.store) {
     store.list(Account, params: accountFilterParams).then((accountItems) {
       this.accounts = new List();
-      this.selectedItems = new List();
       for (var accountItem in accountItems) {
         var account = new Map();
         account['selected_for_action'] = selectAll;
@@ -98,32 +65,21 @@ class DashboardComponent implements ShadowRootAware {
         account['name'] = accountItem.name;
         account['total_score'] = 0;
         this.accounts.add(account);
-        fetchItems(account['name']);
       }
       accountsLoaded = true;
-      recalculateAgingIssueSummary();
     });
   }
 
-  void fetchItems(account) {
-    itemFilterParams['accounts'] = account;
-    store.list(Item, params: itemFilterParams).then((items) {
-      this.selectedItems =
-          [this.selectedItems, items].expand((x) => x).toList();
-      highScoreSummaryLoaded = true;
+  void fetchPOAMItems() {
+    this.poamItemsLoaded = false;
+
+    poamItemFilterParams['accounts'] = this.selectedAccount == '__all_accounts__' ? null : this.selectedAccount;
+    store.list(POAMItem, params: poamItemFilterParams).then((issues) {
+      this.poamItems = issues;
+      this.poamItemsLoaded = true;
     });
   }
 
-  void recalculateAgingIssueSummary() {
-    agingIssueSummaryLoaded = false;
-    agingIssueFilterParams['accounts'] =
-        this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
-
-    store.list(Issue, params: agingIssueFilterParams).then((issues) {
-      this.agingIssues = issues;
-      this.agingIssueSummaryLoaded = true;
-    });
-  }
 
   void onShadowRoot(ShadowRoot shadowRoot) {
     // Load Dashboard Charts
@@ -136,20 +92,22 @@ class DashboardComponent implements ShadowRootAware {
     showChartSpinner("severitycanvas");
     showChartSpinner("categorycanvas");
 
+
     loadSeverityBarChartData();
     loadTechnologyPieChartData();
     loadWorldMap();
     loadTop10CountryBarChart();
+    fetchPOAMItems();
   }
 
   Future loadTechnologyPieChartData() async {
     // Set selected account as filter for Vulnerability by Technology Chart
     this.vulnTechChartLoading = true;
 
-    this.itemFilterParams['accounts'] =
+    this.vulnbytechFilterParams['accounts'] =
         this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
 
-    store.list(VulnByTech, params: itemFilterParams).then((items) {
+    store.list(VulnByTech, params: vulnbytechFilterParams).then((items) {
       List<VulnByTech> allItems = [items].expand((x) => x).toList();
       loadTechnologyPieChart(allItems);
     });
@@ -429,18 +387,13 @@ class DashboardComponent implements ShadowRootAware {
       this.vulnTechChart.destroy();
       this.topCountryChart.destroy();
       this.loadDashboardCharts();
-      recalculateAgingIssueSummary();
-      this.selectedItems.clear();
-      highScoreSummaryLoaded = false;
-      fetchItems(this.selectedAccount == '__all_accounts__'
-          ? ''
-          : this.selectedAccount);
+      fetchPOAMItems();
     });
   }
 
   bool isAccountSelectDisabled() {
     return (this.vulnSevChartLoading ||
         this.vulnTechChartLoading ||
-        this.topCountryChartLoading || !highScoreSummaryLoaded);
+        this.topCountryChartLoading || !this.poamItemsLoaded);
   }
 }
