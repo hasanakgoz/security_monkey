@@ -173,12 +173,13 @@
                 </div>
             </div>
         </div>
+        <!-- POA&M Items Component -->
         <div class="row">
             <div class="col-lg-12">
-                <!-- POA&M Items Component -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <h3 class="panel-title">POA&M Items for {{selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
+                        <h3 class="panel-title">
+                            POA&M Items for {{selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
                     </div>
                     <div class="panel-body" ng-switch="poamItemsLoaded">
                         <div ng-switch-when="false">
@@ -187,6 +188,7 @@
                         <table class="table table-striped" ng-switch-when="true">
                             <thead>
                             <tr>
+                                <th ng-if="selectedAccount == '__all_accounts__'">Account</th>
                                 <th style="min-width: 105px">POA&M ID</th>
                                 <th>Control[s]</th>
                                 <th>Weakness Name</th>
@@ -198,7 +200,8 @@
                             </thead>
                             <tbody>
                             <tr ng-repeat="poamItem in poamItems">
-                                <td>{{poamItem.poam_id}}</td>
+                                <td ng-if="selectedAccount == '__all_accounts__'">{{poamItem.account}}</td>
+                                <td><a href="#/viewitem/{{poamItem.item_id}}">{{poamItem.poam_id}}</a></td>
                                 <td>{{poamItem.control}}</td>
                                 <td>{{poamItem.weakness_name}}</td>
                                 <td>{{poamItem.weakness_description}}</td>
@@ -209,13 +212,33 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <pagination
+                                        items-per-page="ipp_as_int"
+                                        total-items="totalItems"
+                                        page="currentPage"
+                                        on-select-page="pageChanged()"
+                                        max-size="maxSize"
+                                        boundary-links="true">
+                                </pagination>
+                            </div>
+                            <div class="col-lg-3 pull-right">
+                                <br/> <!-- Why do I need a br-tag to get the dropdown to line up properly? -->
+                                <select ng-model="items_per_page" class="form-control">
+                                    <option
+                                            ng-repeat="page in items_per_page_options"
+                                            value="{{page}}">{{page}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<div>
-    <div>
-
     </div>
 </div>

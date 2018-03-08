@@ -68,7 +68,7 @@ final serializeWorldMapGuardDutyData = serializer("worldmapguarddutydata", [
 final serializeTop10CountriesGaurdDutyData = serializer("top10countryguarddutydata", ["count", "countryName"]);
 final serializeVulnByTech = serializer("vulnbytech", ["technology", "count", "percentage"]);
 final serializeVulnBySeverity = serializer("vulnbyseverity", ["low", "medium", "high"]);
-final serializePOAMItem = serializer("poamitems", ["poam_id","score","control","weakness_name","weakness_description","poam_comments","create_date"]);
+final serializePOAMItem = serializer("poamitems", ["poam_id","item_id","account","score","control","weakness_name","weakness_description","poam_comments","create_date"]);
 
 createHammockConfig(Injector inj) {
     return new HammockConfig(inj)

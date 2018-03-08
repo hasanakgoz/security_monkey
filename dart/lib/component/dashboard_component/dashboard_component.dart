@@ -5,14 +5,14 @@ part of security_monkey;
     templateUrl:
         'packages/security_monkey/component/dashboard_component/dashboard_component.html',
     useShadowDom: false)
-class DashboardComponent implements ShadowRootAware {
+class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   static int SEVERITY_LOW = 2;
   static int SEVERITY_MEDIUM = 1;
   static int SEVERITY_HIGH = 0;
 
   List accounts;
   List technologies;
-  List<Issue> poamItems;
+  List<POAMItem> poamItems;
   Map techScoreMap;
   Map accountScoreMap;
   RouteProvider routeProvider;
@@ -45,7 +45,7 @@ class DashboardComponent implements ShadowRootAware {
 
   Map<String, String> poamItemFilterParams = {
     'accounts': '',
-    'page': '0',
+    'page': '1',
     'count': '10'
   };
 
@@ -56,6 +56,9 @@ class DashboardComponent implements ShadowRootAware {
   Map<String, String> guardDutyEventFilterParams = {'accounts': ''};
 
   DashboardComponent(this.routeProvider, this.router, this.store) {
+    // Initialize Pagination to display only 10 items per page
+    super.items_per_page = "10";
+
     store.list(Account, params: accountFilterParams).then((accountItems) {
       this.accounts = new List();
       for (var accountItem in accountItems) {
@@ -70,16 +73,35 @@ class DashboardComponent implements ShadowRootAware {
     });
   }
 
-  void fetchPOAMItems() {
-    this.poamItemsLoaded = false;
+  // Function inherited from PaginatedTable class
+  list() {
+    fetchPOAMItems();
+  }
 
-    poamItemFilterParams['accounts'] = this.selectedAccount == '__all_accounts__' ? null : this.selectedAccount;
-    store.list(POAMItem, params: poamItemFilterParams).then((issues) {
-      this.poamItems = issues;
+  void fetchPOAMItems() {
+    if (this.poamItemsLoaded = false) {
+      return;
+    }
+    this.poamItemsLoaded = false;
+    super.is_loaded = false;
+    poamItemFilterParams['accounts'] =
+        this.selectedAccount == '__all_accounts__'
+            ? null
+            : this.selectedAccount;
+
+    // Update the page and count parameters
+    poamItemFilterParams['page'] = super.currentPage.toString();
+    poamItemFilterParams['count'] = super.items_per_page;
+    print("Loading Filtered Data : $poamItemFilterParams");
+
+    store.list(POAMItem, params: poamItemFilterParams).then((items) {
+      super.setPaginationData(items.meta);
+      this.poamItems = items;
+      super.is_loaded = true;
+      super.currentPage = int.parse(poamItemFilterParams['page']);
       this.poamItemsLoaded = true;
     });
   }
-
 
   void onShadowRoot(ShadowRoot shadowRoot) {
     // Load Dashboard Charts
@@ -91,7 +113,6 @@ class DashboardComponent implements ShadowRootAware {
     showChartSpinner("countrycanvas");
     showChartSpinner("severitycanvas");
     showChartSpinner("categorycanvas");
-
 
     loadSeverityBarChartData();
     loadTechnologyPieChartData();
@@ -180,13 +201,13 @@ class DashboardComponent implements ShadowRootAware {
   Future loadTechnologyPieChart(List<VulnByTech> allItems) async {
     List<String> pieLabels = new List<String>();
     List<String> pieColors = new List<String>();
-    List<int> pieData = new List<int>();
+    List<num> pieData = new List<num>();
 
     for (VulnByTech item in allItems) {
       pieData.add(item.percentage);
       pieLabels
           .add('${item.technology[0].toUpperCase()}${item.technology.substring(
-              1)} ' +
+          1)} ' +
               item.count.toString() +
               ' - ' +
               item.percentage.toString() +
@@ -325,7 +346,6 @@ class DashboardComponent implements ShadowRootAware {
 
   void showChartSpinner(String canvasElement) {
     // Due to a bug in ChartJS destroy function there is need to recreate Canvas Element
-
     CanvasElement canvas = document.getElementById(canvasElement);
     Element parent = canvas.parent;
 
@@ -381,7 +401,7 @@ class DashboardComponent implements ShadowRootAware {
 
   void newAccountSelected() {
     new Future(() {
-      print("New Account Selected: " + this.selectedAccount);
+      print("Switching to Account: $selectedAccount");
       // Due to a bug in ChartJS destroy does not work, but still calling it to clear max
       this.vulnSevChart.destroy();
       this.vulnTechChart.destroy();
@@ -394,6 +414,7 @@ class DashboardComponent implements ShadowRootAware {
   bool isAccountSelectDisabled() {
     return (this.vulnSevChartLoading ||
         this.vulnTechChartLoading ||
-        this.topCountryChartLoading || !this.poamItemsLoaded);
+        this.topCountryChartLoading ||
+        !this.poamItemsLoaded);
   }
 }

@@ -6,22 +6,13 @@ import 'package:security_monkey/util/utils.dart' show localDateFromAPIDate;
 /*
   POA&M Item Model for parsing and displaying POA&M reports on Dashboard
 
-  Sample POA&M Item
-  {
-      "control": "policy",
-      "create_date": "2017-11-01 19:29:52.329638",
-      "poam_comments": null,
-      "poam_id": "sa_poam-12868",
-      "score": 10,
-      "weakness_description": "Service [iam] Category: [Permissions] Resources: [\"*\"], universal, ServiceCatalogAdmin-SupplementalPermissions",
-      "weakness_name": "Sensitive Permissions"
-  }
 */
 
 class POAMItem {
-  int score;
+  int score, item_id;
   String poam_id,
       control,
+      account,
       weakness_name,
       weakness_description,
       comments;
@@ -32,6 +23,8 @@ class POAMItem {
 
   POAMItem.fromMap(Map data) {
     poam_id = data['poam_id'];
+    item_id = data['item_id'];
+    account = data['account'];
     score = data['score'];
     control = data['control'];
     weakness_name = data['weakness_name'];
