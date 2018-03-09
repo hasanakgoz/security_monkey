@@ -1,7 +1,7 @@
 library security_monkey.guarddutyevent;
 
 class WorldMapGuardDutyData {
-  int lat, lon, count, localPort, remoteOrgASN;
+  num lat, lon, count, localPort, remoteOrgASN;
   String cityName,
       countryName,
       localPortName,
