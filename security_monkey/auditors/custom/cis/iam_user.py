@@ -253,5 +253,5 @@ class IAMUserCredsAuditor(Auditor):
         # ignore root
         if not self._is_root(report):
             for meta in report.get('access_key_metadata', []):
-                if meta['CreateDate'] == self._parse_date(report['user_creation_time']):
+                if self._parse_date(meta['create_date']) == self._parse_date(report['user_creation_time']):
                     self.add_issue(10, issue, item, notes=notes)

@@ -346,10 +346,10 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
             "user_creation_time": "2016-12-01T22:19:58+00:00",
             "access_key_metadata": [
                 {
-                    'UserName': 'test-user',
-                    'AccessKeyId': 'blahblah',
-                    'Status': 'Active',
-                    'CreateDate': datetime(2016, 12, 1, 22, 19, 58),
+                    'username': 'test-user',
+                    'access_key_id': 'blahblah',
+                    'status': 'Active',
+                    'create_date': "2016-12-01T22:19:58+00:00",
                 },
             ],
         }

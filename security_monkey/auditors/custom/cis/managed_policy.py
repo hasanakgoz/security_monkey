@@ -24,7 +24,7 @@ from security_monkey.watchers.iam.managed_policy import ManagedPolicy
 from security_monkey.auditors.iam.iam_policy import IAMPolicyAuditor
 
 
-class ManagedPolicyAuditor(IAMPolicyAuditor):
+class CISManagedPolicyAuditor(IAMPolicyAuditor):
     index = ManagedPolicy.index
     i_am_singular = ManagedPolicy.i_am_singular
     i_am_plural = ManagedPolicy.i_am_plural
