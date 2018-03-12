@@ -111,8 +111,8 @@ class ManagedPolicyAuditorTestCase(SecurityMonkeyTestCase):
                       "Managed Policy should have 1 alert but has {}".format(len(policyobj.audit_issues)))
 
     def test_1_22_ensure_incident_management_roles(self):
-        from security_monkey.auditors.custom.cis.managed_policy import ManagedPolicyAuditor
-        auditor = ManagedPolicyAuditor(accounts=['TEST_ACCOUNT'])
+        from security_monkey.auditors.custom.cis.managed_policy import CISManagedPolicyAuditor
+        auditor = CISManagedPolicyAuditor(accounts=['TEST_ACCOUNT'])
 
         obj = MockObj()
         obj.config = {
