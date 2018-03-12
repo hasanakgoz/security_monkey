@@ -28,6 +28,7 @@ class CredentialReportWatcher(Watcher):
         exception_map = {}
 
         from security_monkey.common.sts_connect import connect
+        from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
         for account in self.accounts:
             try:
                 iam = connect(account, 'boto3.iam.client')
@@ -74,7 +75,15 @@ class CredentialReportWatcher(Watcher):
                     app.logger.error('Access keys not available for {}'.format(user_report['user']))
                     access_keys = {}
 
-                user_report['access_key_metadata'] = access_keys.get('AccessKeyMetadata', [])
+                raw_metadata = access_keys.get('AccessKeyMetadata', [])
+                user_report['access_key_metadata'] = [{
+                    'username': meta['UserName'],
+                    'access_key_id': meta['AccessKeyId'],
+                    'status': meta['Status'],
+                    'create_date': meta['CreateDate'].strftime(
+                        IAMUserCredsAuditor.DATE_FORMAT
+                    ),
+                } for meta in raw_metadata]
 
                 item_list.append(
                     UserReport(
