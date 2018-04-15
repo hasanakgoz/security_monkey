@@ -93,6 +93,7 @@ class CloudTrail(Watcher):
                         store_exception("cloudtrail", location, e)
 
                     # get log details for trail
+                    metric_filters = []
                     if trail.get('CloudWatchLogsLogGroupArn'):
                         group = re.search('log-group:(.+?):', trail['CloudWatchLogsLogGroupArn']).group(1)
                         client = connect(
@@ -102,7 +103,6 @@ class CloudTrail(Watcher):
                                 logGroupName=group
                             )
                         )
-                        metric_filters = []
                         for p in filters['metricFilters']:
                             cw_client = connect(
                                 account, 'boto3.cloudwatch.client', region=region)
