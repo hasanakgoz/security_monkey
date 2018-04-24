@@ -21,6 +21,8 @@
 
 
 """
+import re
+
 from security_monkey.watcher import Watcher
 from security_monkey.watcher import ChangeItem
 from security_monkey.constants import TROUBLE_REGIONS
@@ -90,6 +92,38 @@ class CloudTrail(Watcher):
                         location = (self.index, account, region.name, name)
                         store_exception("cloudtrail", location, e)
 
+                    # get log details for trail
+                    metric_filters = []
+                    if trail.get('CloudWatchLogsLogGroupArn'):
+                        group = re.search('log-group:(.+?):', trail['CloudWatchLogsLogGroupArn']).group(1)
+                        client = connect(
+                            account, 'boto3.logs.client', region=region)
+                        filters = self.wrap_aws_rate_limited_call(
+                            client.describe_metric_filters(
+                                logGroupName=group
+                            )
+                        )
+                        for p in filters['metricFilters']:
+                            cw_client = connect(
+                                account, 'boto3.cloudwatch.client', region=region)
+                            response = self.wrap_aws_rate_limited_call(
+                                cwclient.describe_alarms_for_metric(
+                                    MetricName=p['metricTransformations'][0]['metricName'],
+                                    Namespace=p['metricTransformations'][0]['metricNamespace']
+                                )
+                            )
+                            sns_client = connect(
+                                account, 'boto3.sns.client', region=region)
+                            subscribers = self.wrap_aws_rate_limited_call(
+                                sns_client.list_subscriptions_by_topic(
+                                    TopicArn=response['MetricAlarms'][0]['AlarmActions'][0]
+                                )
+                            )
+                            metric_filters.append({
+                                'filter': p,
+                                'subscribers': subscribers
+                            })
+
                     if self.check_ignore_list(name):
                         continue
 
@@ -107,6 +141,7 @@ class CloudTrail(Watcher):
                         'cloudwatch_logs_log_group_arn': trail.get('CloudWatchLogsLogGroupArn'),
                         'cloudwatch_logs_role_arn': trail.get('CloudWatchLogsRoleArn'),
                         'kms_key_id': trail.get('KmsKeyId'),
+                        'cloudwatch_metric_filters': metric_filters,
                     }
 
                     # Utilizing home_region here ensures a single, unique entry

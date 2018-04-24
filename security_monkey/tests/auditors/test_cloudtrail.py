@@ -30,8 +30,8 @@ class CloudTrailTestCase(SecurityMonkeyTestCase):
     }
 
     def test_2_4_cloudwatch_logs_integration(self):
-        from security_monkey.auditors.cloudtrail import CloudTrailAuditor
-        auditor = CloudTrailAuditor(accounts=['TEST_ACCOUNT'])
+        from security_monkey.auditors.custom.cis.cloudtrail import CISCloudTrailAuditor
+        auditor = CISCloudTrailAuditor(accounts=['TEST_ACCOUNT'])
         auditor.prep_for_audit()
 
         cloud_trail_obj = MockObj()
@@ -68,8 +68,8 @@ class CloudTrailTestCase(SecurityMonkeyTestCase):
         self.assertIs(len(cloud_trail_obj.audit_issues), 0)
 
     def test_2_7_logs_encrypted(self):
-        from security_monkey.auditors.cloudtrail import CloudTrailAuditor
-        auditor = CloudTrailAuditor(accounts=['TEST_ACCOUNT'])
+        from security_monkey.auditors.custom.cis.cloudtrail import CISCloudTrailAuditor
+        auditor = CISCloudTrailAuditor(accounts=['TEST_ACCOUNT'])
         auditor.prep_for_audit()
 
         cloud_trail_obj = MockObj()
@@ -91,3 +91,8 @@ class CloudTrailTestCase(SecurityMonkeyTestCase):
         auditor.check_2_7_logs_encrypted(cloud_trail_obj)
 
         self.assertIs(len(cloud_trail_obj.audit_issues), 0)
+
+    def test_3_1_log_metric_filter_unauthorized_api_calls(self):
+        from security_monkey.auditors.custom.cis.cloudtrail import CISCloudTrailAuditor
+        auditor = CISCloudTrailAuditor(accounts=['TEST_ACCOUNT'])
+        pass
