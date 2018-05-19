@@ -84,7 +84,7 @@ Configure the DB:
 Releases are on the master branch and are updated about every three months. Bleeding edge features are on the develop branch.
 
     cd /usr/local/src
-    sudo git clone --depth 1 --branch develop https://github.com/Netflix/security_monkey.git
+    sudo git clone --depth 1 --branch develop https://github.com/stackArmor/security_monkey.git
     sudo chown -R `whoami`:www-data /usr/local/src/security_monkey
     cd security_monkey
     virtualenv venv
@@ -92,9 +92,6 @@ Releases are on the master branch and are updated about every three months. Blee
     pip install --upgrade setuptools
     pip install --upgrade pip
     pip install --upgrade urllib3[secure]   # to prevent InsecurePlatformWarning
-    pip install google-compute-engine  # Only required on GCP
-    pip install cloudaux\[gcp\]
-    pip install cloudaux\[openstack\]    # Only required on OpenStack
     python setup.py develop
     
 ### 🚨⚠️🥁🎺 ULTRA SUPER IMPORTANT SPECIAL NOTE PLEASE READ THIS 🎺🥁⚠️🚨 ###
