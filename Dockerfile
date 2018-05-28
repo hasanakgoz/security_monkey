@@ -13,16 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:14.04
+FROM amazonlinux:latest
 MAINTAINER Netflix Open Source Development <talent@netflix.com>
 
 ENV SECURITY_MONKEY_VERSION=v0.9.3 \
     SECURITY_MONKEY_SETTINGS=/usr/local/src/security_monkey/env-config/config-docker.py
 
-RUN apt-get update &&\
-  apt-get -y -q install python-software-properties software-properties-common postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3 curl &&\
-  apt-get install -y python-pip python-dev python-psycopg2 libffi-dev libpq-dev libyaml-dev libxml2-dev libxmlsec1-dev git sudo swig &&\
-  rm -rf /var/lib/apt/lists/*
+RUN yum -y -q install postgresql93 postgresql93-server postgresql93-contrib postgresql93-libs curl &&\
+  yum install -y python27-pip python27-devel python27-psycopg2 libffi-devel libyaml-devel libxml2-devel xmlsec1-devel git sudo swig
 
 RUN pip install setuptools --upgrade
 RUN pip install pip --upgrade
@@ -39,7 +37,7 @@ RUN cd /usr/local/src/security_monkey &&\
 
 RUN chmod +x /usr/local/src/security_monkey/docker/*.sh &&\
   mkdir -pv /var/log/security_monkey &&\
-  /usr/bin/touch /var/log/security_monkey/securitymonkey.log
+  /bin/touch /var/log/security_monkey/securitymonkey.log
   # ln -s /dev/stdout /var/log/security_monkey/securitymonkey.log
 
 WORKDIR /usr/local/src/security_monkey
