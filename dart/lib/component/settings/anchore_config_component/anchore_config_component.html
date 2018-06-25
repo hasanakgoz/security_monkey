@@ -1,0 +1,111 @@
+<div class="col-lg-12">
+    <div class="panel panel-info" ng-switch="isLoaded">
+        <div class="panel-heading">Anchore Engine Settings <span class="badge pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
+        </div>
+        <div class="panel-body" ng-switch-when="false">
+            <p>Loading . . .</p>
+        </div>
+        <div class="panel-body" ng-switch-when="true">
+            <table class="table table-striped">
+                <tr>
+                    <th ng-click="sort_column('name')">Name
+                        <span ng-class="class_for_column('name')">
+                        </span>
+                    </th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>URL</th>
+                    <th>SSL_verify</th>
+                    <th>DELETE</th>
+                </tr>
+                <tr ng-repeat="item in configitems">
+                    <td ng-if="item.id != update_id">{{item.name}}</td>
+                    <td ng-if="item.id != update_id">{{item.username}}</td>
+                    <td ng-if="item.id != update_id">{{item.password}}</td>
+                    <td ng-if="item.id != update_id">{{item.url}}</a></td>
+                    <td ng-if="item.ssl_verify==true && item.id != update_id"><b>TRUE</b></td>
+                    <td ng-if="item.ssl_verify==false && item.id != update_id"><b>False</b></td>
+                    <td ng-if="item.id != update_id">
+                        <button class="btn btn-xs btn-danger" ng-click="delete_configitem(item)">DELETE</button>
+                        <button class="btn btn-xs btn-primary" ng-click="set_update(item)">EDIT</button>
+                    </td>
+
+                    <td ng-if="item.id == update_id">
+                        <input ng-model="r.name" type="text" maxlength="64" placeholder="Name" class="form-control">
+                    </td>
+                    <td ng-if="item.id == update_id">
+                        <input ng-model="r.username" type="text" maxlength="64" placeholder="Username"
+                               class="form-control">
+                    </td>
+                    <td ng-if="item.id == update_id">
+                        <input ng-model="r.password" type="text" maxlength="64" placeholder="Password"
+                               class="form-control">
+                    </td>
+                    <td ng-if="item.id == update_id">
+                        <input ng-model="r.url" type="text" maxlength="256" placeholder="URL" class="form-control">
+                    </td>
+                    <td ng-if="item.id == update_id">
+                        <select ng-model="v2" class="form-control">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </td>
+                    <td ng-if="item.id == update_id">
+                        <button class="btn btn-xs btn-primary" ng-click="update_configitem()">UPDATE</button>
+                    </td>
+
+                </tr>
+                <tr ng-if="configitems.length == 0" >
+                    <td><input ng-model="p.name" type="text" maxlength="64" placeholder="Name" class="form-control">
+                    </td>
+                    <td><input ng-model="p.username" type="text" maxlength="64" placeholder="Username"
+                               class="form-control"></td>
+                    <td><input ng-model="p.password" type="text" maxlength="64" placeholder="Password"
+                               class="form-control"></td>
+                    <td><input ng-model="p.url" type="text" maxlength="256" placeholder="URL" class="form-control"></td>
+                    <td><select ng-model="verify" class="form-control">
+                        <option value="True" selected>True</option>
+                        <option value="False">False</option>
+                    </select></td>
+                    <td>
+                        <button class="btn btn-xs btn-primary"
+                                type="button"
+                                ng-click="create_configitem();p.name=null;p.username=null;p.password=null;p.url=null;">ADD
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-lg-9">
+                    <pagination
+                            items-per-page="ipp_as_int"
+                            total-items="totalItems"
+                            page="currentPage"
+                            on-select-page="pageChanged()"
+                            max-size="maxSize"
+                            boundary-links="true"
+                    ></pagination>
+                </div>
+                <div class="col-lg-3 pull-right">
+                    <br/>
+                    <select ng-model="items_per_page" class="form-control">
+                        <option
+                                ng-repeat="page in items_per_page_options"
+                                value="{{page}}">{{page}}
+                        </option>
+                    </select>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="input-group">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+

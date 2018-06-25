@@ -98,6 +98,18 @@ class AccountTypeCustomValues(db.Model):
     unique_const = UniqueConstraint('account_id', 'name')
 
 
+class AnchoreConfig(db.Model):
+    """
+    Defines the values for custom fields defined in Anchore Configuration Data.
+    """
+    __tablename__ = "anchore_config"
+    id = Column(db.Integer, primary_key=True, autoincrement=True)
+    name = Column(db.String(64), primary_key=True)  # AnchoreEngine Connection Name
+    username = Column(db.String(64))                # UserName to connect with AnchoreEngine Instance
+    password = Column(db.String(64))                # Passsword to connect with AnchoreEngine Instance
+    url = db.Column(db.String(1024))                # URL to connect with AnchoreEngine Instance
+    ssl_verify = Column(Boolean())                  # SSL Verify
+
 class Technology(db.Model):
     """
     meant to model AWS primitives (elb, s3, iamuser, iamgroup, etc.)
