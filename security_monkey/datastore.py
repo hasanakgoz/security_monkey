@@ -166,6 +166,19 @@ issue_item_association = db.Table('issue_item_association',
     Column('sub_item_id', Integer, ForeignKey('item.id'))
 )
 
+
+class UserPasswordHistory(db.Model):
+    """
+    Meant to model User Password History table.
+    Used for enforcing DoD Compliance
+    """
+    __tablename__ = "user_passwordhistory"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False, index=True)
+    password = db.Column(db.String(255))
+    changed_at = db.Column(db.DateTime())
+
+
 class ItemAudit(db.Model):
     """
     Meant to model an issue attached to a single item.
