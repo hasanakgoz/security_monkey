@@ -17,6 +17,7 @@ import 'package:ng_infinite_scroll/ng_infinite_scroll.dart';
 import 'model/Account.dart';
 import 'model/AccountBulkUpdate.dart';
 import 'model/AccountPatternAuditScore.dart';
+import 'model/AnchoreConfigItem.dart';
 import 'model/GuardDutyEvent.dart';
 import 'model/charts.dart';
 import 'model/POAMItem.dart';
@@ -89,6 +90,8 @@ part 'interceptor/global_http_interceptor.dart';
 
 part 'service/messages.dart';
 
+part 'component/settings/anchore_config_component/anchore_config_component.dart';
+
 // select2 is still in JavaScript
 // select2 querySelector
 // Dashboard Graphs
@@ -145,6 +148,7 @@ class SecurityMonkeyModule extends Module {
     bind(AccountPatternAuditScoreComponent);
     bind(AuditScoreListComponent);
     bind(WatcherConfigComponent);
+    bind(AnchoreConfigComponent);
 
     // Services
     bind(JustificationService);

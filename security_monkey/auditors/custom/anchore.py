@@ -10,8 +10,10 @@
 from security_monkey.auditor import Auditor
 from security_monkey.watchers.custom.anchoreengine import AnchoreEngine
 
-ANCHORE_VULN_TAG = '{pkg}/{sev}/{vulnid}'
-ANCHORE_VULN_NOTES = 'Info: [{INFO}], Fix: {fix}'
+ANCHORE_VULN_TAG = '{vulnid} Vulnerability'
+ANCHORE_VULN_NOTES = '{pkg} package has {sev} vulnerability [{vulnid}]. ' \
+                     'Repository: {reponame}:{repotag}. ' \
+                     'Visit {INFO} for more details on vulnerability. '
 
 class AnchoreAuditor(Auditor):
     index = AnchoreEngine.index
@@ -37,6 +39,9 @@ class AnchoreAuditor(Auditor):
         if item.new_config:
             for vuln in item.new_config['vulns']:
                 score = score_mapping.get(vuln['severity'],0)
-                tag = ANCHORE_VULN_TAG.format(pkg=item.new_config.get('pkg'), sev=vuln['severity'], vulnid=vuln['vuln_id'])
-                notes = ANCHORE_VULN_NOTES.format(INFO=vuln['information'], fix=vuln.get('fix'))
-                self.add_issue(score, tag, item, notes=notes)
+                tag = ANCHORE_VULN_TAG.format(vulnid=vuln.get('vuln_id'))
+                notes = ANCHORE_VULN_NOTES.format(pkg=item.new_config.get('pkg'), sev=vuln['severity'],
+                                                  vulnid=vuln.get('vuln_id'),INFO=vuln.get('information'),
+                                                  reponame=item.new_config.get('Reponame'),
+                                                  repotag=item.new_config.get('RepoTag'))
+                self.add_issue(score, tag , item, notes=notes)

@@ -252,6 +252,15 @@ from security_monkey.views.guard_duty_event import GuardDutyEventService
 api.add_resource(GuardDutyEventService, '/api/1/gde')
 # End: Inherit from Develop Branch
 
+# Start: Anchore-Engine Configuration Management API
+from security_monkey.views.anchoreconfig import AnchoreGetPutDelete
+from security_monkey.views.anchoreconfig import AnchorePostList
+api.add_resource(AnchoreGetPutDelete, '/api/1/anchoreconfig/<int:anchore_id>')
+api.add_resource(AnchorePostList, '/api/1/anchoreconfig')
+# End: Anchore-Engine Configuration Management API
+
+
+
 ## Jira Sync
 from security_monkey.jirasync import JiraSync
 jirasync_file = os.environ.get('SECURITY_MONKEY_JIRA_SYNC')
