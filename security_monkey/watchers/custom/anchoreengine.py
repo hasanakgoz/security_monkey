@@ -142,7 +142,7 @@ class AnchoreEngine(Watcher):
         try:
             anchore_results = AnchoreConfig.query.all()
             if not anchore_results:
-                app.logger.debug('AnchoreEngine: No Anchore Entities found. Exiting Watcher-{}'.format(self.index))
+                app.logger.debug('AnchoreEngine: DB:  No Anchore Engine configuration found. {}'.format(self.index))
 
             for anchore_result in anchore_results:
                 config = {
@@ -155,6 +155,29 @@ class AnchoreEngine(Watcher):
                 }
                 output.append(config)
         except:
+            # Rollback in case of db exception to prevent further database failures.
+            # Most likely a case of missing table
+            from security_monkey import db
+            db.session.rollback()
+
+            app.logger.debug('AnchoreEngine: ENV:  Checking environment config ')
+            # Check if Anchore has been configured in environment
+            if (app.config.get('ANCHORE_USER') and app.config.get('ANCHORE_PASS') and app.config.get(
+                    'ANCHORE_URL')) == None:
+                # Return Empty List
+                app.logger.debug('AnchoreEngine: ENV:  No valid Anchore Engine configuration found ')
+                return output
+
+            # Set Appropriate Config for Anchore System
+            config = {
+                'user': app.config.get('ANCHORE_USER'),
+                'pass': app.config.get('ANCHORE_PASS'),
+                'url': app.config.get('ANCHORE_URL'),
+                'ssl_verify': app.config.get('ANCHORE_URL_SSL_VERIFY', False),
+                'jsonmode': app.config.get('ANCHORE_JSONMODE', False),
+                'debug': app.config.get('ANCHORE_DEBUG', False),
+            }
+            output.append(config)
             return output
         return output
 
@@ -166,22 +189,6 @@ class AnchoreEngine(Watcher):
         exception_map = {}
         flag_network = 0
 
-        # # Check if Anchore has been properly configured
-        # if (app.config.get('ANCHORE_USER') and app.config.get('ANCHORE_PASS') and app.config.get(
-        #         'ANCHORE_URL')) == None:
-        #     # Return Empty List
-        #     app.logger.debug('AnchoreEngine: Skip processing no/bad configuration ')
-        #     return
-        #
-        # # Set Appropriate Config for Anchore System
-        # config = {
-        #     'user': app.config.get('ANCHORE_USER'),
-        #     'pass': app.config.get('ANCHORE_PASS'),
-        #     'url': app.config.get('ANCHORE_URL'),
-        #     'ssl_verify': app.config.get('ANCHORE_URL_SSL_VERIFY', False),
-        #     'jsonmode': app.config.get('ANCHORE_JSONMODE', False),
-        #     'debug': app.config.get('ANCHORE_DEBUG', False),
-        # }
 
         # Set Appropriate Config for Anchore System
         configs = self._list_anchore_configs()
