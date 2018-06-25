@@ -209,7 +209,41 @@ def create_user(email, role):
     users = User.query.filter(User.email == email)
 
     if users.count() == 0:
+        dod_compliance_message = """
+        Password must be atleast 12 characters and must have
+        - two lowercase letters
+        - two uppercase letters
+        - two numbers 
+        - two special characters 
+        (e.g., 3mP@gD2!c2nyt)
+        """
+
+        print(dod_compliance_message)
+
         password1 = prompt_pass("Password")
+
+        # password regex
+        import re
+
+        regex = r"""
+            ^ # start of line
+            (?=(?:.*[A-Z]){2,}) # 2 upper case letters
+            (?=(?:.*[a-z]){2,}) # 2 lower case letters
+            (?=(?:.*\d){2,}) # 2 digits
+            (?=(?:.*[!@#$%^&*()\-_=+{};:,<.>]){2,}) # 2 special characters
+            (?!.*(.)\1{2}) # negative lookahead, dont allow more than 2 repeating characters
+            ([A-Za-z0-9!@#$%^&*()\-_=+{};:,<.>]{12,30}) # length 12-30, only above char classes (disallow spaces)
+            $ # end of line
+            """
+
+        matches = re.findall(regex, password1, re.MULTILINE | re.VERBOSE)
+
+
+        if len(matches) == 0:
+            sys.stderr.write("[!] Password does not match DoD Compliance requirements\n")
+            sys.stderr.write(dod_compliance_message)
+            sys.exit(1)
+
         password2 = prompt_pass("Confirm Password")
 
         if password1 != password2:
