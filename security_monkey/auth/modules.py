@@ -215,6 +215,33 @@ class RBAC(object):
         if not permit:
             return self._deny_hook(resource=resource)
 
+        if hasattr(user,'id') and 'change' not in endpoint:  # If user is authenticated
+            # Redirect user to change password page, if the password has expired.
+            # Password Expires in 60 Days
+            return self._check_password_expiry()
+
+
+    def _check_password_expiry(self):
+        from security_monkey.datastore import UserPasswordHistory
+        import datetime
+        pw_recs = UserPasswordHistory.query.filter(UserPasswordHistory.user_id == current_user.id).order_by(
+            UserPasswordHistory.changed_at.desc()).limit(1).all()
+        if len(pw_recs) > 0:
+            rec = pw_recs[0]
+            pw_lastchange_dt = rec.changed_at
+            pw_expirydate = pw_lastchange_dt + datetime.timedelta(days=60)
+            if not pw_expirydate > datetime.datetime.utcnow():
+                status = 401
+                # abort(status)
+                auth_dict = {
+                    "authenticated": True,
+                    "change_password": True
+                }
+                return Response(response=json.dumps({"auth": auth_dict}), status=status, mimetype="application/json")
+
+        return
+
+
     def _check_permission(self, roles, method, resource):
 
         resource = resource.__name__

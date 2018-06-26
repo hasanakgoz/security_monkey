@@ -19,7 +19,13 @@ class GlobalHttpInterceptors {
                     HttpResponse response = error;
                     try {
                         var data = JSON.decode(response.data);
-                        messages.auth_url_change(data['auth']['url']);
+                        var authdata = data['auth'];
+                        if(authdata.containsKey('change_password')){
+                            // dummy parameter.. can be adapted to something of more use...
+                            messages.password_expired(data['auth']['url']);
+                        }else {
+                            messages.auth_url_change(data['auth']['url']);
+                        }
                     } catch (e) {
                         print("Exception Extracting Auth URL from response <$response>");
                     }

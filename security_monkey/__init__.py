@@ -141,7 +141,7 @@ class ExtendedChangePasswordForm(ChangePasswordForm):
             return False
 
         hashpw_recs = UserPasswordHistory.query.filter(UserPasswordHistory.user_id == current_user.id).order_by(
-            UserPasswordHistory.changed_at.asc()).limit(24).all()
+            UserPasswordHistory.changed_at.desc()).limit(24).all()
 
         for rec in hashpw_recs:
             if verify_password(self.new_password.data, rec.password):

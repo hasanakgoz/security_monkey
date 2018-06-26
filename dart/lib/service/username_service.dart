@@ -8,22 +8,24 @@ import '../model/Role.dart';
 
 @Injectable()
 class UsernameService {
+  String name = "";
+  Scope scope;
+  List roles = new List();
 
-    String name = "";
-    Scope scope;
-    List roles = new List();
+  UsernameService(Scope scope) {
+    //http://stackoverflow.com/questions/22151427/how-to-communicate-between-angular-dart-controllers
+    Stream username_change_stream = scope.on('username-change');
+    username_change_stream.listen(usernameChange);
 
-    UsernameService(Scope scope) {
-        //http://stackoverflow.com/questions/22151427/how-to-communicate-between-angular-dart-controllers
-      Stream username_change_stream = scope.on('username-change');
-      username_change_stream.listen(usernameChange);
-      
-      Stream roles_change_stream = scope.on('roles-change');
-      roles_change_stream.listen(rolesChange);
+    Stream roles_change_stream = scope.on('roles-change');
+    roles_change_stream.listen(rolesChange);
 
-        Stream authurl_change_stream = scope.on('authurl-change');
-        authurl_change_stream.listen(authURLChange);
-    }
+    Stream authurl_change_stream = scope.on('authurl-change');
+    authurl_change_stream.listen(authURLChange);
+
+    Stream password_expired_stream = scope.on('password_expired');
+    password_expired_stream.listen(passwordExpired);
+  }
 
     void authURLChange(ScopeEvent e) {
         String auth_url = e.data;
@@ -37,9 +39,15 @@ class UsernameService {
         }
     }
 
-    void usernameChange(ScopeEvent e) {
-        this.name = e.data;
-    }
+  void passwordExpired(ScopeEvent e) {
+//    String auth_url = e.data;
+    var url = Uri.encodeComponent(window.location.href);
+    window.location.assign('/change?next=$url');
+  }
+
+  void usernameChange(ScopeEvent e) {
+    this.name = e.data;
+  }
 
     void rolesChange(ScopeEvent e) {
       this.roles = new List();

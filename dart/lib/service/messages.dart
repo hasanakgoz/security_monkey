@@ -21,4 +21,9 @@ class Messages {
     void auth_url_change(String url) {
         rootScope.rootScope.broadcast("authurl-change", url);
     }
+
+    void password_expired(String url) {
+        rootScope.rootScope.broadcast("password_expired", url);
+    }
+
 }
