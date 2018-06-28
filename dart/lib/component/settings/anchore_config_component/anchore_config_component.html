@@ -21,8 +21,8 @@
                 <tr ng-repeat="item in configitems">
                     <td ng-if="item.id != update_id">{{item.name}}</td>
                     <td ng-if="item.id != update_id">{{item.username}}</td>
-                    <td ng-if="item.id != update_id">{{item.password}}</td>
-                    <td ng-if="item.id != update_id">{{item.url}}</a></td>
+                    <td ng-if="item.id != update_id">********</td>
+                    <td ng-if="item.id != update_id">{{item.url}}</td>
                     <td ng-if="item.ssl_verify==true && item.id != update_id"><b>TRUE</b></td>
                     <td ng-if="item.ssl_verify==false && item.id != update_id"><b>False</b></td>
                     <td ng-if="item.id != update_id">
@@ -38,7 +38,7 @@
                                class="form-control">
                     </td>
                     <td ng-if="item.id == update_id">
-                        <input ng-model="r.password" type="text" maxlength="64" placeholder="Password"
+                        <input ng-model="r.password" type="password" maxlength="64" placeholder="Password"
                                class="form-control">
                     </td>
                     <td ng-if="item.id == update_id">
@@ -60,7 +60,7 @@
                     </td>
                     <td><input ng-model="p.username" type="text" maxlength="64" placeholder="Username"
                                class="form-control"></td>
-                    <td><input ng-model="p.password" type="text" maxlength="64" placeholder="Password"
+                    <td><input ng-model="p.password" type="password" maxlength="64" placeholder="Password"
                                class="form-control"></td>
                     <td><input ng-model="p.url" type="text" maxlength="256" placeholder="URL" class="form-control"></td>
                     <td><select ng-model="verify" class="form-control">
