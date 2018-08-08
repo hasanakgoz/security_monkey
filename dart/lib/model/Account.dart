@@ -10,6 +10,7 @@ class Account {
     bool _active;
     bool _third_party;
     String account_type;
+    String email_address; // Used to store email address for sending ThreatAlert Daily reports.
     Map<String, String> custom_field_values = new Map<String, String>();
 
     Account();
@@ -39,6 +40,7 @@ class Account {
         identifier = data['identifier'];
         notes = data['notes'];
         account_type = data['account_type'];
+        email_address = data['email_address'];
 
         if (data.containsKey('custom_fields')) {
             for (var field in data['custom_fields']) {
@@ -56,6 +58,7 @@ class Account {
             "identifier": identifier,
             "notes": notes,
             "account_type": account_type,
+            "email_address": email_address,
             "custom_fields": custom_field_values
         };
         return JSON.encode(objmap);
