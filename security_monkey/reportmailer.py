@@ -75,11 +75,14 @@ def report_mailer(accounts, days=1):
                 app.logger.info("No Account identified with this name {}".format(account))
                 continue
 
+            if not _account_info[0].email_address or not _account_info[0].active:
+                app.logger.info("No email address associated with this account {}".format(account))
+                continue
+
             _masked_identifier = 'XXXXXXXX{}'.format(_account_info[0].identifier[-4:])
             report = create_report(account_name=account, account_identifier=_masked_identifier, days=days,
                                    debug=True)
-            recipients = ['eshwar@stackarmor.com', 'pritam.gautam@nuagebiz.tech', 'solutions@stackarmor.com',
-                          'rick@stackarmor.com']  # TODO: Implement DB based email management.
+            recipients = _account_info[0].email_address.split(',')
             email_report(report, recipients=recipients)
     except (OperationalError, InvalidRequestError, StatementError) as e:
         app.logger.exception("Database error processing accounts %s, cleaning up session.", accounts)
