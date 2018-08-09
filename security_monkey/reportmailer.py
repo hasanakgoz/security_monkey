@@ -425,6 +425,10 @@ def get_guardduty_findings(account, days, num_findings=99999999, debug=True):
     query = query.filter((coalesce(ItemAudit.justified, False) == False))
     query = query.filter((coalesce(ItemAudit.fixed, False) == False))
     query = query.filter(subquery.c.last_updated >= (datetime.now() - timedelta(days=days)).date())
+
+    # Sort by ItemAudit Severity High -> Low
+    query = query.order_by(ItemAudit.score.desc())
+
     # Get records
     items = query.limit(num_findings).all()
 
