@@ -8,9 +8,9 @@
 """
 from datetime import datetime, timedelta
 
-from sqlalchemy import false, true
+from sqlalchemy import false, true, case, literal_column
 from sqlalchemy.exc import OperationalError, InvalidRequestError, StatementError
-from sqlalchemy.sql.functions import count as sqlcount, sum
+from sqlalchemy.sql.functions import count as sqlcount, sum, coalesce, func
 
 from security_monkey import app, db
 from security_monkey.common.jinja import get_jinja_env
@@ -36,6 +36,7 @@ def create_report(account_name, account_identifier, days=1, debug=True):
     _top_tech_unjustfix_findings = get_top_x_technologies_by_account(account_name)
     _recent_findings = get_top_x_recent_findings(account_name, days)
     _top_recent_justified_findings = get_top_x_recent_justified_findings(account_name, days)
+    _recent_guardduty_findings = get_guardduty_findings(account_name, days)
 
     _report_date = datetime.today().strftime('%a, %d %b %Y')
 
@@ -44,7 +45,8 @@ def create_report(account_name, account_identifier, days=1, debug=True):
          'top_unjustfix_findings': _top_unjustfix_findings,
          'top_tech_unjustfix_findings': _top_tech_unjustfix_findings,
          'recent_findings': _recent_findings,
-         'top_recent_justified_findings': _top_recent_justified_findings})
+         'top_recent_justified_findings': _top_recent_justified_findings,
+         'recent_guardduty_findings': _recent_guardduty_findings})
 
 
 def email_report(report, recipients):
@@ -363,6 +365,77 @@ def get_top_x_recent_justified_findings(account, days, num_findings=10, debug=Tr
             'finding': row_dict['issue'],
             'notes': row_dict['notes'],
             'justified_date': row_dict['justified_date']
+        })
+
+    marshaled_response = {
+        'items': marshaled_items,
+        'count': num_findings
+    }
+
+    return marshaled_response
+
+
+def get_guardduty_findings(account, days, num_findings=99999999, debug=True):
+    """
+    Get a list of recent GuardDuty Findings
+    :param account:
+    :param days:
+    :param num_findings:
+    :param debug:
+    :return:
+    """
+
+    # select case
+    #          when ia.score > 7 then 'High'
+    #          when ia.score >= 5 and ia.score <= 7 then 'Medium'
+    #          else 'Low'
+    #            end as Severity,
+    #        i.name,
+    #        ia.issue
+    # from item i
+    # inner join itemaudit ia on i.id = ia.item_id
+    # inner join account a on i.account_id = a.id
+    #   and a.identifier = '726064622671'           -- ACCOUNT IDENTIFIER PARAMETER
+    # inner join (select item_id,
+    #               max(date_created) as "last_updated"
+    #             from itemrevision group by item_id) ir on i.id = ir.item_id
+    #   and ir.last_updated >= '2018-01-01 06:03:39.394533'    -- DATE PARAMETER
+    # inner join technology t on i.tech_id = t.id
+    #   and t.name = 'guardduty'
+    # where coalesce (ia.justified, false) is false
+    #   and coalesce (ia.fixed, false) is false;
+
+
+    subquery = ItemRevision.query.with_entities(ItemRevision.item_id.label('item_id'), func.max(ItemRevision.date_created).label('last_updated'))
+    subquery = subquery.group_by(ItemRevision.item_id).subquery('ir')
+
+    query = Item.query.with_entities(Item.name, ItemAudit.issue,
+                                           case([
+                                               (ItemAudit.score > 7 , 'High'),
+                                               (ItemAudit.score.between(4,8) , 'Medium'),
+                                                 ], else_ = 'Low').label('severity'))
+    query = query.join(Technology, Item.tech_id == Technology.id)
+    query = query.join(ItemAudit, Item.id == ItemAudit.item_id)
+    query = query.join(subquery, subquery.c.item_id == Item.id)
+    query = query.join((Account, Account.id == Item.account_id))
+
+    # Lookup filters
+    query = query.filter(Account.name == account)   # Match Account Name
+    query = query.filter(Technology.name == 'guardduty')   # Match Technology Name
+    query = query.filter((coalesce(ItemAudit.justified, False) == False))
+    query = query.filter((coalesce(ItemAudit.fixed, False) == False))
+    query = query.filter(subquery.c.last_updated >= (datetime.now() - timedelta(days=days)).date())
+    # Get records
+    items = query.limit(num_findings).all()
+
+    marshaled_items = []
+
+    for row in items:
+        row_dict = dict(row.__dict__)
+        marshaled_items.append({
+            'name': row_dict['name'].capitalize(),
+            'issue': row_dict['issue'].capitalize(),
+            'severity': row_dict['severity'].capitalize()
         })
 
     marshaled_response = {

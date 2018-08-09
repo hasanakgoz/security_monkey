@@ -5,178 +5,257 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            background-color: white;
         }
 
-        tbody tr:nth-child(even) {
+        table tr td table tbody tr:nth-child(even) {
             background: #FFF
         }
 
-        tbody tr:nth-child(odd) {
+        table tr td table tbody tr:nth-child(odd) {
             background: #ededed
         }
 
-        thead tr {
+        table tr td table thead tr {
             background: #1f4b7b;
             color: #fff;
             text-align: left;
         }
 
+        table tr td table {
+            min-width: 650px;
+            max-width: 90%;
+            table-layout: fixed;
+        }
+
     </style>
 
-    <title>My Webpage</title>
 </head>
 
 <body>
+<table width="100%">
+    <tr bgcolor="white">
+        <td bgcolor="white" align="center">
 
-<p style="padding: 20px;text-align: center;border-bottom: 0px solid #eee;">
-    <img src="https://stackarmor.com/wp-content/uploads/2015/07/logo.png" alt="stackArmor" width="212"
-         height="35">
-</p>
+            <p style="padding: 20px;text-align: center;border-bottom: 0px solid #eee;">
+                <img src="https://stackarmor.com/wp-content/uploads/2015/07/logo.png" alt="stackArmor" width="212"
+                     height="35">
+            </p>
 
-<!-- logo part -->
-<table style="height: 40px; font-family: 'Helvetica Neue'; font-size: 1em; border-color: #fafafa; margin-left: auto; margin-right: auto;font-weight: 300;border: solid 0px #ccc;"
-       width="650" cellspacing="0" cellpadding="5px">
-    <tbody>
-    <tr>
-        <td style="width: 546px; height: 50px; text-align: left; vertical-align: middle;padding: 0px;" colspan="2">
-            <p style=" font-size: 1.2em;font-weight: bold;text-align: center;">stackArmor
-                ThreatAlert Report&nbsp;for {{ report_date }}</p>
-            <p style="font-size: 0.9em;margin-bottom: 20px;text-align: center;">
-                <strong>Account: </strong> {{ account_identifier }} / {{ account_name }} </p>
+            <!-- logo part -->
+            <table style="height: 40px; font-family: 'Helvetica Neue'; font-size: 1em; border-color: #fafafa; margin-left: auto; margin-right: auto;font-weight: 300;border: solid 0px #ccc;"
+                   cellspacing="0" cellpadding="5px">
+                <tbody>
+                <tr>
+                    <td style="width: 546px; height: 50px; text-align: left; vertical-align: middle;padding: 0px;"
+                        colspan="2">
+                        <p style=" font-size: 1.2em;font-weight: bold;text-align: center;">stackArmor
+                            ThreatAlert Report&nbsp;for {{ report_date }}</p>
+                        <p style="font-size: 0.9em;margin-bottom: 20px;text-align: center;">
+                            <strong>Account: </strong> {{ account_identifier }} / {{ account_name }} </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- logo part END -->
+
+            {# top X (5) Unjustified/Unfixed Findings Report #}
+            <br>
+            <hr>
+            <h3 style="text-align: center;">Top {{ top_unjustfix_findings.count }} ThreatAlert Findings</h3>
+
+            <!-- report table -->
+            <center>
+                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Issue</th>
+                        <th>Total Findings</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    {% for finding in top_unjustfix_findings.get('items',None) %}
+                        <tr>
+                            <td>{{ finding.name }}</td>
+                            <td>{{ finding.issue }}</td>
+                            <td>{{ finding.total_findings }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" align="center">
+                                No issues reported.
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </center>
+            <!-- report table END -->
+
+            {# top X (5) technologies with findings current and not-fixed/justified Report #}
+            <br>
+            <hr>
+            <h3 style="text-align: center;">Top {{ top_tech_unjustfix_findings.count }} ThreatAlert Findings by
+                Technology Area </h3>
+
+            <!-- report table -->
+            <center>
+                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Findings</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    {% for finding in top_tech_unjustfix_findings.get('items',None) %}
+                        <tr>
+                            <td>{{ finding.name }}</td>
+                            <td>{{ finding.total_findings }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="2" align="center">
+                                No issues reported.
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </center>
+            <!-- report table END -->
+
+
+            {# X (10) most recent findings Report #}
+            <br>
+            <hr>
+            <h3 style="text-align: center;">{{ recent_findings.count }} Most Recent Findings</h3>
+
+            <!-- report table -->
+            <center>
+                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
+                    <thead>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Finding</th>
+                        <th>Note</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    {% for finding in recent_findings.get('items',None) %}
+                        <tr>
+                            <td>{{ finding.technology }}</td>
+                            <td>{{ finding.finding }}</td>
+                            <td>{{ finding.notes }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" align="center">
+                                No issues reported.
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </center>
+            <!-- report table END -->
+
+
+            {# X (10) most recent findings Report #}
+            <br>
+            <hr>
+            <h3 style="text-align: center;">Top {{ top_recent_justified_findings.count }} Most Recent Justified / Fixed
+                Findings</h3>
+
+            <!-- report table -->
+            <center>
+                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
+                    <thead>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Finding</th>
+                        <th>Note</th>
+                        <th>Justified Date</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    {% for finding in top_recent_justified_findings.get('items',None) %}
+                        <tr>
+                            <td>{{ finding.technology }}</td>
+                            <td>{{ finding.finding }}</td>
+                            <td>{{ finding.notes }}</td>
+                            <td>{{ finding.justified_date }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" align="center">
+                                No issues reported.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </center>
+            <!-- report table END -->
+
+
+            {# X (10) most recent findings Report #}
+            <br>
+            <hr>
+            <h3 style="text-align: center;">Recent GuardDuty Findings</h3>
+
+            <!-- report table -->
+            <center>
+                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Issue</th>
+                        <th>Severity</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    {% for finding in recent_guardduty_findings.get('items',None) %}
+                        <tr>
+                            <td>{{ finding.name }}</td>
+                            <td>{{ finding.issue }}</td>
+                            <td>{{ finding.severity }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" align="center">
+                                No issues reported.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </center>
+            <!-- report table END -->
+
+            <p style="font-size: 0.9em; text-align: center;">&nbsp;</p>
+            <p style="font-size: 0.9em; text-align: center;">This is a stackArmor ThreatAlert Daily
+                Alert. Please review the information and send us an email at
+                <a href="mailto:solutions@stackArmor.com">solutions@stackArmor.com</a> for additional support.</p>
+
         </td>
     </tr>
-    </tbody>
+
 </table>
-<!-- logo part END -->
-
-{# top X (5) Unjustified/Unfixed Findings Report #}
-<br>
-<hr>
-<h3 style="text-align: center;">Top {{ top_unjustfix_findings.count }} Unjustified / Unfixed Findings</h3>
-
-<!-- report table -->
-<center>
-    <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Issue</th>
-            <th>Total Findings</th>
-        </tr>
-
-        </thead>
-        <tbody>
-
-        {% for finding in top_unjustfix_findings.get('items',None) %}
-            <tr>
-                <td>{{ finding.name }}</td>
-                <td>{{ finding.issue }}</td>
-                <td>{{ finding.total_findings }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</center>
-<!-- report table END -->
-
-{# top X (5) technologies with findings current and not-fixed/justified Report #}
-<br>
-<hr>
-<h3 style="text-align: center;">Top {{ top_tech_unjustfix_findings.count }} Technologies with Findings (current
-    and not fixed / justified) </h3>
-
-<!-- report table -->
-<center>
-    <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Total Findings</th>
-        </tr>
-
-        </thead>
-        <tbody>
-
-        {% for finding in top_tech_unjustfix_findings.get('items',None) %}
-            <tr>
-                <td>{{ finding.name }}</td>
-                <td>{{ finding.total_findings }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</center>
-<!-- report table END -->
-
-
-{# X (10) most recent findings Report #}
-<br>
-<hr>
-<h3 style="text-align: center;">{{ recent_findings.count }} Most Recent Findings</h3>
-
-<!-- report table -->
-<center>
-    <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-        <thead>
-        <tr>
-            <th>Technology</th>
-            <th>Finding</th>
-            <th>Note</th>
-        </tr>
-
-        </thead>
-        <tbody>
-
-        {% for finding in recent_findings.get('items',None) %}
-            <tr>
-                <td>{{ finding.technology }}</td>
-                <td>{{ finding.finding }}</td>
-                <td>{{ finding.notes }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</center>
-<!-- report table END -->
-
-
-{# X (10) most recent findings Report #}
-<br>
-<hr>
-<h3 style="text-align: center;">Top {{ top_recent_justified_findings.count }} Most Recent Justified / Fixed
-    Findings</h3>
-
-<!-- report table -->
-<center>
-    <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-        <thead>
-        <tr>
-            <th>Technology</th>
-            <th>Finding</th>
-            <th>Note</th>
-            <th>Justified Date</th>
-        </tr>
-
-        </thead>
-        <tbody>
-
-        {% for finding in top_recent_justified_findings.get('items',None) %}
-            <tr>
-                <td>{{ finding.technology }}</td>
-                <td>{{ finding.finding }}</td>
-                <td>{{ finding.notes }}</td>
-                <td>{{ finding.justified_date }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</center>
-<!-- report table END -->
-
-<p style="font-size: 0.9em; text-align: center;">&nbsp;</p>
-<p style="font-size: 0.9em; text-align: center;">This is a stackArmor ThreatAlert Daily
-    Alert. Please review the information and send us an email at
-    <a href="mailto:solutions@stackArmor.com">solutions@stackArmor.com</a> for additional support.</p>
 </body>
 
 </html>
