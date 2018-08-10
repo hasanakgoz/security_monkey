@@ -375,7 +375,7 @@ def get_top_x_recent_justified_findings(account, days, num_findings=10, debug=Tr
     return marshaled_response
 
 
-def get_guardduty_findings(account, days, num_findings=99999999, debug=True):
+def get_guardduty_findings(account, days, num_findings=10, debug=True):
     """
     Get a list of recent GuardDuty Findings
     :param account:
@@ -406,10 +406,11 @@ def get_guardduty_findings(account, days, num_findings=99999999, debug=True):
     #   and coalesce (ia.fixed, false) is false;
 
 
-    subquery = ItemRevision.query.with_entities(ItemRevision.item_id.label('item_id'), func.max(ItemRevision.date_created).label('last_updated'))
+    subquery = ItemRevision.query.with_entities(ItemRevision.item_id.label('item_id'),
+                                                func.max(ItemRevision.date_created).label('last_updated'))
     subquery = subquery.group_by(ItemRevision.item_id).subquery('ir')
 
-    query = Item.query.with_entities(Item.name, ItemAudit.issue,
+    query = Item.query.with_entities(Item.name, ItemAudit.issue, Item.arn,
                                            case([
                                                (ItemAudit.score > 7 , 'High'),
                                                (ItemAudit.score.between(4,8) , 'Medium'),
@@ -437,6 +438,7 @@ def get_guardduty_findings(account, days, num_findings=99999999, debug=True):
     for row in items:
         row_dict = dict(row.__dict__)
         marshaled_items.append({
+            'arn': row_dict['arn'],
             'name': row_dict['name'].capitalize(),
             'issue': row_dict['issue'].capitalize(),
             'severity': row_dict['severity'].capitalize()

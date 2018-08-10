@@ -231,14 +231,14 @@
 
                     {% for finding in recent_guardduty_findings.get('items',None) %}
                         <tr>
-                            <td>{{ finding.name }}</td>
+                            <td data="{{ finding.arn }}">{{ finding.name }}</td>
                             <td>{{ finding.issue }}</td>
                             <td>{{ finding.severity }}</td>
                         </tr>
                     {% else %}
                         <tr>
                             <td colspan="3" align="center">
-                                No issues reported.
+                                No activity
                             </td>
                         </tr>
                     {% endfor %}
