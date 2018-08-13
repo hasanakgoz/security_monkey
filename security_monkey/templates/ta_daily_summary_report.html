@@ -59,90 +59,18 @@
             </table>
             <!-- logo part END -->
 
-            {# top X (5) Unjustified/Unfixed Findings Report #}
+            {# X (20) Most Recent Security Configuration Findings #}
             <br>
             <hr>
-            <h3 style="text-align: center;">Top {{ top_unjustfix_findings.count }} ThreatAlert Findings</h3>
+            <h3 style="text-align: center;">Most Recent Security Configuration Findings</h3>
 
             <!-- report table -->
             <center>
                 <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
                     <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Issue</th>
-                        <th>Total Findings</th>
-                    </tr>
+                        <th>#</th>
 
-                    </thead>
-                    <tbody>
-
-                    {% for finding in top_unjustfix_findings.get('items',None) %}
-                        <tr>
-                            <td>{{ finding.name }}</td>
-                            <td>{{ finding.issue }}</td>
-                            <td>{{ finding.total_findings }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="3" align="center">
-                                No issues reported.
-                            </td>
-                        </tr>
-                    {% endfor %}
-
-                    </tbody>
-                </table>
-            </center>
-            <!-- report table END -->
-
-            {# top X (5) technologies with findings current and not-fixed/justified Report #}
-            <br>
-            <hr>
-            <h3 style="text-align: center;">Top {{ top_tech_unjustfix_findings.count }} ThreatAlert Findings by
-                Technology Area </h3>
-
-            <!-- report table -->
-            <center>
-                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Total Findings</th>
-                    </tr>
-
-                    </thead>
-                    <tbody>
-
-                    {% for finding in top_tech_unjustfix_findings.get('items',None) %}
-                        <tr>
-                            <td>{{ finding.name }}</td>
-                            <td>{{ finding.total_findings }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="2" align="center">
-                                No issues reported.
-                            </td>
-                        </tr>
-                    {% endfor %}
-
-                    </tbody>
-                </table>
-            </center>
-            <!-- report table END -->
-
-
-            {# X (10) most recent findings Report #}
-            <br>
-            <hr>
-            <h3 style="text-align: center;">{{ recent_findings.count }} Most Recent Findings</h3>
-
-            <!-- report table -->
-            <center>
-                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-                    <thead>
-                    <tr>
                         <th>Technology</th>
                         <th>Finding</th>
                         <th>Note</th>
@@ -150,9 +78,12 @@
 
                     </thead>
                     <tbody>
+                    {% set findings = recent_findings.get('items',None) %}
 
-                    {% for finding in recent_findings.get('items',None) %}
+                    {% for finding in findings %}
                         <tr>
+                            <td data="{{ finding.arn }}">{{ findings.index(finding) + 1 }}</td>
+
                             <td>{{ finding.technology }}</td>
                             <td>{{ finding.finding }}</td>
                             <td>{{ finding.notes }}</td>
@@ -171,57 +102,17 @@
             <!-- report table END -->
 
 
-            {# X (10) most recent findings Report #}
+            {# X (20) Most Recent Security Operations Findings #}
             <br>
             <hr>
-            <h3 style="text-align: center;">Top {{ top_recent_justified_findings.count }} Most Recent Justified / Fixed
-                Findings</h3>
+            <h3 style="text-align: center;">Most Recent Security Operations Findings</h3>
 
             <!-- report table -->
             <center>
                 <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
                     <thead>
                     <tr>
-                        <th>Technology</th>
-                        <th>Finding</th>
-                        <th>Note</th>
-                        <th>Justified Date</th>
-                    </tr>
-
-                    </thead>
-                    <tbody>
-
-                    {% for finding in top_recent_justified_findings.get('items',None) %}
-                        <tr>
-                            <td>{{ finding.technology }}</td>
-                            <td>{{ finding.finding }}</td>
-                            <td>{{ finding.notes }}</td>
-                            <td>{{ finding.justified_date }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" align="center">
-                                No issues reported.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </center>
-            <!-- report table END -->
-
-
-            {# X (10) most recent findings Report #}
-            <br>
-            <hr>
-            <h3 style="text-align: center;">Recent GuardDuty Findings</h3>
-
-            <!-- report table -->
-            <center>
-                <table style="font-weight: 300;" cellspacing="0" cellpadding="20" border="0">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
+                        <th>#</th>
                         <th>Issue</th>
                         <th>Severity</th>
                     </tr>
@@ -229,9 +120,11 @@
                     </thead>
                     <tbody>
 
-                    {% for finding in recent_guardduty_findings.get('items',None) %}
+                    {% set findings = recent_guardduty_findings.get('items',None) %}
+
+                    {% for finding in findings %}
                         <tr>
-                            <td data="{{ finding.arn }}">{{ finding.name }}</td>
+                            <td data="{{ finding.arn }}">{{ findings.index(finding) + 1 }}</td>
                             <td>{{ finding.issue }}</td>
                             <td>{{ finding.severity }}</td>
                         </tr>
