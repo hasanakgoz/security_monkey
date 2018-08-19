@@ -118,7 +118,7 @@ If you're using the bleeding edge (develop) branch, you will need to compile the
     curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > dart_stable.list
     sudo mv dart_stable.list /etc/apt/sources.list.d/dart_stable.list
     sudo apt-get update
-    sudo apt-get install -y dart
+    sudo apt-get install -y dart=1.24.*
 
     # Build the Web UI
     cd /usr/local/src/security_monkey/dart
