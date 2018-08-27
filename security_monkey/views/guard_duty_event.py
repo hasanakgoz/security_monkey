@@ -21,8 +21,8 @@ from security_monkey.datastore import (
     AccountType,
     Technology,
     AuditorSettings,
-    Datastore
-)
+    Datastore,
+    ItemRevision)
 
 # Returns a list of Map Circle Marker Points List
 class GuardDutyEventMapPointsList(AuthenticatedService):
@@ -110,16 +110,30 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
                 del args[k]
 
 
+        # @pritam: 25 July, 2018
+        # With implementation of GuardDuty Data Injection using Custom Watcher, changing the source of GuardDutyEvent
+        # data for this query to ItemRevision Table
+        #            inner join itemrevision g ON i.id = g.item_id
+        # select g.item_id,
+        #            g.config -> 'Service' -> 'Action' -> 'PortProbeAction' -> 'PortProbeDetails' as "guarddutyjson"
+        #          from item i
+        #            inner join itemaudit ia on i.id = ia.item_id
+        #            inner join itemrevision g ON i.latest_revision_id = g.id
+        #          where coalesce(justified, FALSE) = FALSE
+        #            and coalesce(fixed, FALSE) = FALSE
+        #            and g.config -> 'Service' -> 'Action' -> 'PortProbeAction' -> 'PortProbeDetails' is not NULL;
+
         # Read more about filtering:
         # https://docs.sqlalchemy.org/en/latest/orm/query.html
         from sqlalchemy.sql.functions import coalesce
-        query = GuardDutyEvent.query.with_entities(
-            GuardDutyEvent.item_id, GuardDutyEvent.config[('detail', 'service', 'action', 'portProbeAction',
-                                                           'portProbeDetails')]) \
-            .join((Item, Item.id == GuardDutyEvent.item_id), (ItemAudit, Item.id == ItemAudit.item_id)) \
+        query = ItemRevision.query.with_entities(
+            ItemRevision.item_id, ItemRevision.config[('Service', 'Action', 'PortProbeAction',
+                                                           'PortProbeDetails')]) \
+            .join((Item, Item.latest_revision_id == ItemRevision.id), (ItemAudit, Item.id == ItemAudit.item_id)) \
             .filter((coalesce(ItemAudit.justified, False) == False), (coalesce(ItemAudit.fixed, False) == False),
-                    (GuardDutyEvent.config[
-                         ('detail', 'service', 'action', 'portProbeAction', 'portProbeDetails')] != None))
+                    (ItemRevision.config[
+                         ('Service', 'Action', 'PortProbeAction', 'PortProbeDetails')] != None))
+
         if 'accounts' in args:
             accounts = args['accounts'].split(',')
             query = query.join((Account, Account.id == Item.account_id))
@@ -133,13 +147,18 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
             from ..flatten import flatten_json
             flatten_records = (flatten_json(record[1][0]) for record in records)
             fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
-                columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
-                         'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
-                         'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
-                         'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
-                         'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
-                         'remoteIpDetails_organization_isp': 'remoteOrgISP',
-                         'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
+                columns={'RemoteIpDetails_GeoLocation_Lat': 'lat',
+                         'RemoteIpDetails_GeoLocation_Lon': 'lon',
+                         'LocalPortDetails_Port': 'localPort',
+                         'LocalPortDetails_portName': 'localPortName',
+                         'RemoteIpDetails_City_CityName': 'cityName',
+                         'RemoteIpDetails_Country_CountryName': 'countryName',
+                         'RemoteIpDetails_IpAddressV4': 'remoteIpV4',
+                         'RemoteIpDetails_Organization_Asn': 'remoteOrgASN',
+                         'RemoteIpDetails_Organization_AsnOrg': 'remoteOrgASNOrg',
+                         'RemoteIpDetails_Organization_Isp': 'remoteOrgISP',
+                         'RemoteIpDetails_Organization_Org': 'remoteOrg',
+                         'counts': 'count'})
 
             mapdata_dataframe = fulldata_dataFrame.groupby(['lat', 'lon']).size().reset_index(name='count').merge(
                 fulldata_dataFrame.drop_duplicates(keep='first', subset=['lat', 'lon']), on=['lat', 'lon'], how='left')
@@ -238,16 +257,28 @@ class GuardDutyEventTop10Countries(AuthenticatedService):
         #   and g.config -> 'detail' -> 'service' -> 'action' -> 'portProbeAction' -> 'portProbeDetails' is not NULL;
         #     """
 
+        # @pritam: 25 July, 2018
+        # With implementation of GuardDuty Data Injection using Custom Watcher, changing the source of GuardDutyEvent
+        # data for this query to ItemRevision Table
+        # select g.item_id,
+        #            g.config -> 'Service' -> 'Action' -> 'PortProbeAction' -> 'PortProbeDetails' as "guarddutyjson"
+        #          from item i
+        #            inner join itemaudit ia on i.id = ia.item_id
+        #            inner join itemrevision g ON i.latest_revision_id = g.id
+        #          where coalesce(justified, FALSE) = FALSE
+        #            and coalesce(fixed, FALSE) = FALSE
+        #            and g.config -> 'Service' -> 'Action' -> 'PortProbeAction' -> 'PortProbeDetails' is not NULL;
+
         # Read more about filtering:
         # https://docs.sqlalchemy.org/en/latest/orm/query.html
         from sqlalchemy.sql.functions import coalesce
-        query = GuardDutyEvent.query.with_entities(
-            GuardDutyEvent.item_id, GuardDutyEvent.config[('detail', 'service', 'action', 'portProbeAction',
-                                                           'portProbeDetails')]) \
-            .join((Item, Item.id == GuardDutyEvent.item_id), (ItemAudit, Item.id == ItemAudit.item_id)) \
+        query = ItemRevision.query.with_entities(
+            ItemRevision.item_id, ItemRevision.config[('Service', 'Action', 'PortProbeAction',
+                                                           'PortProbeDetails')]) \
+            .join((Item, Item.latest_revision_id == ItemRevision.id), (ItemAudit, Item.id == ItemAudit.item_id)) \
             .filter((coalesce(ItemAudit.justified, False) == False), (coalesce(ItemAudit.fixed, False) == False),
-                    (GuardDutyEvent.config[
-                         ('detail', 'service', 'action', 'portProbeAction', 'portProbeDetails')] != None))
+                    (ItemRevision.config[
+                         ('Service', 'Action', 'PortProbeAction', 'PortProbeDetails')] != None))
 
         if 'accounts' in args:
             accounts = args['accounts'].split(',')
@@ -262,13 +293,18 @@ class GuardDutyEventTop10Countries(AuthenticatedService):
             from ..flatten import flatten_json
             flatten_records = (flatten_json(record[1][0]) for record in records)
             fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
-                columns={'remoteIpDetails_geoLocation_lat': 'lat', 'remoteIpDetails_geoLocation_lon': 'lon',
-                         'localPortDetails_port': 'localPort', 'localPortDetails_portName': 'localPortName',
-                         'remoteIpDetails_city_cityName': 'cityName', 'remoteIpDetails_country_countryName': 'countryName',
-                         'remoteIpDetails_ipAddressV4': 'remoteIpV4', 'remoteIpDetails_organization_asn': 'remoteOrgASN',
-                         'remoteIpDetails_organization_asnOrg': 'remoteOrgASNOrg',
-                         'remoteIpDetails_organization_isp': 'remoteOrgISP',
-                         'remoteIpDetails_organization_org': 'remoteOrg', 'counts': 'count'})
+                columns={'RemoteIpDetails_GeoLocation_Lat': 'lat',
+                         'RemoteIpDetails_GeoLocation_Lon': 'lon',
+                         'LocalPortDetails_Port': 'localPort',
+                         'LocalPortDetails_portName': 'localPortName',
+                         'RemoteIpDetails_City_CityName': 'cityName',
+                         'RemoteIpDetails_Country_CountryName': 'countryName',
+                         'RemoteIpDetails_IpAddressV4': 'remoteIpV4',
+                         'RemoteIpDetails_Organization_Asn': 'remoteOrgASN',
+                         'RemoteIpDetails_Organization_AsnOrg': 'remoteOrgASNOrg',
+                         'RemoteIpDetails_Organization_Isp': 'remoteOrgISP',
+                         'RemoteIpDetails_Organization_Org': 'remoteOrg',
+                         'counts': 'count'})
 
             # Sorting and Limiting the resultset to 10
             items = fulldata_dataFrame.groupby(['countryName']).size().reset_index(

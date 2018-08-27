@@ -103,7 +103,8 @@ class AccountManager(object):
         db.session.expunge(account)
         return account
 
-    def update(self, account_id, account_type, name, active, third_party, notes, identifier, custom_fields=None):
+    def update(self, account_id, account_type, name, active, third_party, email_address, notes, identifier,
+               custom_fields=None):
         """
         Updates an existing account in the database.
         """
@@ -133,6 +134,7 @@ class AccountManager(object):
                 return None
 
         account.active = active
+        account.email_address = email_address
         account.notes = notes
         account.active = active
         account.third_party = third_party
@@ -146,7 +148,7 @@ class AccountManager(object):
         db.session.expunge(account)
         return account
 
-    def create(self, account_type, name, active, third_party, notes, identifier,
+    def create(self, account_type, name, active, third_party, email_address, notes, identifier,
                custom_fields=None):
         """
         Creates an account in the database.
@@ -164,7 +166,7 @@ class AccountManager(object):
 
         account = Account()
         account = self._populate_account(account, account_type_result.id, name,
-                                         active, third_party, notes,
+                                         active, third_party, email_address, notes,
                                          self.sanitize_account_identifier(identifier),
                                          custom_fields)
 
@@ -190,7 +192,7 @@ class AccountManager(object):
         """
         return account
 
-    def _populate_account(self, account, account_type_id, name, active, third_party,
+    def _populate_account(self, account, account_type_id, name, active, third_party, email_address,
                           notes, identifier, custom_fields=None):
         """
         Creates account DB object to be stored in the DB by create or update.
@@ -198,6 +200,7 @@ class AccountManager(object):
         """
         account.name = name
         account.identifier = self.sanitize_account_identifier(identifier)
+        account.email_address = email_address
         account.notes = notes
         account.active = active
         account.third_party = third_party

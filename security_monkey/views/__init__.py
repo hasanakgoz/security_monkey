@@ -89,6 +89,7 @@ ACCOUNT_FIELDS = {
     'id': fields.Integer,
     'name': fields.String,
     'identifier': fields.String,
+    'email_address': fields.String,
     'notes': fields.String,
     'active': fields.Boolean,
     'third_party': fields.Boolean,

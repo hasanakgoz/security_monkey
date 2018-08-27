@@ -33,6 +33,7 @@ from security_monkey.backup import backup_config_to_json as sm_backup_config_to_
 from security_monkey.common.utils import find_modules, load_plugins
 from security_monkey.datastore import Account
 from security_monkey.watcher import watcher_registry
+from security_monkey.reportmailer import report_mailer as sm_report_mailer
 
 from swag_client.backend import SWAGManager
 from swag_client.util import parse_swag_config_options
@@ -62,6 +63,14 @@ load_plugins('security_monkey.plugins')
 def drop_db():
     """ Drops the database. """
     db.drop_all()
+
+
+@manager.option('-a', '--accounts', dest='accounts', type=unicode, default=u'all')
+@manager.option('-d', '--days', dest='days', type=int, default=1)
+def report_mailer(accounts, days):
+    """ Runs Mail Reporter to send reports for last (interval) days"""
+    account_names = _parse_accounts(accounts)
+    sm_report_mailer(account_names, days)
 
 
 @manager.option('-a', '--accounts', dest='accounts', type=unicode, default=u'all')

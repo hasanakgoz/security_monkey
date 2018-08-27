@@ -140,6 +140,7 @@ class AccountGetPutDelete(AuthenticatedService):
         account_type = args['account_type']
         name = args['name']
         identifier = args['identifier']
+        email_address = args['email_address']
         notes = args['notes']
         active = args['active']
         third_party = args['third_party']
@@ -149,7 +150,7 @@ class AccountGetPutDelete(AuthenticatedService):
         account_manager = account_registry.get(account_type)()
 
         try:
-            account = account_manager.update(account_id, account_type, name, active, third_party, notes, identifier,
+            account = account_manager.update(account_id, account_type, name, active, third_party, email_address, notes, identifier,
                                              custom_fields=custom_fields)
         except AccountNameExists as _:
             return {'status': 'error. Account name exists.'}, 409
@@ -257,19 +258,24 @@ class AccountPostList(AuthenticatedService):
         account_type = args['account_type']
         name = args['name']
         identifier = args['identifier']
+        email_address = args['email_address']
         notes = args['notes']
         active = args['active']
         third_party = args['third_party']
         custom_fields = args['custom_fields']
 
+        if not account_type:
+            return {'status': 'error. Please select an account type.'}, 400
+
+
         from security_monkey.account_manager import account_registry
         account_manager = account_registry.get(account_type)()
-        account = account_manager.create(account_type, name, active, third_party,
+        account = account_manager.create(account_type, name, active, third_party, email_address,
                     notes, identifier, custom_fields=custom_fields)
 
         marshaled_account = marshal(account.__dict__, ACCOUNT_FIELDS)
         marshaled_account['auth'] = self.auth_dict
-        return marshaled_account, 200
+        return marshaled_account, 201
 
     def get(self):
         """

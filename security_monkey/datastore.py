@@ -69,6 +69,7 @@ class Account(db.Model):
     active = Column(Boolean())
     third_party = Column(Boolean())
     name = Column(String(32), index=True, unique=True)
+    email_address = Column(String(512)) # Store email addresses for sending ThreatAlert reports
     notes = Column(String(256))
     identifier = Column(String(256), unique=True)  # Unique id of the account, the number for AWS.
     items = relationship("Item", backref="account", cascade="all, delete, delete-orphan")
