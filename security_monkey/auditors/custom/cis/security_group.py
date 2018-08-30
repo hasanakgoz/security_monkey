@@ -96,14 +96,14 @@ class CISSecurityGroupAuditor(Auditor):
                             notes=notes
                         )
 
-    def check_4_4_default_security_groups_restricts_traffic(self, item):
+    def check_4_3_default_security_groups_restricts_traffic(self, item):
         """
-        CIS Rule 4.4 - Ensure the default security group of every VPC restricts
+        CIS Rule 4.4 (v1.1.0) / 4.3 (v1.2.0) - Ensure the default security group of every VPC restricts
         all traffic (Scored)
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-cis-4.4 - ',
+            description='sa-cis-4.3 - ',
             specific='Default security group with ingress or egress rules discovered.'
         )
 

@@ -78,7 +78,7 @@ class SecurityGroup(Watcher):
             new_rule=rule_config.copy()
             new_rule['owner_id'] = user_id_group_pairs.get('UserId')
             new_rule['group_id'] = user_id_group_pairs.get('GroupId')
-            # Pritam adding support for missing SG Group Name for CIS 4.4 Rule Validation
+            # Pritam adding support for missing SG Group Name for CIS 4.4 (v1.1.0) / 4.3 (v1.2.0) Rule Validation
             new_rule['name'] = user_id_group_pairs.get('GroupName') if user_id_group_pairs.get('GroupName') else rule.get('GroupName')
             rule_list.append(new_rule)                
             
@@ -184,13 +184,13 @@ class SecurityGroup(Watcher):
 
 
                     for rule in sg['IpPermissions']:
-                        # Pritam adding support for missing SG Group Name for CIS 4.4 Rule Validation
+                        # Pritam adding support for missing SG Group Name for CIS 4.4 (v1.1.0) / 4.3 (v1.2.0) Rule Validation
                         if not rule.get('GroupName',None):
                             rule['GroupName'] = sg['GroupName']
                         item_config['rules'] += self._build_rule(rule,"ingress")
                         
                     for rule in sg['IpPermissionsEgress']:
-                        # Pritam adding support for missing SG Group Name for CIS 4.4 Rule Validation
+                        # Pritam adding support for missing SG Group Name for CIS 4.4 (v1.1.0) / 4.3 (v1.2.0) Rule Validation
                         if not rule.get('GroupName',None):
                             rule['GroupName'] = sg['GroupName']
                         item_config['rules'] += self._build_rule(rule,"egress")

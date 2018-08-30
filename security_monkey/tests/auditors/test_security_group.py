@@ -193,7 +193,7 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
         auditor.check_4_2_rdp_not_open_to_world(security_group)
         self.assertIs(len(security_group.audit_issues), 0)
 
-    def test_4_4_default_security_groups_restricts_traffic(self):
+    def test_4_3_default_security_groups_restricts_traffic(self):
         from security_monkey.auditors.custom.cis.security_group import CISSecurityGroupAuditor
         auditor = CISSecurityGroupAuditor(accounts=['TEST_ACCOUNT'])
         auditor.prep_for_audit()
@@ -216,12 +216,12 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             ],
         }
 
-        auditor.check_4_4_default_security_groups_restricts_traffic(security_group)
+        auditor.check_4_3_default_security_groups_restricts_traffic(security_group)
         self.assertIs(len(security_group.audit_issues), 1)
         self.assertEquals(security_group.audit_issues[0].issue, 'Informational')
         self.assertEquals(
             security_group.audit_issues[0].notes,
-            'sa-cis-4.4 - Default security group with ingress or egress rules discovered.'
+            'sa-cis-4.3 - Default security group with ingress or egress rules discovered.'
         )
 
         security_group = MockItem()
@@ -231,5 +231,5 @@ class SecurityGroupTestCase(SecurityMonkeyTestCase):
             "rules": [],
         }
 
-        auditor.check_4_4_default_security_groups_restricts_traffic(security_group)
+        auditor.check_4_3_default_security_groups_restricts_traffic(security_group)
         self.assertIs(len(security_group.audit_issues), 0)

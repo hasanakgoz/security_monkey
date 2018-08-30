@@ -143,7 +143,7 @@ class CIS_4_124_Auditor(Auditor):
 
             self.add_issue(score, tag, item, notes=notes)
 
-    def check_cis_4_4(self, item):
+    def check_cis_4_3(self, item):
         """
         alert if EC2 default Security Group contains any ingress or egress rules.
 
@@ -157,7 +157,7 @@ class CIS_4_124_Auditor(Auditor):
             if rule.get('name') != 'default':
                 continue
 
-            tag = "CIS 4.4 Security Group permits unrestricted {} access".format(rule.get("rule_type"))
+            tag = "CIS 4.3 Security Group permits unrestricted {} access".format(rule.get("rule_type"))
             actions = self._port_for_rule(rule)
             cidr = rule.get("cidr_ip")
 
