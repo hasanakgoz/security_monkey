@@ -334,7 +334,7 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
         auditor.check_1_19_ensure_iam_instance_roles_used(iamobj)
         self.assertIs(len(iamobj.audit_issues), 0)
 
-    def test_1_23_no_active_initial_access_keys_with_iam_user(self):
+    def test_1_21_no_active_initial_access_keys_with_iam_user(self):
         from security_monkey.auditors.custom.cis.iam_user import IAMUserCredsAuditor
         auditor = IAMUserCredsAuditor(accounts=['TEST_ACCOUNT'])
         auditor.prep_for_audit()
@@ -353,10 +353,10 @@ class CISIAMTestCase(SecurityMonkeyTestCase):
                 },
             ],
         }
-        auditor.check_1_23_no_active_initial_access_keys_with_iam_user(iamobj)
+        auditor.check_1_21_no_active_initial_access_keys_with_iam_user(iamobj)
         self.assertIs(len(iamobj.audit_issues), 1)
         self.assertEquals(iamobj.audit_issues[0].issue, 'Informational')
         self.assertEquals(
             iamobj.audit_issues[0].notes,
-            'sa-iam-cis-1.23 - Users with keys created at user creation time found.'
+            'sa-iam-cis-1.21 - Users with keys created at user creation time found.'
         )

@@ -4,7 +4,7 @@
 
 .. version:: $$VERSION$$
 .. moduleauthor::  Hammad Hai <hammad.a.hai@gmail.com>
-
+.. @pritam update CIS v1.2.0 compliance
 """
 import datetime
 import re
@@ -237,14 +237,14 @@ class IAMUserCredsAuditor(Auditor):
                     notes=notes
                 )
 
-    def check_1_23_no_active_initial_access_keys_with_iam_user(self, item):
+    def check_1_21_no_active_initial_access_keys_with_iam_user(self, item):
         """
-        CIS Rule 1.23 - Do not setup access keys during initial user setup for
+        CIS Rule 1.23 (v1.1.0) / 1.21 (v1.2.0) - Do not setup access keys during initial user setup for
         all IAM users that have a console password (Not Scored)
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-iam-cis-1.23 - ',
+            description='sa-iam-cis-1.21 - ',
             specific='Users with keys created at user creation time found.'
         )
 
