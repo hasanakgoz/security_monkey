@@ -33,12 +33,12 @@ class RouteTableTestCase(SecurityMonkeyTestCase):
             ]
         }
 
-        auditor.check_4_5_ensure_route_tables_are_least_access(route_table )
+        auditor.check_4_4_ensure_route_tables_are_least_access(route_table )
         self.assertIs(len(route_table.audit_issues), 1)
         self.assertEquals(route_table.audit_issues[0].issue, 'Informational')
         self.assertEquals(
             route_table .audit_issues[0].notes,
-            'sa-cis-4.5 - Large CIDR block routed to peer discovered, please investigate.'
+            'sa-cis-4.4 - Large CIDR block routed to peer discovered, please investigate.'
         )
 
         route_table = MockItem()
@@ -56,7 +56,7 @@ class RouteTableTestCase(SecurityMonkeyTestCase):
             ]
         }
 
-        auditor.check_4_5_ensure_route_tables_are_least_access(route_table)
+        auditor.check_4_4_ensure_route_tables_are_least_access(route_table)
         self.assertIs(len(route_table.audit_issues), 0)
 
         route_table = MockItem()

@@ -171,22 +171,22 @@ class CIS_4_124_Auditor(Auditor):
             self.add_issue(score, tag, item, notes=notes)
 
 
-class CIS_4_5_Auditor(Auditor):
+class CIS_4_4_Auditor(Auditor):
     index = Peering.index
     i_am_singular = Peering.i_am_singular
     i_am_plural = Peering.i_am_plural
 
     def __init__(self, accounts=None, debug=False):
-        super(CIS_4_5_Auditor, self).__init__(accounts=accounts, debug=debug)
+        super(CIS_4_4_Auditor, self).__init__(accounts=accounts, debug=debug)
 
-    def check_cis_4_5(self, item):
+    def check_cis_4_4(self, item):
         """
-        4.5 Ensure routing tables for VPC peering are "least access" (Not Scored)
+        4.4 Ensure routing tables for VPC peering are "least access" (Not Scored)
 
         """
 
         score = 10
-        tag = "CIS 4.5 Ensure routing tables for VPC peering are least access"
+        tag = "CIS 4.4 Ensure routing tables for VPC peering are least access"
         note = "Requester {req_cidr}, Acceptor {acceptor_cidr} has {status} status"
 
         requester = item.config.get("requester_vpc_info")

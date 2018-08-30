@@ -16,14 +16,14 @@ class RouteTableAuditor(Auditor):
     i_am_singular = RouteTable.i_am_singular
     i_am_plural = RouteTable.i_am_plural
 
-    def check_4_5_ensure_route_tables_are_least_access(self, item):
+    def check_4_4_ensure_route_tables_are_least_access(self, item):
         """
-        CIS Rule 4.5 - Ensure routing tables for VPC peering are "least access"
+        CIS Rule 4.5 (v1.10)/ 4.4 (v1.2.0) - Ensure routing tables for VPC peering are "least access"
         (Not Scored)
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-cis-4.5 - ',
+            description='sa-cis-4.4 - ',
             specific='Large CIDR block routed to peer discovered, please investigate.'
         )
         for route in item.config.get('routes', []):
