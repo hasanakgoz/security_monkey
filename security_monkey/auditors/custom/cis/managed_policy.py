@@ -17,6 +17,7 @@
 
 .. version:: $$VERSION$$
 .. moduleauthor::  Hammad Hai <hammad.a.hai@gmail.com>
+.. @pritam updated to CIS v1.2.0
 
 """
 from security_monkey.auditor import Categories
@@ -29,14 +30,14 @@ class CISManagedPolicyAuditor(IAMPolicyAuditor):
     i_am_singular = ManagedPolicy.i_am_singular
     i_am_plural = ManagedPolicy.i_am_plural
 
-    def check_1_22_ensure_incident_management_roles(self, item):
+    def check_1_20_ensure_incident_management_roles(self, item):
         """
-        CIS Rule 1.22 - Ensure a support role has been created to manage
+        CIS Rule 1.22 (v1.1.0) / 1.20 (v1.2.0) - Ensure a support role has been created to manage
         incidents with AWS Support (Scored)
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-iam-cis-1.22 - ',
+            description='sa-iam-cis-1.20 - ',
             specific='AWSSupportAccess policy not created.'
         )
         if '/AWSSupportAccess' in item.config['arn']:
