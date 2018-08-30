@@ -16,14 +16,15 @@ class EC2InstanceAuditor(Auditor):
     i_am_singular = EC2Instance.i_am_singular
     i_am_plural = EC2Instance.i_am_plural
 
-    def check_1_21_ensure_iam_instance_roles_used(self, item):
+    def check_1_19_ensure_iam_instance_roles_used(self, item):
         """
-        CIS Rule 1.21 - Ensure IAM instance roles are used for AWS resource
+        CIS Rule 1.21 (v1.1.0) / 1.19 (v1.2.0) - Ensure IAM instance roles are used for AWS resource
         access from instances (Scored)
+
         """
         issue = Categories.INFORMATIONAL
         notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-iam-cis-1.21 - ',
+            description='sa-iam-cis-1.19 - ',
             specific='Instance not assigned IAM role for EC2.'
         )
         if not item.config.get('iam_instance_profile'):
