@@ -130,7 +130,7 @@ def get_top_x_recent_findings(account, days, num_findings=20, debug=True):
     query = query.order_by(ItemAudit.score.desc())
 
     # Get records
-    items = query.limit(num_findings).all()
+    items = query.distinct().limit(num_findings).all()
 
     marshaled_items = []
 
