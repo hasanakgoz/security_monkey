@@ -73,6 +73,8 @@
                         <th>Technology</th>
                         <th>Finding</th>
                         <th>Note</th>
+                        <th>Severity</th>
+
                     </tr>
 
                     </thead>
@@ -84,8 +86,10 @@
                             <td data="{{ finding.arn }}">{{ findings.index(finding) + 1 }}</td>
 
                             <td>{{ finding.technology }}</td>
-                            <td>{{ finding.finding }}</td>
+                            <td><a href="{{ base_url }}/#/viewitem/{{ finding.item_id }}"> {{ finding.finding }}</a>
+                            </td>
                             <td>{{ finding.notes }}</td>
+                            <td>{{ finding.severity }}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -124,7 +128,7 @@
                     {% for finding in findings %}
                         <tr>
                             <td data="{{ finding.arn }}">{{ findings.index(finding) + 1 }}</td>
-                            <td>{{ finding.issue }}</td>
+                            <td><a href="{{ base_url }}/#/viewitem/{{ finding.item_id }}"> {{ finding.issue }} </a></td>
                             <td>{{ finding.severity }}</td>
                         </tr>
                     {% else %}

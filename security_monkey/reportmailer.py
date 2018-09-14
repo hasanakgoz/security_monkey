@@ -18,10 +18,11 @@ from security_monkey.common.utils import send_email
 from security_monkey.datastore import Technology, Item, ItemAudit, Account, ItemRevision
 
 
-def create_report(account_name, account_identifier, days=1, debug=True):
+def create_report(base_url, account_name, account_identifier, days=1, debug=True):
     """
     Finds all the reporting items for the account, and using a Jinja template, create a report that can be emailed.
 
+    :param base_url: Base URL of the accessible web
     :param days:
     :param account_name:
     :param account_identifier:
@@ -32,13 +33,15 @@ def create_report(account_name, account_identifier, days=1, debug=True):
     jenv = get_jinja_env()
     template = jenv.get_template('ta_daily_summary_report.html')
 
-    _recent_findings = get_top_x_recent_findings(account_name, days) # 20 Most Recent Security Configuration Findings
-    _recent_guardduty_findings = get_guardduty_findings(account_name, days) # 20 Most Recent Security Operations Findings (High/Medium)
+    _recent_findings = get_top_x_recent_findings(account_name, days)  # 20 Most Recent Security Configuration Findings
+    _recent_guardduty_findings = get_guardduty_findings(account_name,
+                                                        days)  # 20 Most Recent Security Operations Findings (High/Medium)
 
     _report_date = datetime.today().strftime('%a, %d %b %Y')
 
     return template.render(
-        {'report_date': _report_date, 'account_identifier': account_identifier, 'account_name': account_name,
+        {'base_url': base_url, 'report_date': _report_date, 'account_identifier': account_identifier,
+         'account_name': account_name,
          'recent_findings': _recent_findings,
          'recent_guardduty_findings': _recent_guardduty_findings})
 
@@ -76,13 +79,15 @@ def report_mailer(accounts, days=1):
                 continue
 
             _masked_identifier = 'XXXXXXXX{}'.format(_account_info[0].identifier[-4:])
-            report = create_report(account_name=account, account_identifier=_masked_identifier, days=days,
+            report = create_report(base_url=app.config['BASE_URL'], account_name=account,
+                                   account_identifier=_masked_identifier, days=days,
                                    debug=True)
             recipients = _account_info[0].email_address.split(',')
             email_report(report, recipients=recipients)
     except (OperationalError, InvalidRequestError, StatementError) as e:
         app.logger.exception("Database error processing accounts %s, cleaning up session.", accounts)
         db.session.remove()
+
 
 def get_top_x_recent_findings(account, days, num_findings=20, debug=True):
     """
@@ -112,7 +117,13 @@ def get_top_x_recent_findings(account, days, num_findings=20, debug=True):
     # limit 10;
 
     query = Technology.query.with_entities(Technology.name, ItemAudit.issue,
-                                           ItemAudit.notes)
+                                           ItemAudit.notes,
+                                           case([
+                                               (ItemAudit.score > 7, 'High'),
+                                               (ItemAudit.score.between(4, 8), 'Medium'),
+                                           ], else_='Low').label('severity'),
+                                           ItemRevision.item_id.label('item_id')
+                                           )
     query = query.join(Item, Item.tech_id == Technology.id)
     query = query.join(ItemAudit, Item.id == ItemAudit.item_id)
     query = query.join(ItemRevision, Item.id == ItemRevision.item_id)
@@ -137,9 +148,11 @@ def get_top_x_recent_findings(account, days, num_findings=20, debug=True):
     for row in items:
         row_dict = dict(row.__dict__)
         marshaled_items.append({
+            'item_id': row_dict['item_id'],
             'technology': row_dict['name'].capitalize(),
             'finding': row_dict['issue'],
-            'notes': row_dict['notes']
+            'notes': row_dict['notes'],
+            'severity': row_dict['severity'].capitalize()
         })
 
     marshaled_response = {
@@ -181,27 +194,26 @@ def get_guardduty_findings(account, days, num_findings=20, debug=True):
     #   and coalesce (ia.fixed, false) is false;
     #   and itemaudit.score > 4
 
-
     subquery = ItemRevision.query.with_entities(ItemRevision.item_id.label('item_id'),
                                                 func.max(ItemRevision.date_created).label('last_updated'))
     subquery = subquery.group_by(ItemRevision.item_id).subquery('ir')
 
     query = Item.query.with_entities(Item.name, ItemAudit.issue, Item.arn,
-                                           case([
-                                               (ItemAudit.score > 7 , 'High'),
-                                               (ItemAudit.score.between(4,8) , 'Medium'),
-                                                 ], else_ = 'Low').label('severity'))
+                                     case([
+                                         (ItemAudit.score > 7, 'High'),
+                                         (ItemAudit.score.between(4, 8), 'Medium'),
+                                     ], else_='Low').label('severity'))
     query = query.join(Technology, Item.tech_id == Technology.id)
     query = query.join(ItemAudit, Item.id == ItemAudit.item_id)
     query = query.join(subquery, subquery.c.item_id == Item.id)
     query = query.join((Account, Account.id == Item.account_id))
 
     # Lookup filters
-    query = query.filter(Account.name == account)   # Match Account Name
-    query = query.filter(Technology.name == 'guardduty')   # Match Technology Name
+    query = query.filter(Account.name == account)  # Match Account Name
+    query = query.filter(Technology.name == 'guardduty')  # Match Technology Name
     query = query.filter((coalesce(ItemAudit.justified, False) == False))
     query = query.filter((coalesce(ItemAudit.fixed, False) == False))
-    query = query.filter(ItemAudit.score > 4) # Exclude Low Priority Items from Mailer
+    query = query.filter(ItemAudit.score > 4)  # Exclude Low Priority Items from Mailer
     query = query.filter(subquery.c.last_updated >= (datetime.now() - timedelta(days=days)).date())
 
     # Sort by ItemAudit Severity High -> Low
@@ -218,7 +230,8 @@ def get_guardduty_findings(account, days, num_findings=20, debug=True):
             'arn': row_dict['arn'],
             'name': row_dict['name'].capitalize(),
             'issue': row_dict['issue'].capitalize(),
-            'severity': row_dict['severity'].capitalize()
+            'severity': row_dict['severity'].capitalize(),
+            'item_id': row_dict['item_id']
         })
 
     marshaled_response = {
