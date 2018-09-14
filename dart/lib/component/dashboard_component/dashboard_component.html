@@ -137,90 +137,6 @@
             </div>
 
         </div>
-
-        <div class="row">
-            <div class="col-md-12"><h4>Vulnerability Severity</h4></div>
-            <div class="col-md-4 text-center">
-                <dl class="palette palette-alizarin">
-                    <h3 class="mt-0">254</h3>
-                    <span>High</span>
-                </dl>
-            </div>
-
-            <div class="col-md-4 text-center">
-                <dl class="palette palette-carrot">
-                    <h3 class="mt-0">958</h3>
-                    <span>Medium</span>
-                </dl>
-            </div>
-
-            <div class="col-md-4 text-center">
-                <dl class="palette palette-sun-flower">
-                    <h3 class="mt-0">3,259</h3>
-                    <span>Low</span>
-                </dl>
-            </div>
-
-        </div>
-
-        <br>
-
-        <div class="row">
-            <div class="col-md-12"><h4>Vulnerabilities Technology</h4></div>
-
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-
-                        <div class="wrapper">
-                            <div class="chart-container">
-                                <canvas id="categorycanvas"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <br>
-
-        <div class="row">
-            <div class="col-md-12"><h4>Threat Actors</h4></div>
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Locations</h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <div class="wrapper">
-                            <!--World Map Component-->
-                            <leaflet-map id="worldmap" min-zoom=".75" maxBounds="[[90,-180],[-90, 180]]" fit-to-markers></leaflet-map>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Connection Volume by Country</h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="wrapper">
-                            <div class="chart-container">
-                                <canvas id="countrycanvas"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!--
         <div class="row">
             <div class="col-lg-6">
                 <div class="wrapper">
@@ -234,18 +150,15 @@
                 <div class="wrapper">
                     <div><h3 class="charthead">Vulnerabilities by Technology</h3></div>
                     <div class="chart-container">
-
+                        <canvas id="categorycanvas"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-        -->
-
-        <!--
         <div class="row">
             <div class="col-lg-6">
                 <div class="wrapper">
-
+                    <!--World Map Component-->
                     <div><h3 class="charthead">Threat Actor Locations</h3></div>
                     <leaflet-map id="worldmap" min-zoom=".75" maxBounds="[[90,-180],[-90, 180]]" fit-to-markers>
                     </leaflet-map>
@@ -260,7 +173,6 @@
                 </div>
             </div>
         </div>
-        -->
         <!-- POA&M Items Component -->
         <div class="row">
             <div class="col-lg-12">

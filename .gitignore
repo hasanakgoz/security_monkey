@@ -62,8 +62,3 @@ secmonkey.env
 *.key
 postgres-data/
 docker-compose.override.yml
-/server.js
-/dart/web/main.dart.html_reference
-/dart/web/main.dart
-/dart/web/main.dart.js
-/dart/web/packages/
