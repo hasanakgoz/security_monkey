@@ -139,7 +139,7 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12"><h4>Vulnerability Severity</h4></div>
+            <div class="col-md-12"><h4>Vulnerabilities by Severity</h4></div>
             <div class="col-md-4 text-center">
                 <dl class="palette palette-alizarin">
                     <h3 class="mt-0">254</h3>
@@ -166,7 +166,7 @@
         <br>
 
         <div class="row">
-            <div class="col-md-12"><h4>Vulnerabilities Technology</h4></div>
+            <div class="col-md-12"><h4>Vulnerabilities by Technology</h4></div>
 
             <div class="col-lg-12">
                 <div class="panel panel-default">
@@ -289,7 +289,7 @@
                             <tbody>
                             <tr ng-repeat="poamItem in poamItems">
                                 <td ng-if="selectedAccount == '__all_accounts__'">{{poamItem.account}}</td>
-                                <td><a href="#/viewitem/{{poamItem.item_id}}">{{poamItem.poam_id}}</a></td>
+                                <td><span class="badge badge badge-info"><a href="#/viewitem/{{poamItem.item_id}}">{{poamItem.poam_id}}</a></span></td>
                                 <td>{{poamItem.control}}</td>
                                 <td>{{poamItem.weakness_name}}</td>
                                 <td>{{poamItem.weakness_description}}</td>
@@ -313,8 +313,7 @@
                                 </pagination>
                             </div>
                             <div class="col-lg-3 pull-right">
-                                <br/> <!-- Why do I need a br-tag to get the dropdown to line up properly? -->
-                                <select ng-model="items_per_page" class="form-control">
+                                <select ng-model="items_per_page" class="form-control pull-right items-per-page-dropdown">
                                     <option
                                             ng-repeat="page in items_per_page_options"
                                             value="{{page}}">{{page}}
