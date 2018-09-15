@@ -46,6 +46,11 @@ body {
     margin-right: 0 !important;
 }
 
+.search-panel .panel-body p {
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
 .mt-0 {
     margin-top: 0px !important;
 }
@@ -62,4 +67,12 @@ body {
     position: relative;
     top: 16px;
     width: 100px;
+}
+
+.select2-choices {
+    border-radius: 4px !important;
+    border: 2px solid #bdc3c7 !important;
+    height: 42px !important;
+    padding: 4px 10px !important;
+    background-image: none !important;
 }
