@@ -76,3 +76,33 @@ body {
     padding: 4px 10px !important;
     background-image: none !important;
 }
+
+.pagination li.active > a, .pagination li.active > span {
+    color: white !important;
+}
+
+.pagination li > a:hover, .pagination li > a:focus, .pagination li > span:hover, .pagination li > span:focus {
+    color: white !important;
+}
+
+.dropdown-label {
+    position: relative;
+    top: 4px;
+}
+
+.btn-primary {
+    color: white !important;
+    background-color: #1abc9c !important;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu {
+    background-color: #F2F2F2 !important;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu > li > a {
+    color: #101010;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu > li > a:hover {
+    background-color: #dfdfdf;
+}

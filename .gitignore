@@ -67,3 +67,4 @@ docker-compose.override.yml
 /dart/web/main.dart
 /dart/web/main.dart.js
 /dart/web/packages/
+/rewrite-server.js

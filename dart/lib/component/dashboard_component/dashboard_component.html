@@ -121,6 +121,7 @@
         <!-- Accounts Filter Dropdown -->
         <div class="row">
             <div class="col-lg-12 text-right pull-right" ng-switch="isAccountSelectDisabled()">
+                <!--
                 <p>
                     Accounts:
                     <span ng-switch-when="true">
@@ -134,6 +135,14 @@
                         <option ng-repeat="account in accounts" value="{{ account.name }}">{{ account.name }}</option>
                     </select>
                 </p>
+                -->
+
+                <div class="btn-group">
+                    <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button" aria-expanded="false"><span class="dropdown-label">Accounts</span></button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li ng-repeat="account in accounts"><a href="" ng-click="newAccountSelected()">{{ account.name }}</a></li>
+                    </ul>
+                </div>
             </div>
 
         </div>
