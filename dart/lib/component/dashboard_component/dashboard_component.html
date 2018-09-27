@@ -151,21 +151,21 @@
             <div class="col-md-12"><h4>Vulnerabilities by Severity</h4></div>
             <div class="col-md-4 text-center">
                 <dl class="palette palette-alizarin">
-                    <h3 class="mt-0">254</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.high }}</h3>
                     <span>High</span>
                 </dl>
             </div>
 
             <div class="col-md-4 text-center">
                 <dl class="palette palette-carrot">
-                    <h3 class="mt-0">958</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.medium }}</h3>
                     <span>Medium</span>
                 </dl>
             </div>
 
             <div class="col-md-4 text-center">
                 <dl class="palette palette-sun-flower">
-                    <h3 class="mt-0">3,259</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.low }}</h3>
                     <span>Low</span>
                 </dl>
             </div>
@@ -186,7 +186,8 @@
 
                         <div class="wrapper">
                             <!--World Map Component-->
-                            <leaflet-map id="worldmap" min-zoom=".75" maxBounds="[[90,-180],[-90, 180]]" fit-to-markers></leaflet-map>
+                            <leaflet-map id="worldmap" min-zoom=".75" maxBounds="[[90,-180],[-90, 180]]"
+                                         fit-to-markers></leaflet-map>
                         </div>
                     </div>
 
@@ -295,7 +296,8 @@
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            POA&M Items for {{selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
+                            POA&M Items for
+                            {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
                     </div>
                     <div class="panel-body" ng-switch="poamItemsLoaded">
                         <div ng-switch-when="false">
@@ -316,14 +318,15 @@
                             </thead>
                             <tbody>
                             <tr ng-repeat="poamItem in poamItems">
-                                <td ng-if="selectedAccount == '__all_accounts__'">{{poamItem.account}}</td>
-                                <td><span class="badge badge badge-info"><a href="#/viewitem/{{poamItem.item_id}}">{{poamItem.poam_id}}</a></span></td>
-                                <td>{{poamItem.control}}</td>
-                                <td>{{poamItem.weakness_name}}</td>
-                                <td>{{poamItem.weakness_description}}</td>
-                                <td>{{poamItem.create_date | date:'short'}}</td>
-                                <td>{{poamItem.score}}</td>
-                                <td>{{poamItem.comments }}</td>
+                                <td ng-if="selectedAccount == '__all_accounts__'">{{ poamItem.account }}</td>
+                                <td><span class="badge badge badge-info"><a
+                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a></span></td>
+                                <td>{{ poamItem.control }}</td>
+                                <td>{{ poamItem.weakness_name }}</td>
+                                <td>{{ poamItem.weakness_description }}</td>
+                                <td>{{ poamItem.create_date | date:'short'}}</td>
+                                <td>{{ poamItem.score }}</td>
+                                <td>{{ poamItem.comments }}</td>
                             </tr>
                             </tbody>
                         </table>
@@ -341,10 +344,11 @@
                                 </pagination>
                             </div>
                             <div class="col-lg-3 pull-right">
-                                <select ng-model="items_per_page" class="form-control pull-right items-per-page-dropdown">
+                                <select ng-model="items_per_page"
+                                        class="form-control pull-right items-per-page-dropdown">
                                     <option
                                             ng-repeat="page in items_per_page_options"
-                                            value="{{page}}">{{page}}
+                                            value="{{ page }}">{{ page }}
                                     </option>
                                 </select>
                             </div>

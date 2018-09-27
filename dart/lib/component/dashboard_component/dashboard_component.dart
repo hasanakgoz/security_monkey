@@ -6,10 +6,6 @@ part of security_monkey;
         'packages/security_monkey/component/dashboard_component/dashboard_component.html',
     useShadowDom: false)
 class DashboardComponent extends PaginatedTable implements ShadowRootAware {
-  static int SEVERITY_LOW = 2;
-  static int SEVERITY_MEDIUM = 1;
-  static int SEVERITY_HIGH = 0;
-
   List accounts;
   List technologies;
   List<POAMItem> poamItems;
@@ -54,6 +50,14 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   };
 
   Map<String, String> guardDutyEventFilterParams = {'accounts': ''};
+
+  int vulnSevScores_high = 0;
+
+  Map<String, String> vulnSevScores_n = {
+    'high': 0,
+    'medium' : 0,
+    'low': 0
+  };
 
   DashboardComponent(this.routeProvider, this.router, this.store) {
     // Initialize Pagination to display only 10 items per page
@@ -111,7 +115,6 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   void loadDashboardCharts() {
     //    Display Loading Spinner on the Chart Controls
     showChartSpinner("countrycanvas");
-    showChartSpinner("severitycanvas");
     showChartSpinner("categorycanvas");
 
     loadSeverityBarChartData();
@@ -141,62 +144,14 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
         this.selectedAccount == '__all_accounts__' ? '' : this.selectedAccount;
     store.list(VulnBySeverity, params: severityChartFilterParams).then((items) {
       for (VulnBySeverity item in items) {
-        this.vulnSevScores[SEVERITY_LOW] = item.low;
-        this.vulnSevScores[SEVERITY_MEDIUM] = item.medium;
-        this.vulnSevScores[SEVERITY_HIGH] = item.high;
+        this.vulnSevScores_n['high'] = item.high.toString();
+        this.vulnSevScores_n['medium'] = item.medium.toString();
+        this.vulnSevScores_n['low'] = item.low.toString();
       }
-      loadSeverityBarChart();
+      
     });
   }
 
-  Future loadSeverityBarChart() async {
-    List<String> severityLabels = <String>[
-      'High - ' + this.vulnSevScores[SEVERITY_HIGH].toString(),
-      'Medium - ' + this.vulnSevScores[SEVERITY_MEDIUM].toString(),
-      'Low - ' + this.vulnSevScores[SEVERITY_LOW].toString()
-    ];
-    ChartDataSets chartDataSet = new ChartDataSets(
-        label: 'Vulnerabilities by Severity',
-        backgroundColor: [
-          'rgba(214,145,73,1)',
-          'rgba(237,194,79,1)',
-          'rgba(116,172,87,1)'
-        ],
-        data: this.vulnSevScores);
-
-    LinearChartData chartJsdata = new LinearChartData(
-        labels: severityLabels, datasets: <ChartDataSets>[chartDataSet]);
-
-    LinearTickOptions yTickOptions = new LinearTickOptions(beginAtZero: true);
-    ChartYAxe yAxisOptions = new ChartYAxe(ticks: yTickOptions);
-    ChartScales chartScale = new ChartScales(yAxes: [yAxisOptions]);
-    ChartOptions chartOptions =
-        new ChartOptions(responsive: false, scales: chartScale);
-    ChartLegendOptions chartLegendOptions =
-        new ChartLegendOptions(display: false, position: 'top');
-    ChartLegendLabelOptions chartLegendLabelOptions =
-        new ChartLegendLabelOptions(
-            fontSize: 18, fontColor: 'rgb(168, 168, 168)');
-    chartLegendOptions.labels = chartLegendLabelOptions;
-    chartOptions.responsive = true;
-    chartOptions.scales = chartScale;
-    chartOptions.legend = chartLegendOptions;
-
-    ChartConfiguration config = new ChartConfiguration(
-        type: 'bar', data: chartJsdata, options: chartOptions);
-
-    CanvasElement _canvas =
-        document.querySelector('#severitycanvas') as CanvasElement;
-    DivElement spinnerDiv =
-        _canvas.parent.querySelector('.spinner') as DivElement;
-    spinnerDiv.remove();
-    if (this.vulnSevScores.length == 0) {
-      showNoDataMessage("#severitycanvas");
-    }
-
-    this.vulnSevChart = new Chart(_canvas, config);
-    this.vulnSevChartLoading = false;
-  }
 
   Future loadTechnologyPieChart(List<VulnByTech> allItems) async {
     List<String> pieLabels = new List<String>();
@@ -399,11 +354,12 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
         ")";
   }
 
-  void newAccountSelected() {
+  void newAccountSelected(String newAccount) {
     new Future(() {
+
+      print("Switching to New Account: $newAccount");
       print("Switching to Account: $selectedAccount");
       // Due to a bug in ChartJS destroy does not work, but still calling it to clear max
-      this.vulnSevChart.destroy();
       this.vulnTechChart.destroy();
       this.topCountryChart.destroy();
       this.loadDashboardCharts();
@@ -412,7 +368,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   }
 
   bool isAccountSelectDisabled() {
-    return (this.vulnSevChartLoading ||
+    return (
         this.vulnTechChartLoading ||
         this.topCountryChartLoading ||
         !this.poamItemsLoaded);
