@@ -39,7 +39,7 @@ body {
 
 .dropdown-toggle:after {
     position: relative;
-    top: 12px;
+    top: 10px;
 }
 
 .navbar-right {
@@ -105,4 +105,13 @@ body {
 
 .btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu > li > a:hover {
     background-color: #dfdfdf;
+}
+
+.btn-info {
+    color: white !important;
+    background-color: #3498db !important;
+}
+
+.navbar-right a {
+    padding-bottom: 8px !important;
 }

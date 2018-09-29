@@ -138,9 +138,22 @@
                 -->
 
                 <div class="btn-group">
+                    <button data-toggle="dropdown" class="btn btn-info btn-sm dropdown-toggle" type="button" aria-expanded="false"><span class="dropdown-label">All-Time</span></button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li><a href="">Daily</a></li>
+                        <li><a href="">Weekly</a></li>
+                        <li><a href="">Monthly</a></li>
+                        <li><a href="">Annually</a></li>
+                        <li><a href="">All-Time</a></li>
+
+
+                    </ul>
+                </div>
+
+                <div class="btn-group">
                     <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button" aria-expanded="false"><span class="dropdown-label">Accounts</span></button>
                     <ul role="menu" class="dropdown-menu dropdown-menu-right">
-                        <li ng-repeat="account in accounts"><a href="" ng-click="newAccountSelected()">{{ account.name }}</a></li>
+                        <li ng-repeat="account in accounts"><a href="" ng-click="selectedAccount = account; newAccountSelected()">{{ account.name }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -151,21 +164,21 @@
             <div class="col-md-12"><h4>Vulnerabilities by Severity</h4></div>
             <div class="col-md-4 text-center">
                 <dl class="palette palette-alizarin">
-                    <h3 class="mt-0">{{ vulnSevScores_n.high }}</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.high | number: 0 }}</h3>
                     <span>High</span>
                 </dl>
             </div>
 
             <div class="col-md-4 text-center">
                 <dl class="palette palette-carrot">
-                    <h3 class="mt-0">{{ vulnSevScores_n.medium }}</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.medium | number: 0 }}</h3>
                     <span>Medium</span>
                 </dl>
             </div>
 
             <div class="col-md-4 text-center">
                 <dl class="palette palette-sun-flower">
-                    <h3 class="mt-0">{{ vulnSevScores_n.low }}</h3>
+                    <h3 class="mt-0">{{ vulnSevScores_n.low | number: 0 }}</h3>
                     <span>Low</span>
                 </dl>
             </div>
@@ -215,12 +228,13 @@
 
         <div class="row">
 
-
+            <div class="col-md-12"><h4>Vulnerabilities Identified</h4></div>
             <div class="col-lg-6">
-                <h4>Vulnerabilities by Technology</h4>
                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Technologies</h3>
+                    </div>
                     <div class="panel-body">
-
                         <div class="wrapper">
                             <div class="chart-container">
                                 <canvas id="categorycanvas"></canvas>
@@ -231,10 +245,11 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <h4>Issues by Time</h4>
                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Issues by Time</h3>
+                    </div>
                     <div class="panel-body">
-
                         <div class="wrapper">
                             <div class="chart-container">
                                 Stacked Bar Chart goes here (high, medium, low) by Month
