@@ -55,8 +55,13 @@ body {
     margin-top: 0px !important;
 }
 
+.mt-20 {
+    margin-top: 20px !important;
+}
+
 .pagination li>a, .pagination li>span {
     color: #999999 !important;
+    cursor: pointer;
 }
 
 .pagination li.disabled>a, .pagination li.disabled>span {
@@ -114,4 +119,41 @@ body {
 
 .navbar-right a {
     padding-bottom: 8px !important;
+}
+
+.view-item-heading {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.view-item-label {
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.badge {
+    background-color: white;
+    font-weight: 500;
+}
+
+.nav > li.disabled > a {
+    color: #dfdfdf;
+}
+
+.nav > li.disabled > a:hover, .nav > li.disabled > a:focus {
+    color: #dfdfdf;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    cursor: pointer;
+}
+
+.discovery-timeline-list .list-group-item {
+    cursor: pointer;
+}
+
+.nav-stacked {
+    font-size: 14px;
 }
