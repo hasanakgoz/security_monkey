@@ -116,7 +116,6 @@
         }
 
     </style>
-
     <div class="container-fluid">
         <!-- Accounts Filter Dropdown -->
         <div class="row">
@@ -136,9 +135,16 @@
                     </select>
                 </p>
                 -->
+                <select data-toggle="select" class="form-control select select-success mrs mbm"
+                        id="AccountChooser" ng-model="selectedAccount"
+                        ng-change="newAccountSelected()" style="display: none">
+                    <option value="__all_accounts__">All Accounts</option>
+                    <option ng-repeat="account in accounts" value="{{ account.name }}">{{ account.name }}</option>
+                </select>
 
-                <div class="btn-group">
-                    <button data-toggle="dropdown" class="btn btn-info btn-sm dropdown-toggle" type="button" aria-expanded="false"><span class="dropdown-label">All-Time</span></button>
+                <div class="btn-group" ng-switch-when="true">
+                    <button data-toggle="dropdown" class="btn btn-info btn-sm dropdown-toggle" type="button"
+                            aria-expanded="false" disabled><span class="dropdown-label">All-Time</span></button>
                     <ul role="menu" class="dropdown-menu dropdown-menu-right">
                         <li><a href="">Daily</a></li>
                         <li><a href="">Weekly</a></li>
@@ -150,10 +156,42 @@
                     </ul>
                 </div>
 
-                <div class="btn-group">
-                    <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button" aria-expanded="false"><span class="dropdown-label">Accounts</span></button>
+                <div class="btn-group" ng-switch-when="false">
+                    <button data-toggle="dropdown" class="btn btn-info btn-sm dropdown-toggle" type="button"
+                            aria-expanded="false">
+                        <span class="dropdown-label">All-Time</span></button>
                     <ul role="menu" class="dropdown-menu dropdown-menu-right">
-                        <li ng-repeat="account in accounts"><a href="" ng-click="selectedAccount = account; newAccountSelected()">{{ account.name }}</a></li>
+                        <li><a href="">Daily</a></li>
+                        <li><a href="">Weekly</a></li>
+                        <li><a href="">Monthly</a></li>
+                        <li><a href="">Annually</a></li>
+                        <li><a href="">All-Time</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group" ng-switch-when="true">
+                    <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button"
+                            aria-expanded="false" disabled>
+                        <span class="dropdown-label">Accounts
+                            <i class="fa fa-spinner fa-spin" style="color:darkblue"></i>
+                        </span>
+                    </button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li ng-repeat="account in accounts">
+                            <a href=""
+                               ng-click="selectedAccount = account.name; newAccountSelected()">{{ account }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn-group" ng-switch-when="false">
+
+                    <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button"
+                            aria-expanded="false"><span class="dropdown-label">
+                        Accounts
+                    </span></button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li ng-repeat="account in accounts"><a href=""
+                                                               ng-click="selectedAccount = account.name; newAccountSelected()">{{ account.name }}</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -163,24 +201,34 @@
         <div class="row">
             <div class="col-md-12"><h4>Vulnerabilities by Severity</h4></div>
             <div class="col-md-4 text-center">
-                <dl class="palette palette-alizarin">
-                    <h3 class="mt-0">{{ vulnSevScores_n.high | number: 0 }}</h3>
-                    <span>High</span>
-                </dl>
+                <a data-toggle="tooltip" data-placement="bottom"
+                   title="High denotes the count of items with Audit Score over 10">
+                    <dl class="palette palette-alizarin">
+                        <h3 class="mt-0">{{ vulnSevScores_n.high }}</h3>
+                        <span>High</span>
+                    </dl>
+                </a>
+            </div>
+            <div class="col-md-4 text-center">
+                <a data-toggle="tooltip" data-placement="bottom"
+                   title="Medium denotes the count of items with Audit Score between 4 and 10">
+
+                    <dl class="palette palette-carrot">
+                        <h3 class="mt-0">{{ vulnSevScores_n.medium }}</h3>
+                        <span>Medium</span>
+                    </dl>
+                </a>
+
             </div>
 
             <div class="col-md-4 text-center">
-                <dl class="palette palette-carrot">
-                    <h3 class="mt-0">{{ vulnSevScores_n.medium | number: 0 }}</h3>
-                    <span>Medium</span>
-                </dl>
-            </div>
-
-            <div class="col-md-4 text-center">
-                <dl class="palette palette-sun-flower">
-                    <h3 class="mt-0">{{ vulnSevScores_n.low | number: 0 }}</h3>
-                    <span>Low</span>
-                </dl>
+                <a data-toggle="tooltip" data-placement="bottom"
+                   title="Low denotes the count of items with Audit Score below 5">
+                    <dl class="palette palette-sun-flower">
+                        <h3 class="mt-0">{{ vulnSevScores_n.low }}</h3>
+                        <span>Low</span>
+                    </dl>
+                </a>
             </div>
 
         </div>
@@ -376,3 +424,8 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>

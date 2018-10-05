@@ -54,9 +54,9 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   int vulnSevScores_high = 0;
 
   Map<String, String> vulnSevScores_n = {
-    'high': 0,
-    'medium' : 0,
-    'low': 0
+    'high': '-',
+    'medium' : '-',
+    'low': '-'
   };
 
   DashboardComponent(this.routeProvider, this.router, this.store) {
@@ -354,12 +354,15 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
         ")";
   }
 
-  void newAccountSelected(String newAccount) {
+  void newAccountSelected() {
     new Future(() {
 
-      print("Switching to New Account: $newAccount");
       print("Switching to Account: $selectedAccount");
       // Due to a bug in ChartJS destroy does not work, but still calling it to clear max
+      this.vulnSevScores_n['high'] = '-';
+      this.vulnSevScores_n['medium'] = '-';
+      this.vulnSevScores_n['low'] = '-';
+
       this.vulnTechChart.destroy();
       this.topCountryChart.destroy();
       this.loadDashboardCharts();
