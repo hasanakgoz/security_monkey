@@ -1,34 +1,36 @@
-<div class="panel panel-info">
+<div class="panel panel-info items-panel">
   <div class="panel-heading">
-    <button type="button" class="btn btn-default btn-xs pull-right disabled">
-      <span class="pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
-    </button>
+
+      <span class="pull-right items-displayed">{{ items_displayed() }} of {{ totalItems }}</span>
+
+    <div class="items-button-group">
      <div class="dropdown black pull-right">
       <button type="button"
-              class="btn btn-default btn-xs pull-right dropdown-toggle"
-              data-toggle="dropdown">
+              class="btn btn-primary btn-xs pull-right dropdown-toggle settings-button"
+              data-toggle="dropdown" style="height: 25px;">
         <span class="glyphicon glyphicon-cog">
-        </span><span class="caret"></span>&nbsp;
+        </span>
       </button>
       <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1">
         <li class="{{ class_for_selection(2, 4) }}"><a href="{{url_for_compare()}}">Compare</a></li>
         <!--<li class="{{ class_for_selection(1, 9999) }}"><a>Ignore these items</a></li>-->
       </ul>
      </div>
-    <button ng-click="export()" type="button" class="btn btn-default btn-xs pull-right">
+    <button ng-click="export()" type="button" class="btn btn-primary btn-xs pull-right">
       <span class="glyphicon glyphicon-export pull-right"></span>
       <span class="pull-right">Export &nbsp;</span>
     </button>
-    <button type="button" class="btn btn-default btn-xs pull-right" ng-click="list()">
+    <button type="button" class="btn btn-primary btn-xs pull-right" ng-click="list()">
       <span
         class="glyphicon glyphicon-refresh pull-right">
       </span>Refresh Now&nbsp;
     </button>
-    <button type="button" class="btn btn-default btn-xs pull-right" ng-click="autorefresh = !autorefresh">
+    <button type="button" class="btn btn-primary btn-xs pull-right" ng-class="{autorefreshon: autorefresh == true, autorefreshoff: autorefresh != true}" ng-click="autorefresh = !autorefresh">
       <span
         class="glyphicon glyphicon-time pull-right disabled">
         </span>AutoRefresh {{ autorefresh }}&nbsp;
     </button>
+    </div>
     <h3 class="panel-title">Items</h3>
   </div>
   <div class="panel-body" ng-switch="is_loaded">
@@ -90,7 +92,7 @@
           </div>
           <div class="col-lg-3 pull-right">
           <br/> <!-- Why do I need a br-tag to get the dropdown to line up properly? -->
-            <select ng-model="items_per_page" class="form-control">
+            <select ng-model="items_per_page" class="form-control search-items-per-page-dropdown">
               <option
                 ng-repeat="page in items_per_page_options"
                 value="{{page}}">{{page}}</option>
