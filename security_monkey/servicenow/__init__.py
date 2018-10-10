@@ -45,9 +45,9 @@ def report_incident(itemid):
         # 'item_id': row_dict['Item'].id,
         # 'account': row_dict['account'],
         'caused_by': row_dict['control'],
-        # 'weakness_name': row_dict['weakness_name'],
-        'short_description': row_dict['weakness_description'],
-        'impact': row_dict['score'],
+        'security_tags': [row_dict['weakness_name'],row_dict['control'] ],
+        'incident': row_dict['weakness_description'],
+        'severity': row_dict['score'],
         # 'create_date': str(row_dict['create_date']),
         'description': row_dict['config']
     }
@@ -55,7 +55,7 @@ def report_incident(itemid):
     import requests
     import json
 
-    url = "https://dev71680.service-now.com/api/now/table/incident"
+    url = "https://dev71680.service-now.com/api/now/table/sn_si_incident"
     username = 'admin'
     password = 'oe8JIMrpi0SQ'
 
