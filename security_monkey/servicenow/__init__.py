@@ -55,9 +55,13 @@ def report_incident(itemid):
     import requests
     import json
 
-    url = "https://dev71680.service-now.com/api/now/table/sn_si_incident"
-    username = 'admin'
-    password = 'oe8JIMrpi0SQ'
+    url = "https://corespheredemo2.service-now.com/api/now/table/sn_si_incident"
+    username = 'eshwar'
+    password = 'P@55w0rd'
+
+    # url = "https://dev71680.service-now.com/api/now/table/sn_si_incident"
+    # username = 'admin'
+    # password = 'oe8JIMrpi0SQ'
 
     payload = str(payload_dict)
     headers = {
