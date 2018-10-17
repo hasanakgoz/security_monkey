@@ -69,6 +69,9 @@ class VulnerabilitiesByTech(AuthenticatedService):
         """
 
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('sev', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+
         args = self.reqparse.parse_args()
         for k, v in args.items():
             if not v:
@@ -88,6 +91,15 @@ class VulnerabilitiesByTech(AuthenticatedService):
             accounts = args['accounts'].split(',')
             query = query.join((Account, Account.id == Item.account_id))
             query = query.filter(Account.name.in_(accounts))
+
+        if 'sev' in args:
+            sev = args['sev'].lower()
+            if sev == 'low':
+                query = query.filter(ItemAudit.score < 5)
+            elif sev == 'medium':
+                query = query.filter(between(ItemAudit.score, 5, 10))
+            elif sev == 'high':
+                query = query.filter(ItemAudit.score > 10)
 
         items = query.all()
 
