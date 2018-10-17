@@ -158,6 +158,8 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
         """
 
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+
         args = self.reqparse.parse_args()
         for k, v in args.items():
             if not v:
@@ -165,11 +167,17 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
 
         baseQuery = ItemAudit.query.filter(ItemAudit.justified == false())
         baseQuery = baseQuery.filter(ItemAudit.fixed == false())
+        baseQuery = baseQuery.join((Item, ItemAudit.item_id == Item.id))
+
         if 'accounts' in args:
             accounts = args['accounts'].split(',')
-            baseQuery = baseQuery.join((Item, ItemAudit.item_id == Item.id))
             baseQuery = baseQuery.join((Account, Account.id == Item.account_id))
             baseQuery = baseQuery.filter(Account.name.in_(accounts))
+
+        if 'tech' in args:
+            tech = args['tech'].split(',')
+            baseQuery = baseQuery.join((Technology, Technology.id == Item.tech_id))
+            baseQuery = baseQuery.filter(Technology.name.in_(tech))
 
         # select count(1) from itemaudit where justified=false and fixed=false and score < 5
         lowQuery = baseQuery.filter(ItemAudit.score < 5)
