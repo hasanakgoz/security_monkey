@@ -370,6 +370,11 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     });
   }
 
+  void someClick(param){
+    new Future((){
+      print("someClick: Object Clicked: $param");
+    });
+  }
   bool isAccountSelectDisabled() {
     return (
         this.vulnTechChartLoading ||

@@ -94,7 +94,7 @@ function createCountryBarChart(data,id) {
     // SETUP
     svg=null;
    svg = d3.select("#"+id),
-        margin = { top: 20, right: 20, bottom: 60, left: 40 },
+        margin = { top: 20, right: 20, bottom: 60, left: 80 },
         x = d3.scaleBand().padding(0.1),
         y = d3.scaleLinear(),
         theData = data;
@@ -110,7 +110,7 @@ function createCountryBarChart(data,id) {
 
     g.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -40)
+        .attr("y", 0 - margin.left)
         .attr("x", -100)
         .attr("dy", "0.71em")
         .attr("text-anchor", "end")

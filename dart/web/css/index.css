@@ -14,9 +14,9 @@ float: right !important;
 
 /*Threat Actors Styles Start*/
 .panel {
-    margin-bottom: 21px;
+    /*margin-bottom: 21px;*/
     color: #333333;
-    background-color:#ffffff;
+    /*background-color:#ffffff;*/
     border: 1px solid #dddddd;
     border-radius: 0;
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.05);
@@ -38,19 +38,19 @@ float: right !important;
 }
 
 .panel-body {
-    padding: 15px;
+    padding: 0px;
 }
 
 div.wrapper {
     text-align: center;
     width: 100%;
     display: block;
-    margin-bottom: 25px;
-    height: 373px;
+    /*margin-bottom: 25px;*/
+    height: 397px;
 }
 
 .map-height{
-    height: 300px;
+    height: 373px;
 }
 
 /* The Modal (background) */
@@ -79,10 +79,6 @@ div.wrapper {
     font-weight: 700;
     text-align: right;
     opacity: 1 !important;
-}
-
-h4{
-    margin:0;
 }
 
 .close:hover,

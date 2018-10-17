@@ -1,16 +1,19 @@
 <div class="panel panel-{{ panelClassForRevision() }}">
   <div class="panel-heading">
+      <h3 class="panel-title">
     {{rev.date_created | date:'medium'}}
     <span ng-if="rev.date_last_ephemeral_change != null">
     | Ephemeral Change: {{rev.date_last_ephemeral_change| date:'medium'}}
     </span>
+
     <span ng-switch="rev.active" class="pull-right">
-      <span ng-switch-when="true" class="glyphicon glyphicon-ok">Active</span>
-      <span ng-switch-when="false" class="glyphicon glyphicon-remove">Deleted</span>
+      <span ng-switch-when="true"><span class="glyphicon glyphicon-ok"></span> Active</span>
+      <span ng-switch-when="false"><span class="glyphicon glyphicon-remove"></span> Deleted</span>
     </span>
+      </h3>
   </div>
   <div class="panel-body">
-    <div class="col-md-3">
+    <div class="col-md-3" style="padding: 0">
       <tabset vertical="true" type="'pills'">
         <tab heading="Current" select="select_tab('current')"></tab>
         <tab disabled="!has_expanded_section()" heading="Expanded" select="select_tab('expanded')"></tab>
