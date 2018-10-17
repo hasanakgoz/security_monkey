@@ -6,6 +6,7 @@
 .. moduleauthor:: Pritam D. Gautam <pritam.gautam@nuagedm.com> @nuagedm
 
 """
+import string
 
 from sqlalchemy import false, between
 from sqlalchemy.sql.functions import count as sqlcount, func
@@ -245,6 +246,8 @@ class IssuesCountByMonth(AuthenticatedService):
         """
 
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('sev', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
         args = self.reqparse.parse_args()
         for k, v in args.items():
             if not v:
@@ -257,6 +260,20 @@ class IssuesCountByMonth(AuthenticatedService):
             accounts = args['accounts'].split(',')
             baseQuery = baseQuery.join((Account, Account.id == Item.account_id))
             baseQuery = baseQuery.filter(Account.name.in_(accounts))
+
+        if 'sev' in args:
+            sev = args['sev'].lower()
+            if sev == 'low':
+                baseQuery = baseQuery.filter(ItemAudit.score < 5)
+            elif sev == 'medium':
+                baseQuery = baseQuery.filter(between(ItemAudit.score, 5, 10))
+            elif sev == 'high':
+                baseQuery = baseQuery.filter(ItemAudit.score > 10)
+
+        if 'tech' in args:
+            tech = args['tech'].split(',')
+            baseQuery = baseQuery.join((Technology, Technology.id == Item.tech_id))
+            baseQuery = baseQuery.filter(Technology.name.in_(tech))
 
         baseQuery = baseQuery.group_by('"Month"')
         baseQuery = baseQuery.order_by('"Month"')
