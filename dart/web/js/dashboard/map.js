@@ -2,6 +2,7 @@
 
 var map;
 var markergroup;
+var markerClusters;
 
 function drawmap() {
     var apiKey = 'pk.eyJ1Ijoic2FjaGlucmF0aGkiLCJhIjoiY2plNWxxNzUwMWg2ZzMzbXU2Zmh3cHR2aCJ9.9FJw0UNcmUlfQNQV7NJayg';
@@ -28,7 +29,7 @@ function loadData(d) {
     if (markergroup.length > 0) {
         removeMarkers();
     }
-    var markerClusters = L.markerClusterGroup();
+    markerClusters = L.markerClusterGroup();
     var iconurl = 'images/pin-green@2x.png';
     Icon = L.icon({
         iconUrl: iconurl
@@ -50,9 +51,21 @@ function removeMarkers() {
     for (var i = 0; i < markergroup.length; i++) {
         map.removeLayer(markergroup[i]);
     }
+    map.removeLayer(markerClusters);
+    markerClusters.clearLayers()
 }
 
 function markerOnClick(data) {
+    if(data.severity === 'Low'){
+        $('#sev_img').attr('src','images/low_sev.png');
+    }
+    else if(data.severity === 'Medium'){
+        $('#sev_img').attr('src','images/med_sev.png');
+    }
+    else if(data.severity === 'High'){
+        $('#sev_img').attr('src','images/high_sev.png');
+    }
+    $('#gotoitem').attr('href','#/viewitem/'+data.item_id)
     $('#ip_address').text(data.remoteIpV4);
     $('#city').text(data.cityName);
     $('#country').text(data.countryName);
@@ -62,6 +75,15 @@ function markerOnClick(data) {
     $('#asn_org').text(data.remoteOrgASNOrg);
     $('#isp').text(data.remoteOrgISP);
     $('#org').text(data.remoteOrg);
+    $('#first_seen').text(data.first_seen);
+    $('#last_seen').text(data.last_seen);
+    $('#port').text(data.localPort);
+    $('#port_name').text(data.LocalPortDetails_PortName);
+    $('#severity').text(data.severity);
+    $('#region').text(data.region);
+    $('#count').text(data.count);
+    $('#accountid').text(data.accountid);
+    $('#description').text(data.description);
 
     document.getElementById('mapModal').style.display = "block";
 }

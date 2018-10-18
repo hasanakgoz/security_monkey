@@ -1,12 +1,12 @@
 <div class="col-sm-{{columnWidth()}}">
     <div class="panel panel-info">
-        <div class="panel-heading">Base Item</div>
+        <div class="panel-heading"><h3 class="panel-title">Base Item</h3></div>
         <ul class="list-group">
-            <li class="list-group-item"><h5>Technology <span class="pull-right">{{base_item.technology}}</span></h5></li>
-            <li class="list-group-item"><h5>Region <span class="pull-right">{{base_item.region}}</span></h5></li>
-            <li class="list-group-item"><h5>Account <span class="pull-right">{{base_item.account}}</span></h5></li>
-            <li class="list-group-item"><h5>Name <span class="pull-right">{{base_item.name}}</span></h5></li>
-            <li class="list-group-item"><h5>Date <span class="pull-right">{{base_revision.date_created}}</span></h5></li>
+            <li class="list-group-item"><p>Technology <span class="pull-right">{{base_item.technology}}</span></p></li>
+            <li class="list-group-item"><p>Region <span class="pull-right">{{base_item.region}}</span></p></li>
+            <li class="list-group-item"><p>Account <span class="pull-right">{{base_item.account}}</span></p></li>
+            <li class="list-group-item"><p>Name <span class="pull-right">{{base_item.name}}</span></p></li>
+            <li class="list-group-item"><p>Date <span class="pull-right">{{base_revision.date_created}}</span></p></li>
         </ul>
     </div>
     <div class="panel panel-info">
@@ -18,16 +18,16 @@
 
 <div class="col-sm-{{columnWidth()}}" ng-repeat="tuple in compare_item_revisions">
     <div class="panel panel-info">
-        <div class="panel-heading">Compare Item</div>
+        <div class="panel-heading"><h3 class="panel-title">Compare Item</h3></div>
         <ul class="list-group">
-            <li class="list-group-item"><h5>Technology <span class="pull-right">{{tuple.item.technology}}</span></h5></li>
-            <li class="list-group-item"><h5>Region <span class="pull-right">{{tuple.item.region}}</span></h5></li>
-            <li class="list-group-item"><h5>Account <span class="pull-right">{{tuple.item.account}}</span></h5></li>
-            <li class="list-group-item"><h5>Name <span class="pull-right">{{tuple.item.name}}</span></h5></li>
-            <li class="list-group-item"><h5>Date <span class="pull-right">{{tuple.revision.date_created}}</span></h5></li>
+            <li class="list-group-item"><p>Technology <span class="pull-right">{{tuple.item.technology}}</span></p></li>
+            <li class="list-group-item"><p>Region <span class="pull-right">{{tuple.item.region}}</span></p></li>
+            <li class="list-group-item"><p>Account <span class="pull-right">{{tuple.item.account}}</span></p></li>
+            <li class="list-group-item"><p>Name <span class="pull-right">{{tuple.item.name}}</span></p></li>
+            <li class="list-group-item"><p>Date <span class="pull-right">{{tuple.revision.date_created}}</span></p></li>
         </ul>
     </div>
-    <div class="panel panel-info">
+    <div class="panel panel-info" style="font-size: 15px;">
         <div>
             <span ng-bind-html="tuple.revision.diff_html"></span>
         </div>

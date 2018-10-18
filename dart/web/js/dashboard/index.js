@@ -9,15 +9,25 @@ var page = 1;
 var nodatachild = "<div class=\"nodata center-block\"><div class=\"alert alert-warning inner text-center\"><strong>No Data Available!</strong></div></div>"
 var spinnerchild = "<div class=\"spinner\"></div>"
 
+function loadCharts(option) {
+    param = 'tech=' + js_filter_tech + '&sev=' + js_filter_sev + '&accounts=' + selectedAccount;
+
+    if(option === 'all'){
+        // We are not applying Tech and Sev filters to Guardduty based WorldMap and Country Barchart
+        getTop10CountryGuardDuty('accounts=' + selectedAccount);
+        getWorldMapGuardDutyData('accounts=' + selectedAccount);
+    }
+
+    getVulnByTech(param);
+    getIssuesByTime(param);
+    document.getElementById('mapModal').style.display = "none";
+}
+
 $(document).ready(function () {
     // getAccounts('active=true&count=1000000000&page='+page);
-    getTop10CountryGuardDuty('accounts=');
-    getWorldMapGuardDutyData('accounts=');
-    // getPoamItems('count='+count+'&page='+page);
-    getVulnByTech('accounts=');
-    getIssuesByTime('');
+    loadCharts('all');
     drawmap();
-    document.getElementById('mapModal').style.display = "none"
+
 })
 
 
@@ -85,7 +95,7 @@ function getIssuesByTime(param) {
     $('#barchart_time').css("visibility", 'hidden');
     $('#barchart_time_wrapper').append(spinnerchild);
 
-    $.when(callapi('issuescountbymonth' + param, 'GET')).then(function (response) {
+    $.when(callapi('issuescountbymonth?' + param, 'GET')).then(function (response) {
         response.then(resp => {
             $('#barchart_time_wrapper').children('.spinner').remove();
             $('#barchart_time').css("visibility", 'visible');
@@ -108,38 +118,42 @@ function getIssuesByTime(param) {
 //     }
 // }
 
-function deleteGraphs() {
+function deleteGraphs(options) {
+    // Issues Over time
     $('#barchart_time').empty();
+    // Technology PieChart
     $('#piechart').empty();
-    removeMarkers();
+    if(options === 'all'){
+        // Clear Map Markers
+        removeMarkers();
+        // Reset Connection Volume
+        $('#barchart').empty();
+    }
 }
 
 function filterAccounts(data) {
+    js_filter_sev = '';
+    js_filter_tech = '';
     selectedAccount = data;
     console.log('events is ', data);
-    deleteGraphs();
-    $('#barchart').empty();
-    // getVulnBySeverity('accounts=' + data);
-    getTop10CountryGuardDuty('accounts=' + data);
-    getWorldMapGuardDutyData('accounts=' + data);
-    // getPoamItems('count='+count+'&page='+page+'&accounts='+data);
-    getVulnByTech('accounts=' + data);
-    getIssuesByTime('?accounts=' + data);
+    deleteGraphs('all');
+    loadCharts('all')
 }
 
 function filterBySev(data) {
+    js_filter_sev = data;
     console.log('techdata is ', data);
-    deleteGraphs();
-    // getPoamItems('count='+count+'&page='+page+'&sev='+data);
-    getVulnByTech('sev=' + data);
-    getIssuesByTime('?sev=' + data);
+    deleteGraphs('');
+    loadCharts('');
 }
 
 function filterByTech(data) {
-    console.log('techdata is ', data);
-    $('#barchart_time').empty();
-    // getPoamItems('count='+count+'&page='+page+'&tech='+data);
-    getIssuesByTime('?tech=' + data);
+    js_filter_tech = data.data.technology;
+    // Set the attribute tech attribute value to the selected Chart Element Value.
+    // This value is used by Dart to apply PAOM Filters.
+    $('#tech_piechart_wrapper').attr('tech', data.data.technology);
+    deleteGraphs('');
+    loadCharts('');
 }
 
 

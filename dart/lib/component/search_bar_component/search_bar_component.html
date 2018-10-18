@@ -1,22 +1,22 @@
 <div class="panel panel-info">
-  <div class="panel-heading">Search<i class="glyphicon glyphicon-search pull-right"></i></div>
+  <div class="panel-heading"><h3 class="panel-title">Search<i class="glyphicon glyphicon-search pull-right"></i></h3></div>
   <div class="panel-body">
     <div>
-      <h6>Region</h6>
+      <small>Region</small>
       <input type="hidden" id="filterregions"></input>
       <input type="hidden"
-        class="bigdrop select2-offscreen populate placeholder full_width"
+        class="bigdrop select2-offscreen populate placeholder full_width "
         multiple="multiple" id="s2_regions">
     </div>
     <div>
-      <h6>Tech</h6>
+      <small>Tech</small>
       <input type="hidden" id="filtertechnologies"></input>
       <input type="hidden"
         class="bigdrop select2-offscreen populate placeholder full_width"
         multiple="multiple" id="s2_technologies">
     </div>
     <div>
-      <h6>Account</h6>
+      <small>Account</small>
       <input type="hidden" id="filteraccounts"></input>
       <input type="hidden"
         class="bigdrop select2-offscreen populate placeholder full_width"
@@ -24,7 +24,7 @@
         <!-- Foundation -->
     </div>
     <div>
-      <h6>AccountType</h6>
+      <small>AccountType</small>
       <input type="hidden" id="filteraccounttypes"></input>
       <input type="hidden"
         class="bigdrop select2-offscreen populate placeholder full_width"
@@ -32,14 +32,14 @@
         <!-- Foundation -->
     </div>
     <div>
-      <h6>Name</h6>
+      <small>Name</small>
       <input type="hidden" id="filternames"></input>
       <input type="hidden"
         class="bigdrop select2-offscreen populate placeholder full_width"
         multiple="multiple" id="s2_names">
     </div>
     <div>
-      <h6>ARN</h6>
+      <small>ARN</small>
       <input type="hidden" id="filterarns"></input>
       <input type="hidden"
              class="bigdrop select2-offscreen populate placeholder full_width"
@@ -49,25 +49,25 @@
     <hr>
 
     <div>
-      <h6>Search Config</h6>
-      <input id="searchconfig" class="form-control" ng-model="searchconfig"
+      <small>Search Config</small>
+      <input id="searchconfig" class="form-control input-sm" ng-model="searchconfig"
              ng-keyup="$event.keyCode == 13 && pushFilterRoutes()"></input>
     </div>
 
     <div ng-if="result_type_binded == 'items'">
-      <h6>Min Total Score</h6>
+      <small>Min Total Score</small>
       <input id="min_score" class="form-control" ng-model="min_score"
              ng-keyup="$event.keyCode == 13 && pushFilterRoutes()"></input>
     </div>
 
     <div ng-if="result_type_binded == 'items'">
-      <h6>Min Unjustified Score</h6>
+      <small>Min Unjustified Score</small>
       <input id="min_unjustified_score" class="form-control" ng-model="min_unjustified_score"
              ng-keyup="$event.keyCode == 13 && pushFilterRoutes()"></input>
     </div>
 
     <div>
-      <h6>Status</h6>
+      <small>Status</small>
       <select ng-model="active_filter_value" class="form-control">
         <option value="null">None (Return Both)</option>
         <option value="True">Active</option>
@@ -76,7 +76,7 @@
     </div>
 
     <div>
-      <h6>Type</h6>
+      <small>Type</small>
       <select ng-model="result_type_binded" class="form-control">
         <option value="items">Items</option>
         <option value="revisions">Items + Historical Changes</option>

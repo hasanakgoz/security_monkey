@@ -4,11 +4,14 @@
     </div>
 </div>
 
-
+<script type="text/javascript">
+    var js_filter_sev = "";
+    var js_filter_tech = "";
+</script>
 <!-- Charts Component -->
 <link rel="stylesheet" href="css/vendor/leaflet-1.3.1.css"/>
-<link rel="stylesheet" href="css/vendor/MarkerCluster-1.4.1.css" />
-<link rel="stylesheet" href="css/vendor/MarkerCluster.Default-1.4.1.css" />
+<link rel="stylesheet" href="css/vendor/MarkerCluster-1.4.1.css"/>
+<link rel="stylesheet" href="css/vendor/MarkerCluster.Default-1.4.1.css"/>
 <div>
     <style type="text/css">
 
@@ -159,7 +162,8 @@
         <div class="row">
             <div class="col-md-12"><h4>Vulnerabilities by Severity</h4></div>
             <div class="col-md-4 text-center">
-                <a data-toggle="tooltip" data-placement="bottom"
+                <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('high');"
+                   ng-click="filterBySev('high');"
                    title="High denotes the count of items with Audit Score over 10">
                     <dl class="palette palette-alizarin">
                         <h3 class="mt-0">{{ vulnSevScores_n.high }}</h3>
@@ -168,7 +172,8 @@
                 </a>
             </div>
             <div class="col-md-4 text-center">
-                <a data-toggle="tooltip" data-placement="bottom"
+                <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('medium');"
+                   ng-click="filterBySev('medium');"
                    title="Medium denotes the count of items with Audit Score between 4 and 10">
 
                     <dl class="palette palette-carrot">
@@ -180,7 +185,8 @@
             </div>
 
             <div class="col-md-4 text-center">
-                <a data-toggle="tooltip" data-placement="bottom"
+                <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('low');"
+                   ng-click="filterBySev('low');"
                    title="Low denotes the count of items with Audit Score below 5">
                     <dl class="palette palette-sun-flower">
                         <h3 class="mt-0">{{ vulnSevScores_n.low }}</h3>
@@ -236,42 +242,99 @@
                 <div class="modal-dialog modal-lg">
                     <!-- Modal content -->
                     <div class="modal-content">
-                        <!--<div class="modal-heading">-->
-                        <!--<h4 class="left-float"></h4>-->
-                        <!--<span class="close right-float" >&times;</span>-->
-                        <!--</div>-->
-
                         <div class="modal-header">
-                            <h6 class="modal-title mt-0">Threat Actors Location Details</h6>
-                            <button type="button" class="close py-0" data-dismiss="modal" onClick="closeModal()"
+                            <h6 class="modal-title mt-0 left-float">Threat Actors Location Details</h6>
+                            <button type="button" class="close py-0 right-float" data-dismiss="modal"
+                                    onClick="closeModal()"
                                     aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
+                            <div style="clear:both;"></div>
                         </div>
 
                         <div class="modal-body">
-                            <div class="left-float">
-                                <span><b>IP address</b></span><br>
-                                <span id="ip_address"></span>
+                            <div class="modal-body-heading h6 font-weight-500">Recon:EC2/PortProbeUnprotectedPort</div>
+                            <div class="row">
+                                <!--<div class="col-md-1"></div>-->
+                                <div class="col-md-12 desc-class">
+                                    <img id="sev_img" class="img-class">
+                                    <span id="description"></span>
+                                <a id="gotoitem" href="" target="_blank"><span><i class="fas fa-external-link-alt"></i></span></a></div>
+                                <div class="col-md-4">
+                                    <p class="paragraph-class bold">Severity</p>
+                                    <p class="paragraph-class" id="severity"></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="bold paragraph-class">Region</p>
+                                    <p class="paragraph-class" id="region"></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="bold paragraph-class">Count</p>
+                                    <p class="paragraph-class" id="count"></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="bold paragraph-class">Account ID</p>
+                                    <p class="paragraph-class" id="accountid"></p>
+                                </div>
                             </div>
-                            <div class="right-float">
-                                <span><b>Location</b></span><br>
-                                <span>City: </span><span class="field-value-class" id="city"></span><br>
-                                <span>Country: </span><span class="field-value-class" id="country"></span><br>
-                                <span>Lat: </span><span class="field-value-class" id="lat"></span><br>
-                                <span>Lon: </span><span class="field-value-class" id="lon"></span>
+
+                            <div class="modal-body-heading n h6 ">Resource
+                                Afftected
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="bold paragraph-class">Port</p>
+                                    <p class="paragraph-class" id="port"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="bold paragraph-class">Port Name</p>
+                                    <p class="paragraph-class" id="port_name"></p>
+                                </div>
+                            </div>
+                            <div class="modal-body-heading n h6 ">Action</div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="bold paragraph-class">First Seen</p>
+                                    <p class="paragraph-class" id="first_seen"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="bold paragraph-class">Last Seen</p>
+                                    <p class="paragraph-class" id="last_seen"></p>
+                                </div>
+                            </div>
+                            <div class="modal-body-heading n h6 ">Actor</div>
+                            <div class="" row>
+                                <div class="col-md-6 no-padding-left">
+                                    <p class="bold paragraph-class ">IP address</p>
+                                    <p class="paragraph-class" id="ip_address"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="bold paragraph-class">Location</p>
+                                    <p class="paragraph-class color-left">City: <span id="city"
+                                                                                      class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Country: <span id="country"
+                                                                                         class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Lat: <span id="lat"
+                                                                                     class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Lon: <span id="lon"
+                                                                                     class="color-right"></span></p>
+                                </div>
+                                <div class="col-md-6 no-padding-left">
+                                    <p class="bold paragraph-class">Organization</p>
+                                    <p class="paragraph-class color-left">Asn: <span id="asn"
+                                                                                     class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Asn org: <span id="asn_org"
+                                                                                         class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Isp: <span id="isp"
+                                                                                     class="color-right"></span></p>
+                                    <p class="paragraph-class color-left">Org: <span id="org"
+                                                                                     class="color-right"></span></p>
+                                </div>
                             </div>
                             <div class="clear"></div>
-                            <div>
-                                <span><b>Organization</b></span><br>
-                                <span>Asn: </span><span class="field-value-class" id="asn"></span><br>
-                                <span>Asn org: </span><span class="field-value-class" id="asn_org"></span><br>
-                                <span>Isp: </span><span class="field-value-class" id="isp"></span><br>
-                                <span>Org: </span><span class="field-value-class" id="org"></span>
-                            </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick="closeModal()">
+                            <button type="button" class="btn btn-secondary" onClick="closeModal()">
                                 Close
                             </button>
                         </div>
@@ -293,8 +356,8 @@
                         <h3 class="panel-title">Technologies</h3>
                     </div>
                     <div class="panel-body">
-                        <div class="wrapper" id="tech_piechart_wrapper">
-                            <div id="piechart" ng-click="someClick('test');">
+                        <div class="wrapper" tech="iamuser" id="tech_piechart_wrapper">
+                            <div id="piechart" ng-click="filterByTech();">
 
                             </div>
                         </div>
@@ -309,7 +372,7 @@
                     </div>
                     <div class="panel-body">
                         <div class="wrapper" id="barchart_time_wrapper">
-                            <svg id="barchart_time" width="98%%" height="98%" class="full-width"></svg>
+                            <svg id="barchart_time" width="98%" height="98%" class="full-width"></svg>
                         </div>
                     </div>
 
@@ -320,47 +383,7 @@
         <br>
         <br>
 
-        <!--
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="wrapper">
-                    <div><h3 class="charthead">Vulnerabilities by Severity</h3></div>
-                    <div class="chart-container">
-                        <canvas id="severitycanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="wrapper">
-                    <div><h3 class="charthead">Vulnerabilities by Technology</h3></div>
-                    <div class="chart-container">
 
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
-
-        <!--
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="wrapper">
-
-                    <div><h3 class="charthead">Threat Actor Locations</h3></div>
-                    <leaflet-map id="worldmap" min-zoom=".75" maxBounds="[[90,-180],[-90, 180]]" fit-to-markers>
-                    </leaflet-map>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="wrapper">
-                    <div><h3 class="charthead">Threat Actor Connection Volume by Country</h3></div>
-                    <div class="chart-container">
-                        <canvas id="countrycanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
         <!-- POA&M Items Component -->
         <div class="row">
             <div class="col-lg-12">
@@ -438,9 +461,9 @@
     });
 </script>
 
-<script type="text/javascript" src="js/dashboard/config.js" ></script>
-<script type="text/javascript" src="js/dashboard/apicall.js" ></script>
-<script type="text/javascript" src="js/dashboard/map.js" ></script>
+<script type="text/javascript" src="js/dashboard/config.js"></script>
+<script type="text/javascript" src="js/dashboard/apicall.js"></script>
+<script type="text/javascript" src="js/dashboard/map.js"></script>
 <script type="text/javascript" src="js/dashboard/graph.js"></script>
-<script type="text/javascript" src="js/dashboard/piechart.js" ></script>
+<script type="text/javascript" src="js/dashboard/piechart.js"></script>
 <script type="text/javascript" src="js/dashboard/index.js" defer></script>
