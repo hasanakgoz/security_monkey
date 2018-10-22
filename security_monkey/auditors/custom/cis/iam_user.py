@@ -11,10 +11,11 @@ import re
 
 from dateutil import parser
 from dateutil import tz
+
 from security_monkey.auditor import Categories, Auditor
+from security_monkey.auditors.iam.iam_policy import IAMPolicyAuditor
 from security_monkey.watchers.custom.iam_cred_report import CredentialReportWatcher
 from security_monkey.watchers.iam.iam_user import IAMUser
-from security_monkey.auditors.iam.iam_policy import IAMPolicyAuditor
 from security_monkey.watchers.iam.managed_policy import ManagedPolicy
 
 
@@ -27,40 +28,6 @@ class CISIAMUserAuditor(IAMPolicyAuditor):
     def __init__(self, accounts=None, debug=False):
         super(CISIAMUserAuditor, self).__init__(accounts=accounts, debug=debug)
         self.iam_policy_keys = ['InlinePolicies$*']
-
-    def check_1_1_root_user(self, item):
-        """
-        CIS Rule 1.1 - Avoid the use of the "root" account [scored]
-
-        alert when root user has been used within last 24 hours
-        """
-        issue = Categories.INFORMATIONAL
-        notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-iam-cis-1.1 - ',
-            specific='Root Account used in past 24hrs.'
-        )
-        one_day_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
-        one_day_ago = one_day_ago.replace(tzinfo=tz.gettz('UTC'))
-
-        date_format = "%Y-%m-%d %H:%M:%S+00:00"
-
-        if item.config.get('Arn', '').split(':')[-1] == 'root':
-
-            last_used_date = \
-                item.config.get('PasswordLastUsed') or item.config.get('CreateDate')
-            last_used_date = parser.parse(last_used_date)
-
-            if last_used_date > one_day_ago:
-                self.add_issue(1, issue, item, notes=notes)
-                return
-
-            for akey in item.config.get('AccessKeys', []):
-                last_used_date = akey.get('LastUsedDate') or akey.get('CreateDate')
-                last_used_date = parser.parse(last_used_date)
-
-                if last_used_date > one_day_ago:
-                    self.add_issue(10, issue, item, notes=notes)
-                    return
 
     def check_1_14_root_hardware_mfa_enabled(self, item):
         """
@@ -108,7 +75,7 @@ class IAMUserCredsAuditor(Auditor):
     def _parse_date(self, datestring):
         epoch = datetime.datetime.fromtimestamp(0)
         return (epoch if (datestring.lower() == 'n/a' or datestring.lower() == 'no_information')
-            else datetime.datetime.strptime(datestring, self.DATE_FORMAT))
+                else datetime.datetime.strptime(datestring, self.DATE_FORMAT))
 
     def _parse_bool(self, boolstring):
         if boolstring.lower() == 'true':
@@ -125,11 +92,13 @@ class IAMUserCredsAuditor(Auditor):
 
         alert when root user has been used within last 24 hours
         """
-        issue = Categories.INFORMATIONAL
-        notes = Categories.INFORMATIONAL_NOTES.format(
-            description='sa-iam-cis-1.1 - ',
-            specific='Root Account used in past 24hrs.'
-        )
+        issue = "sa-iam-cis-1.1 - AWS root account using {method} has been used in last 24 hours"
+        notes = 'The "root" account is the most privileged AWS account. Minimizing the use of this account and ' \
+                'adopting the principle of least privilege for access management will reduce the risk of accidental ' \
+                'changes and unintended disclosure of highly privileged credentials. '
+        action_instructions = 'There are a few conditions under which the use of the root account is required, ' \
+                              'such as requesting a penetration test or creating a CloudFront private key. root ' \
+                              'account should not be used for all other purposes. '
 
         report = item.config
         now = datetime.datetime.now()
@@ -138,17 +107,20 @@ class IAMUserCredsAuditor(Auditor):
 
             last_used_date = self._parse_date(report['password_last_used'])
             if (now - last_used_date).days < 1:
-                self.add_issue(1, issue, item, notes=notes)
+                self.add_issue(10, issue.format(method="password"), item, notes=notes,
+                               action_instructions=action_instructions)
                 return
 
             last_used_date = self._parse_date(report['access_key_1_last_used_date'])
             if (now - last_used_date).days < 1:
-                self.add_issue(1, issue, item, notes=notes)
+                self.add_issue(10, issue.format(method="ACCESS_KEY_1"), item, notes=notes,
+                               action_instructions=action_instructions)
                 return
 
             last_used_date = self._parse_date(report['access_key_2_last_used_date'])
             if (now - last_used_date).days < 1:
-                self.add_issue(1, issue, item, notes=notes)
+                self.add_issue(10, issue.format(method="ACCESS_KEY_2"), item, notes=notes,
+                               action_instructions=action_instructions)
                 return
 
     def check_1_3_unused_credentials(self, item):
