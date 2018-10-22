@@ -92,8 +92,9 @@ class IAMUserCredsAuditor(Auditor):
 
         alert when root user has been used within last 24 hours
         """
-        issue = "sa-iam-cis-1.1 - AWS root account using {method} has been used in last 24 hours"
-        notes = 'The "root" account is the most privileged AWS account. Minimizing the use of this account and ' \
+        issue = "root Account Access"
+        notes = 'sa-iam-cis-1.1 - root account using {method} has been used in last 24 hours. The "root" account ' \
+                'is the most privileged AWS account. Minimizing the use of this account and ' \ 
                 'adopting the principle of least privilege for access management will reduce the risk of accidental ' \
                 'changes and unintended disclosure of highly privileged credentials. '
         action_instructions = 'There are a few conditions under which the use of the root account is required, ' \
@@ -128,7 +129,7 @@ class IAMUserCredsAuditor(Auditor):
         CIS Rule 1.3 - Ensure credentials unused for 90 days or greater are
         disabled [scored]
         """
-        issue = Categories.INFORMATIONAL
+        issue = 'sa-iam-cis-1.3 - AWS root account using {method} has been used in last 24 hours'
         notes = Categories.INFORMATIONAL_NOTES.format(
             description='sa-iam-cis-1.3 - ',
             specific='Detected active {} unused for over 90 days.'
