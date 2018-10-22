@@ -143,8 +143,9 @@ function filterAccounts(data) {
 function filterBySev(data) {
     js_filter_sev = data;
     console.log('techdata is ', data);
-    deleteGraphs('');
-    loadCharts('');
+    scrollToPoam()
+    // deleteGraphs('');
+    // loadCharts('');
 }
 
 function filterByTech(data) {
@@ -152,8 +153,16 @@ function filterByTech(data) {
     // Set the attribute tech attribute value to the selected Chart Element Value.
     // This value is used by Dart to apply PAOM Filters.
     $('#tech_piechart_wrapper').attr('tech', data.data.technology);
-    deleteGraphs('');
-    loadCharts('');
+    scrollToPoam();
+    // deleteGraphs('');
+    // loadCharts('');
 }
 
 
+function scrollToPoam(){
+    var offset = $('#poamtable').offset();
+    $('html, body').animate({
+    scrollTop: offset.top+20,
+    scrollLeft: offset.left
+});
+}

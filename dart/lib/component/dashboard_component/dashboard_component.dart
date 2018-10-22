@@ -207,4 +207,18 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   bool isAccountSelectDisabled() {
     return (!this.poamItemsLoaded);
   }
+
+  String get getFilterInfo{
+    String filtersInfo='';
+
+    if (this.selectedTech != "") {
+      filtersInfo = "technology: " + this.selectedTech;
+    }
+
+    if (this.selectedSev != "") {
+      filtersInfo = filtersInfo + " severity: " + this.selectedSev;
+    }
+
+    return filtersInfo;
+  }
 }

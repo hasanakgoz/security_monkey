@@ -261,7 +261,8 @@
                                 <div class="col-md-12 desc-class">
                                     <img id="sev_img" class="img-class">
                                     <span id="description"></span>
-                                <a id="gotoitem" href="" target="_blank"><span><i class="fas fa-external-link-alt"></i></span></a></div>
+                                    <a id="gotoitem" href="" target="_blank"><span><i
+                                            class="fas fa-external-link-alt"></i></span></a></div>
                                 <div class="col-md-4">
                                     <p class="paragraph-class bold">Severity</p>
                                     <p class="paragraph-class" id="severity"></p>
@@ -387,14 +388,23 @@
 
 
         <!-- POA&M Items Component -->
-        <div class="row">
+        <div class="row" id="poamtable">
             <div class="col-lg-12">
                 <div class="panel panel-info">
                     <div class="panel-heading">
+                        <div class="btn-group pull-right" ng-if='selectedTech!="" || selectedSev!=""'>
+                            <button type="button" class="btn btn-primary btn-xs pull-right"
+                                    ng-click='selectedTech="";selectedSev="";fetchPOAMItems();'
+                                    onclick="js_filter_sev = '';js_filter_tech = '';">
+                                <span class="pull-right">Reset filter(s) [ {{ getFilterInfo }} ]</span>
+                            </button>
+                        </div>
+                        <small></small>
                         <h3 class="panel-title">
                             POA&M Items for
-                            {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}</h3>
+                            {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount}}  </h3>
                     </div>
+
                     <div class="panel-body" ng-switch="poamItemsLoaded">
                         <div ng-switch-when="false">
                             <p>Loading . . .</p>
@@ -416,7 +426,8 @@
                             <tr ng-repeat="poamItem in poamItems">
                                 <td ng-if="selectedAccount == '__all_accounts__'">{{ poamItem.account }}</td>
                                 <td><span class="badge badge badge-info"><a
-                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a></span></td>
+                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a></span>
+                                </td>
                                 <td>{{ poamItem.control }}</td>
                                 <td>{{ poamItem.weakness_name }}</td>
                                 <td>{{ poamItem.weakness_description }}</td>
