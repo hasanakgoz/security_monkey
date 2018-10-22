@@ -72,3 +72,7 @@
         background-color: #1d4f8e;
     }
 }
+
+label, .control-label{
+    font-size: 15px !important;
+}

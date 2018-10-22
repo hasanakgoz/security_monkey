@@ -1,19 +1,12 @@
 <div class="panel panel-info items-panel">
     <div class="panel-heading">
-        <!--
-        <span class="pull-right items-displayed">{{ items_displayed() }} of {{ totalItems }}</span>
--->
         <div class="items-button-group">
-            <button type="button" class="btn btn-primary btn-xs pull-right disabled"
-                    style="background-color: transparent !important;border-color: transparent !important; color: white !important;">
-                <span class="pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
-            </button>
-
+            <span class="badge pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
             <div class="dropdown black pull-right">
                 <button type="button"
                         class="btn btn-primary btn-xs pull-right dropdown-toggle settings-button"
                         data-toggle="dropdown" style="height: 25px;">
-                        <span class="glyphicon glyphicon-cog"></span>
+                    <span class="glyphicon glyphicon-cog"></span>
                 </button>
                 <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1">
                     <li class="{{ class_for_selection(2, 4) }}"><a href="{{ url_for_compare() }}">Compare</a></li>

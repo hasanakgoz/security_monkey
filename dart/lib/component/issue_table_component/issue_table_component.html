@@ -3,10 +3,7 @@
         <!-- <span class="badge pull-right">{{ items_displayed() }} of {{ totalItems }}</span> -->
         <div class="items-button-group">
 
-            <button type="button" class="btn btn-primary btn-xs pull-right disabled"
-                    style="background-color: transparent !important;border-color: transparent !important; color: white !important;">
-                <span class="pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
-            </button>
+            <span class="badge pull-right">{{ items_displayed() }} of {{ totalItems }}</span>
             <button ng-click="openModal()" type="button"
                     class="btn btn-primary btn-xs pull-right {{ classForJustifyButton() }}">
                 <span class="glyphicon glyphicon-thumbs-up pull-right"></span>

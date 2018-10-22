@@ -13,8 +13,8 @@
     </div>
     <div class="row" ng-switch-when="true">
       <div class="col-sm-12 col-md-12 main">
-        <h3 ng-if="!create" class="page-header">Edit Account</h3>
-        <h3 ng-if="create" class="page-header">Create Account</h3>
+        <h5 ng-if="!create" class="page-header">Edit Account</h5>
+        <h5 ng-if="create" class="page-header">Create Account</h5>
         <form class="form-horizontal" role="form">
           <div class="form-group">
           <label for="AccountName" class="col-sm-2 control-label" tooltip-placement="right" tooltip="Name the account however you would like. (Up to 32 characters).">
@@ -94,7 +94,7 @@
             </div>
           </div>
           <hr />
-          <h6 ng-if="create">Due to an open <a href="https://github.com/Netflix/security_monkey/issues/54">issue</a>. You must restart the scheduler after adding a new account.</h6>
+          <h7 ng-if="create">Due to an open <a href="https://github.com/Netflix/security_monkey/issues/54">issue</a>. You must restart the scheduler after adding a new account.</h7>
           <pre ng-if="create" class="code">
 $ sudo  supervisorctl
 supervisor> status
