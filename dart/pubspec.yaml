@@ -23,7 +23,7 @@ transformers:
     csp: true
 #    sourceMaps: true
     checked: false
-    minify: true
+#    minify: true
     verbose: true
     suppressWarnings: false
     suppressHints: false
