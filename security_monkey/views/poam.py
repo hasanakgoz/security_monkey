@@ -14,9 +14,19 @@ from security_monkey.datastore import Item, ItemAudit, Account, Technology, Item
 from sqlalchemy import func, text, null as sqlnull, false, between
 
 
+def sev2score(score):
+    if score < 5:
+        return "Low"
+    elif score > 10:
+        return "High"
+    else:
+        return "Medium"
+
+
 # Get a List of POA&M Items
 class POAMItemList(AuthenticatedService):
     decorators = [rbac.allow(['View'], ["GET"])]
+
 
     def get(self):
         """
@@ -202,6 +212,7 @@ class POAMItemList(AuthenticatedService):
                 'weakness_name': row_dict['weakness_name'],
                 'weakness_description': row_dict['weakness_description'],
                 'score': row_dict['score'],
+                'sev': sev2score(row_dict['score']),
                 'create_date': str(row_dict['create_date']),
                 'poam_comments': row_dict['poam_comments']
             })

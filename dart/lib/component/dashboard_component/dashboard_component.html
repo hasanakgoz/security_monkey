@@ -418,7 +418,7 @@
                                 <th>Weakness Name</th>
                                 <th>Weakness Description</th>
                                 <th style="min-width: 115px">Original Detection Date</th>
-                                <th>Original Risk Rating</th>
+                                <th>Severity</th>
                                 <th>Comments</th>
                             </tr>
                             </thead>
@@ -432,7 +432,7 @@
                                 <td>{{ poamItem.weakness_name }}</td>
                                 <td>{{ poamItem.weakness_description }}</td>
                                 <td>{{ poamItem.create_date | date:'short'}}</td>
-                                <td>{{ poamItem.score }}</td>
+                                <td>{{ poamItem.sev }}</td>
                                 <td>{{ poamItem.comments }}</td>
                             </tr>
                             </tbody>

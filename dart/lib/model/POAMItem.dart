@@ -2,7 +2,6 @@ library security_monkey.poamitem_model;
 
 import 'package:security_monkey/util/utils.dart' show localDateFromAPIDate;
 
-
 /*
   POA&M Item Model for parsing and displaying POA&M reports on Dashboard
 
@@ -11,6 +10,7 @@ import 'package:security_monkey/util/utils.dart' show localDateFromAPIDate;
 class POAMItem {
   int score, item_id;
   String poam_id,
+      sev,
       control,
       account,
       weakness_name,
@@ -26,12 +26,13 @@ class POAMItem {
     item_id = data['item_id'];
     account = data['account'];
     score = data['score'];
+    sev = data['sev'];
     control = data['control'];
     weakness_name = data['weakness_name'];
     weakness_description = data['weakness_description'];
     comments = data['poam_comments'];
     if (data.containsKey('create_date')) {
-      create_date =  localDateFromAPIDate(data['create_date']);
+      create_date = localDateFromAPIDate(data['create_date']);
     }
   }
 }
