@@ -95,12 +95,12 @@
         <div class="row">
             <div class="col-lg-12 text-right pull-right" ng-switch="isAccountSelectDisabled()">
 
-                <select data-toggle="select" class="form-control select select-success mrs mbm"
-                        id="AccountChooser" ng-model="selectedAccount"
-                        ng-change="newAccountSelected()" style="display: none">
+                <select data-toggle="select" class="form-control select select-primary mrs mbm"
+                        id="AccountChooser" ng-change="newAccountSelected()" ng-click="newAccountSelected()">
                     <option value="__all_accounts__">All Accounts</option>
                     <option ng-repeat="account in accounts" value="{{ account.name }}">{{ account.name }}</option>
                 </select>
+
 
                 <!-- Disabling All-Time Dropdown temporarily
                 <div class="btn-group" ng-switch-when="true">
@@ -129,7 +129,7 @@
                     </ul>
                 </div>
                         -->
-
+                <!--
                 <div class="btn-group" ng-switch-when="true">
                     <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" type="button"
                             aria-expanded="false" disabled>
@@ -155,7 +155,7 @@
                                                                ng-click="selectedAccount = account.name; newAccountSelected()">{{ account.name }}</a>
                         </li>
                     </ul>
-                </div>
+                </div> -->
             </div>
 
         </div>
@@ -471,7 +471,26 @@
 <script>
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
+
+        // Custom Selects
+        $('#AccountChooser').select2();
+        $('#AccountChooser').on("change", function (e) {
+            newAccountSelected();
+            filterAccounts(e.val);
+        });
+
     });
+
+    var updateView = function () {
+        /* For some reason once the newAccountSelected dart method is called from JS, the data updated by
+        *  Angular is not visible on View, unless a manual click is performed anywhere
+        *
+        * This is a dirty hack on acheiving it by calling this function from within dart code, whenever a value has been
+        * changed by Dart App
+        *
+        * */
+        $('#poamtable').click();
+    }
 </script>
 
 <script type="text/javascript" src="js/dashboard/config.js"></script>

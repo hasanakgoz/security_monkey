@@ -18,6 +18,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   bool technologySummaryLoaded = false;
   bool poamItemsLoaded = false;
   bool selectAll = true;
+  final View view;
 
   // New Account List Dropdown
   String selectedAccount = '__all_accounts__';
@@ -33,6 +34,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
 
   // Link up with Technology Chart
   DivElement techMapDiv;
+  SelectElement accountChooser;
 
   Map<String, String> accountFilterParams = {
     'page': '1',
@@ -46,15 +48,15 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
 
   Map<String, String> poamItemFilterParams = {
     'accounts': '',
-    'tech':'',
-    'sev':'',
+    'tech': '',
+    'sev': '',
     'page': '1',
     'count': '10'
   };
 
   Map<String, String> severityChartFilterParams = {
     'accounts': '',
-    'tech':'',
+    'tech': '',
   };
 
   Map<String, String> guardDutyEventFilterParams = {'accounts': ''};
@@ -82,6 +84,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
       }
       accountsLoaded = true;
     });
+    context['newAccountSelected'] = newAccountSelected;
   }
 
   // Function inherited from PaginatedTable class
@@ -89,12 +92,14 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     fetchPOAMItems();
   }
 
-  void fetchPOAMItems() {
+  Future fetchPOAMItems() async {
     if (this.poamItemsLoaded = false) {
+      print("Another request for POAM Items is still pending.");
       return;
     }
     this.poamItemsLoaded = false;
     super.is_loaded = false;
+
     poamItemFilterParams['accounts'] =
         this.selectedAccount == '__all_accounts__'
             ? null
@@ -107,12 +112,17 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     poamItemFilterParams['count'] = super.items_per_page;
     print("Loading Filtered Data : $poamItemFilterParams");
 
+    //Hack: Calling updateView to change the display message to "Loading"
+    context.callMethod("updateView");
     store.list(POAMItem, params: poamItemFilterParams).then((items) {
       super.setPaginationData(items.meta);
       this.poamItems = items;
       super.is_loaded = true;
       super.currentPage = int.parse(poamItemFilterParams['page']);
       this.poamItemsLoaded = true;
+    }).whenComplete(() {
+      //Hack: Calling updateView to display records.
+      context.callMethod("updateView");
     });
   }
 
@@ -121,6 +131,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     // Load Dashboard Charts
     loadDashboardCharts();
     this.techMapDiv = document.querySelector('#tech_piechart_wrapper');
+    this.accountChooser = document.querySelector("#AccountChooser");
   }
 
   void filterBySev(String sev) {
@@ -129,7 +140,7 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     print("Applying filter by sev: $sev");
   }
 
-  void loadDashboardCharts() {
+  void loadDashboardCharts() async {
     loadSeverityBarChartData();
     fetchPOAMItems();
   }
@@ -146,6 +157,9 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
         this.vulnSevScores_n['medium'] = item.medium.toString();
         this.vulnSevScores_n['low'] = item.low.toString();
       }
+    }).whenComplete(() {
+      //Hack: Calling updateView to display updated values in Severity Graph
+      context.callMethod("updateView");
     });
   }
 
@@ -183,14 +197,18 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
   }
 
   void newAccountSelected() {
-    new Future(() {
+    new Future(() async {
+      this.selectedAccount = this.accountChooser.value;
       print("Switching to Account: $selectedAccount");
-      // Due to a bug in ChartJS destroy does not work, but still calling it to clear max
+
       this.vulnSevScores_n['high'] = '-';
       this.vulnSevScores_n['medium'] = '-';
       this.vulnSevScores_n['low'] = '-';
-      this.selectedSev='';
-      this.selectedTech='';
+      this.selectedSev = '';
+      this.selectedTech = '';
+
+      //Hack: Calling updateView to display updated values in Severity Graph
+      context.callMethod("updateView");
       this.loadDashboardCharts();
     });
   }
@@ -208,8 +226,8 @@ class DashboardComponent extends PaginatedTable implements ShadowRootAware {
     return (!this.poamItemsLoaded);
   }
 
-  String get getFilterInfo{
-    String filtersInfo='';
+  String get getFilterInfo {
+    String filtersInfo = '';
 
     if (this.selectedTech != "") {
       filtersInfo = "technology: " + this.selectedTech;
