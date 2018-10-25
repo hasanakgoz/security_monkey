@@ -1,4 +1,4 @@
-function createPieChart(data){
+function createPieChart(data) {
     var text = "";
 
     var width = 400;
@@ -11,9 +11,9 @@ function createPieChart(data){
     var otherOpacityOnHover = .8;
     var tooltipMargin = 13;
 
-    var radius = Math.min(width-padding, height-padding) / 2;
-    var color = d3.scaleOrdinal(["#16A085","#27AE60","#2980B9","#8E44AD","#F39C12","#D35400","#C0392B","#1ABC9C","#2ECC71","#3498DB","#9B59B6","#34495E",
-    "#F1C40F","#E67E22","#E74C3C","#ECF0F1","#95A5A6","#BDC3C7","#7F8C8D"]);
+    var radius = Math.min(width - padding, height - padding) / 2;
+    var color = d3.scaleOrdinal(["#16A085", "#27AE60", "#2980B9", "#8E44AD", "#F39C12", "#D35400", "#C0392B", "#1ABC9C", "#2ECC71", "#3498DB", "#9B59B6", "#34495E",
+        "#F1C40F", "#E67E22", "#E74C3C", "#ECF0F1", "#95A5A6", "#BDC3C7", "#7F8C8D"]);
 
     var svg = d3.select("#piechart")
         .append('svg')
@@ -22,14 +22,16 @@ function createPieChart(data){
         .attr('height', height);
 
     var g = svg.append('g')
-        .attr('transform', 'translate(' + (width/2) + ',' + (height/2) + ')');
+        .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')');
 
     var arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
 
     var pie = d3.pie()
-        .value(function(d) { return d.percentage; })
+        .value(function (d) {
+            return d.percentage;
+        })
         .sort(null);
 
     var path = g.selectAll('path')
@@ -38,10 +40,10 @@ function createPieChart(data){
         .append("g")
         .append('path')
         .attr('d', arc)
-        .attr('fill', (d,i) => color(i))
+        .attr('fill', (d, i) => color(i))
         .style('opacity', opacity)
         .style('stroke', 'white')
-        .on("mouseover", function(d) {
+        .on("mouseover", function (d) {
             d3.selectAll('path')
                 .style("opacity", otherOpacityOnHover);
             d3.select(this)
@@ -64,16 +66,48 @@ function createPieChart(data){
             g.insert("rect", "text")
                 .attr("x", bbox.x - padding)
                 .attr("y", bbox.y - padding)
-                .attr("width", bbox.width + (padding*2))
-                .attr("height", bbox.height + (padding*2))
+                .attr("width", bbox.width + (padding * 2))
+                .attr("height", bbox.height + (padding * 2))
                 .style("fill", "white")
                 .style("opacity", 0.75);
         })
-        .on("click",filterByTech)
+        .on("click", filterByTech)
         .append("title")
-        .text(function(d){
-            return d.data.technology+' '+d.data.count+' - '+d.data.percentage+'%: '+d.data.percentage;
+        .text(function (d) {
+            return d.data.technology + ' ' + d.data.count + ' - ' + d.data.percentage + '%: ' + d.data.percentage;
         })
 
-        .each(function(d, i) { this._current = i; });
+        .each(function (d, i) {
+            this._current = i;
+        });
+
+    /*
+
+    //Code for displaying legends.
+    // This code is disabled as sometimes legends overrun the chart area.
+    let legend = d3.select("#piechart").append('div')
+        .attr('class', 'legend')
+        .style('margin-top', '30px');
+
+    let keys = legend.selectAll('.key')
+        .data(data)
+        .enter().append('div')
+        .attr('class', 'key')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('margin-right', '20px');
+
+    keys.append('div')
+        .attr('class', 'symbol')
+        .style('height', '10px')
+        .style('width', '10px')
+        .style('margin', '5px 5px')
+        .style('background-color', (d, i) => color(i));
+
+    keys.append('div')
+        .attr('class', 'name')
+        .text(di => `${di.technology}`);
+
+    keys.exit().remove();
+    */
 }
