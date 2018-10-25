@@ -11,16 +11,26 @@ from sqlalchemy.orm import joinedload, aliased, load_only, defer
 from security_monkey import db, rbac
 from security_monkey.views import AuthenticatedService
 from security_monkey.datastore import Item, ItemAudit, Account, Technology, ItemRevision
-from sqlalchemy import func, text, null as sqlnull, false
+from sqlalchemy import func, text, null as sqlnull, false, between
+
+
+def sev2score(score):
+    if score < 5:
+        return "Low"
+    elif score > 10:
+        return "High"
+    else:
+        return "Medium"
 
 
 # Get a List of POA&M Items
 class POAMItemList(AuthenticatedService):
     decorators = [rbac.allow(['View'], ["GET"])]
 
+
     def get(self):
         """
-            .. http:get:: /api/1/poamlist
+            .. http:get:: /api/1/poamitems
 
             Get a List of POA&M Items by account.
 
@@ -28,7 +38,7 @@ class POAMItemList(AuthenticatedService):
 
             .. sourcecode:: http
 
-                GET /api/1/items HTTP/1.1
+                GET /api/1/poamitems HTTP/1.1
                 Host: example.com
                 Accept: application/json
 
@@ -110,6 +120,9 @@ class POAMItemList(AuthenticatedService):
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
         self.reqparse.add_argument('count', type=int, default=10, location='args')
         self.reqparse.add_argument('page', type=int, default=1, location='args')
+        self.reqparse.add_argument('sev', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+
         args = self.reqparse.parse_args()
         page = args.pop('page', None)
         count = args.pop('count', None)
@@ -155,6 +168,22 @@ class POAMItemList(AuthenticatedService):
             accounts = args['accounts'].split(',')
             query = query.filter(Account.name.in_(accounts))
 
+        if 'sev' in args:
+            sev = args['sev'].lower()
+            if sev == 'low':
+                query = query.filter(ItemAudit.score < 5)
+            elif sev == 'medium':
+                query = query.filter(between(ItemAudit.score, 5, 10))
+            elif sev == 'high':
+                query = query.filter(ItemAudit.score > 10)
+
+        if 'tech' in args:
+            tech = args['tech'].split(',')
+            query = query.join((Technology, Technology.id == Item.tech_id))
+            query = query.filter(Technology.name.in_(tech))
+
+
+
         # Order By
         query = query.order_by(itemrevision_subquery.c.create_date)
         query = query.order_by(ItemAudit.score.desc())
@@ -183,6 +212,7 @@ class POAMItemList(AuthenticatedService):
                 'weakness_name': row_dict['weakness_name'],
                 'weakness_description': row_dict['weakness_description'],
                 'score': row_dict['score'],
+                'sev': sev2score(row_dict['score']),
                 'create_date': str(row_dict['create_date']),
                 'poam_comments': row_dict['poam_comments']
             })

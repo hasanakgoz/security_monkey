@@ -1,19 +1,22 @@
+<div class="col-lg-12"><h6 class="page-header mt-20">{{item.name}}</h6></div>
 <div class="col-lg-3">
-  <div class="panel panel-info">
-      <div class="panel-heading">{{item.name}}</div>
-      <!-- <div class="panel-body"><small>This could be this items description</small></div> -->
-      <ul class="list-group">
-          <li class="list-group-item"><h5>Name <span class="pull-right">{{item.name}}</span></h5></li>
-          <li class="list-group-item"><h5>Technology <span class="pull-right">{{item.technology}}</span></h5></li>
-          <li class="list-group-item"><h5>Region <span class="pull-right">{{item.region}}</span></h5></li>
-          <li class="list-group-item"><h5>Account <span class="pull-right">{{item.account}}</span></h5></li>
-          <li class="list-group-item"><h5>Account Type<span class="pull-right">{{item.account_type}}</span></h5></li>
-      </ul>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">General Information</h3>
+    </div>
+    <!-- <div class="panel-body"><small>This could be this items description</small></div> -->
+    <ul class="list-group">
+      <li class="list-group-item"><h5 class="view-item-heading">Name</h5> <p class="view-item-label">{{item.name}}</p></li>
+      <li class="list-group-item"><h5 class="view-item-heading">Technology </h5><p class="view-item-label">{{item.technology}}</p></li>
+      <li class="list-group-item"><h5 class="view-item-heading">Region </h5> <p class="view-item-label">{{item.region}}</p></li>
+      <li class="list-group-item"><h5 class="view-item-heading">Account </h5><p class="view-item-label">{{item.account}}</p></li>
+      <li class="list-group-item"><h5 class="view-item-heading">Account Type </h5><p class="view-item-label">{{item.account_type}}</p></li>
+    </ul>
   </div>
-  <div class="panel panel-info">
-      <div class="panel-heading">Discovery Timeline<span class="pull-right badge">{{item.revisions.length}}</span></div>
-      <div class="panel-body"><small>Jumplist of revisions ThreatAlert has discovered.</small></div>
-      <div class="list-group">
+  <div class="panel panel-warning">
+    <div class="panel-heading"><h3 class="panel-title">Discovery Timeline<span class="pull-right badge">{{item.revisions.length}}</span></h3></div>
+      <div class="panel-body"><span style="font-size: 14px">Jumplist of revisions ThreatAlert has discovered: </span></div>
+      <div class="list-group discovery-timeline-list">
           <a ng-repeat="rev in item.revisions" class="list-group-item" ng-click="scrollTo(rev.id)">
             {{rev.date_created | date:'medium'}}
           </a>
@@ -31,9 +34,9 @@
       <p>Loading . . .</p>
     </div>
 
-  <div class="panel panel-warning" >
-    <div class="panel-heading">Item Comments <span class="pull-right badge">{{item.comments.length}}</span></div>
-    <div class="panel-body"><p class="text-warning">A discussion of this item.  Item revisions may also have comments.</p></div>
+  <div class="panel panel-info" >
+    <div class="panel-heading"><h3 class="panel-title">Item Comments <span class="pull-right badge">{{item.comments.length}}</span></h3></div>
+    <div class="panel-body"><p class="text-default">A discussion of this item.  Item revisions may also have comments.</p></div>
     <table class="table" ng-if="item.has_comments">
         <tr ng-repeat="comment in item.comments">
           <td>
@@ -66,7 +69,7 @@
   </div>
 
   <div class="panel panel-danger" ng-if="item.has_unjustified_issues">
-    <div class="panel-heading">Issues <span class="pull-right badge">{{item.unjustified_issues.length}}</span></div>
+    <div class="panel-heading"><h3 class="panel-title">Issues <span class="pull-right badge">{{item.unjustified_issues.length}}</span></h3></div>
     <div class="panel-body"><p class="text-danger">Attention! The following issues have been raised and need to be fixed or justified.</p></div>
     <table class="table">
       <tr>
@@ -100,7 +103,7 @@
   </div>
 
   <div class="panel panel-warning" ng-if="item.has_justified_issues">
-    <div class="panel-heading">Justified Issues <span class="pull-right badge">{{item.justified_issues.length}}</span></div>
+    <div class="panel-heading"><h3 class="panel-title">Justified Issues <span class="pull-right badge">{{item.justified_issues.length}}</span></h3></div>
     <table class="table">
       <tr>
         <th></th>

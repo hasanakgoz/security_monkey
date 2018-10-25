@@ -322,6 +322,12 @@ api.add_resource(GuardDutyEventMapPointsList, '/api/1/worldmapguarddutydata')
 from security_monkey.views.guard_duty_event import GuardDutyEventTop10Countries
 
 api.add_resource(GuardDutyEventTop10Countries, '/api/1/top10countryguarddutydata')
+
+# Get Issue count over Time for Time Series Graph
+from security_monkey.views.charts import IssuesCountByMonth
+
+api.add_resource(IssuesCountByMonth, '/api/1/issuescountbymonth')
+
 # End: Inherit from webui-threatalert-branding by Pritam
 
 # Start: Inherit from Develop Branch

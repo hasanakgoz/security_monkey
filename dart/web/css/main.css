@@ -1,6 +1,6 @@
 body {
     padding-top: 70px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;*/
 }
 
 .ng-cloak {
@@ -8,10 +8,12 @@ body {
 }
 
 .smhead {
-    margin-top: 5px; margin-right: 5px;
     width: 30px;
     height: 30px;
     order: 1;
+    position: relative;
+    top: 12px;
+    left: 10px;
 }
 
 .smstanding {
@@ -33,4 +35,203 @@ body {
 
 .sm_logo_text {
     order: 2;
+}
+
+.dropdown-toggle:after {
+    position: relative;
+    top: 10px;
+}
+
+.navbar-right {
+    margin-right: 0 !important;
+}
+
+.search-panel .panel-body p {
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
+.mt-0 {
+    margin-top: 0px !important;
+}
+
+.mt-20 {
+    margin-top: 20px !important;
+}
+
+.pagination li>a, .pagination li>span {
+    color: #999999 !important;
+    cursor: pointer;
+}
+
+.pagination li.disabled>a, .pagination li.disabled>span {
+    color: #c3c3c3 !important;
+}
+
+.items-per-page-dropdown {
+    position: relative;
+    top: 16px;
+    width: 100px;
+}
+
+.select2-choices {
+    border-radius: 4px !important;
+    border: 2px solid #bdc3c7 !important;
+    height: 42px !important;
+    padding: 4px 10px !important;
+    background-image: none !important;
+}
+
+.pagination li.active > a, .pagination li.active > span {
+    color: white !important;
+}
+
+.pagination li > a:hover, .pagination li > a:focus, .pagination li > span:hover, .pagination li > span:focus {
+    color: white !important;
+}
+
+.dropdown-label {
+    position: relative;
+    top: 2px;
+}
+
+.btn-primary {
+    color: white !important;
+    background-color: #1abc9c !important;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu {
+    background-color: #F2F2F2 !important;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu > li > a {
+    color: #101010;
+}
+
+.btn-group .dropdown-toggle.btn-primary ~ .dropdown-menu > li > a:hover {
+    background-color: #dfdfdf;
+}
+
+.btn-info {
+    color: white !important;
+    background-color: #3498db !important;
+}
+
+.navbar-right a {
+    padding-bottom: 8px !important;
+}
+
+.view-item-heading {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.view-item-label {
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.badge {
+    background-color: white;
+    font-weight: 500;
+}
+
+.nav > li.disabled > a {
+    color: #dfdfdf;
+}
+
+.nav > li.disabled > a:hover, .nav > li.disabled > a:focus {
+    color: #dfdfdf;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    cursor: pointer;
+}
+
+.discovery-timeline-list .list-group-item {
+    cursor: pointer;
+}
+
+.nav-stacked {
+    font-size: 14px;
+}
+
+.items-panel button {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.settings-button::after {
+    top: 5px !important;
+    font-size: 10px;
+    border-top: 6px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    margin-left: 4px;
+}
+
+.btn-primary:hover {
+    color: white !important;
+    background-color: #17a78b !important;
+}
+
+.autorefreshon {
+    background-color: #159b81 !important;
+}
+
+.autorefreshoff {
+    background-color: #1abc9c !important;
+}
+
+.items-button-group {
+    position: relative;
+    top: -3px;
+}
+
+.items-displayed {
+    font-size: 12px;
+    margin-left: 80px;
+}
+
+.search-items-per-page-dropdown {
+    width: 100px;
+    float: right;
+    position: relative;
+    top: -13px;
+}
+
+.glyphicon-ok {
+    color: #2ecc71;
+}
+
+.glyphicon-remove {
+    color: #e74c3c;
+}
+
+.select2-results .select2-highlighted {
+    background: transparent !important;
+    color: #fff;
+}
+
+.select2-drop .select2-result-selectable .select2-result-label:focus, .select2-drop .select2-result-selectable .select2-result-label:hover, .select2-drop .select2-result-selectable .select2-result-label:active {
+    background-color: #1abc9c !important;
+}
+
+.select2-search-choice {
+    background-color: #1abc9c !important;
+    background-image: none !important;
+    color: white !important;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.select2-search-choice div {
+    position: relative;
+    top: 3px;
+    left: -13px;
+    padding-right: 10px;
+    padding-left: 12px;
 }

@@ -12,7 +12,6 @@ import datetime
 from flask import jsonify, request
 from security_monkey import db, rbac
 from security_monkey.views import AuthenticatedService
-from security_monkey.views import AuthenticatedService
 from security_monkey.datastore import (
     GuardDutyEvent,
     Item,
@@ -23,6 +22,16 @@ from security_monkey.datastore import (
     AuditorSettings,
     Datastore,
     ItemRevision)
+
+# Severity Levels for GuardDuty Findings
+# https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html#guardduty_findings-severity
+def sev_name(val):
+    if 0.1 <= val <= 3.9:
+        return 'Low'
+    if 4.0 <= val <= 6.9:
+        return 'Medium'
+    if 7.0 <= val <= 8.9:
+        return 'High'
 
 # Returns a list of Map Circle Marker Points List
 class GuardDutyEventMapPointsList(AuthenticatedService):
@@ -123,12 +132,28 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
         #            and coalesce(fixed, FALSE) = FALSE
         #            and g.config -> 'Service' -> 'Action' -> 'PortProbeAction' -> 'PortProbeDetails' is not NULL;
 
+
+        # Adding following additonal output data fields for display details modal popup of Map
+        #        g.config -> 'Description' as "description",
+        #        g.config -> 'Severity' as "severity",
+        #        g.config -> 'Region' as "region",
+        #        g.config -> 'Service' -> 'Count' as "count",
+        #        g.config -> 'AccountId' as "accountid"
+
+
         # Read more about filtering:
         # https://docs.sqlalchemy.org/en/latest/orm/query.html
         from sqlalchemy.sql.functions import coalesce
         query = ItemRevision.query.with_entities(
-            ItemRevision.item_id, ItemRevision.config[('Service', 'Action', 'PortProbeAction',
-                                                           'PortProbeDetails')]) \
+            ItemRevision.item_id,
+            ItemRevision.config[('Service', 'Action', 'PortProbeAction','PortProbeDetails')].label('portprobedetails'),
+            ItemRevision.config[('Description')].label('description'),
+            ItemRevision.config[('Severity')].label('severity'),
+            ItemRevision.config[('Region')].label('region'),
+            ItemRevision.config[('Service')].label('service'),
+            ItemRevision.config[('Resource')].label('resource'),
+            ItemRevision.config[('AccountId')].label('accountid'),
+            ) \
             .join((Item, Item.latest_revision_id == ItemRevision.id), (ItemAudit, Item.id == ItemAudit.item_id)) \
             .filter((coalesce(ItemAudit.justified, False) == False), (coalesce(ItemAudit.fixed, False) == False),
                     (ItemRevision.config[
@@ -142,10 +167,41 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
         records = query.all()
         items = []
 
+        def flatten_structure( rec):
+            result = dict(rec.__dict__)
+
+            if result.has_key('service'):
+                result.pop('service')
+            if result.has_key('resource'):
+                result.pop('resource')
+            if result.has_key('portprobedetails'):
+                result.pop('portprobedetails')
+
+            result.update(flatten_json(rec.portprobedetails[0]))
+            result['probe_count'] = rec.service['Count']
+            result['first_seen'] = rec.service['EventFirstSeen']
+            result['last_seen'] = rec.service['EventLastSeen']
+            result['resource_type'] = rec.resource['ResourceType']
+            result['instance_id'] = rec.resource['InstanceDetails']['InstanceId']
+
+            instance_tag_name = [k['Value'] for k in rec.resource['InstanceDetails']['Tags'] if k['Key']=='Name' ]
+            if instance_tag_name:
+                result['instance_name'] = instance_tag_name[0]
+            else:
+                result['instance_name'] = 'NA'
+
+            if result.has_key('_labels'):
+                result.pop('_labels')
+
+            # Convert Severity from float to Text
+            result['severity'] = sev_name(result['severity'])
+
+            return result
+
         if len(records) > 0:
             import pandas as pd
             from ..flatten import flatten_json
-            flatten_records = (flatten_json(record[1][0]) for record in records)
+            flatten_records = (flatten_structure(record) for record in records)
             fulldata_dataFrame = pd.DataFrame(flatten_records).rename(
                 columns={'RemoteIpDetails_GeoLocation_Lat': 'lat',
                          'RemoteIpDetails_GeoLocation_Lon': 'lon',
@@ -160,8 +216,9 @@ class GuardDutyEventMapPointsList(AuthenticatedService):
                          'RemoteIpDetails_Organization_Org': 'remoteOrg',
                          'counts': 'count'})
 
+            # Removing drop duplicates as each Probe will probably have different info to be displayed in popup
             mapdata_dataframe = fulldata_dataFrame.groupby(['lat', 'lon']).size().reset_index(name='count').merge(
-                fulldata_dataFrame.drop_duplicates(keep='first', subset=['lat', 'lon']), on=['lat', 'lon'], how='left')
+                fulldata_dataFrame, on=['lat', 'lon'], how='left')
 
             items = mapdata_dataframe.to_dict('records')
 

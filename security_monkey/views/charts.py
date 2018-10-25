@@ -6,17 +6,19 @@
 .. moduleauthor:: Pritam D. Gautam <pritam.gautam@nuagedm.com> @nuagedm
 
 """
+import string
 
-from security_monkey import db, rbac
-from security_monkey.views import AuthenticatedService
+from sqlalchemy import false, between
+from sqlalchemy.sql.functions import count as sqlcount, func
+
+from security_monkey import rbac
 from security_monkey.datastore import (
     Item,
     ItemAudit,
     Account,
-    Technology
-)
-from sqlalchemy.sql.functions import count as sqlcount, sum
-from sqlalchemy import over, cast, false, between,select
+    Technology,
+    ItemRevision)
+from security_monkey.views import AuthenticatedService
 
 
 # Calculates and returns a list of technologies along with
@@ -67,6 +69,9 @@ class VulnerabilitiesByTech(AuthenticatedService):
         """
 
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('sev', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+
         args = self.reqparse.parse_args()
         for k, v in args.items():
             if not v:
@@ -86,6 +91,15 @@ class VulnerabilitiesByTech(AuthenticatedService):
             accounts = args['accounts'].split(',')
             query = query.join((Account, Account.id == Item.account_id))
             query = query.filter(Account.name.in_(accounts))
+
+        if 'sev' in args:
+            sev = args['sev'].lower()
+            if sev == 'low':
+                query = query.filter(ItemAudit.score < 5)
+            elif sev == 'medium':
+                query = query.filter(between(ItemAudit.score, 5, 10))
+            elif sev == 'high':
+                query = query.filter(ItemAudit.score > 10)
 
         items = query.all()
 
@@ -156,6 +170,8 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
         """
 
         self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+
         args = self.reqparse.parse_args()
         for k, v in args.items():
             if not v:
@@ -163,11 +179,17 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
 
         baseQuery = ItemAudit.query.filter(ItemAudit.justified == false())
         baseQuery = baseQuery.filter(ItemAudit.fixed == false())
+        baseQuery = baseQuery.join((Item, ItemAudit.item_id == Item.id))
+
         if 'accounts' in args:
             accounts = args['accounts'].split(',')
-            baseQuery = baseQuery.join((Item, ItemAudit.item_id == Item.id))
             baseQuery = baseQuery.join((Account, Account.id == Item.account_id))
             baseQuery = baseQuery.filter(Account.name.in_(accounts))
+
+        if 'tech' in args:
+            tech = args['tech'].split(',')
+            baseQuery = baseQuery.join((Technology, Technology.id == Item.tech_id))
+            baseQuery = baseQuery.filter(Technology.name.in_(tech))
 
         # select count(1) from itemaudit where justified=false and fixed=false and score < 5
         lowQuery = baseQuery.filter(ItemAudit.score < 5)
@@ -191,3 +213,100 @@ class VulnerabilitiesBySeverity(AuthenticatedService):
         }
         return marshaled_dict, 200
 
+
+# Calculate and returns count of ItemAudit items by Month
+class IssuesCountByMonth(AuthenticatedService):
+    decorators = [rbac.allow(['View'], ["GET"])]
+
+    def get(self):
+        """
+            .. http:get:: /api/1/issuescountbymonth
+
+            Get a count of ItemAudit items by Month.
+
+            **Example Request**:
+
+            .. sourcecode:: http
+
+                GET /api/1/issuescountbymonth HTTP/1.1
+                Host: example.com
+                Accept: application/json
+
+            **Example Response**:
+
+            .. sourcecode:: http
+
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: application/json
+                {
+                    "auth": {
+                        "authenticated": true,
+                        "roles": [
+                            {
+                                "name": "Admin"
+                            },
+                            ...
+                        ],
+                        "user": ...
+                    },
+                    "count": 7,
+                    "items": [
+                        {
+                            "Count": 9769,
+                            "Month": "Feb"
+                        },
+                        ...
+                    ],
+                    "page": 1,
+                    "total": 7
+                }
+            :statuscode 200: no error
+            :statuscode 401: Authentication Error. Please Login.
+        """
+
+        self.reqparse.add_argument('accounts', type=str, default=None, location='args')
+        self.reqparse.add_argument('sev', type=str, default=None, location='args')
+        self.reqparse.add_argument('tech', type=str, default=None, location='args')
+        args = self.reqparse.parse_args()
+        for k, v in args.items():
+            if not v:
+                del args[k]
+
+        baseQuery = ItemRevision.query.with_entities(func.date_trunc('month', ItemRevision.date_created).label('Month'), sqlcount(ItemRevision.id).label('Count'))
+        baseQuery = baseQuery.join((Item, ItemRevision.item_id == Item.id))
+        baseQuery = baseQuery.join((ItemAudit, ItemAudit.item_id == Item.id))
+        if 'accounts' in args:
+            accounts = args['accounts'].split(',')
+            baseQuery = baseQuery.join((Account, Account.id == Item.account_id))
+            baseQuery = baseQuery.filter(Account.name.in_(accounts))
+
+        if 'sev' in args:
+            sev = args['sev'].lower()
+            if sev == 'low':
+                baseQuery = baseQuery.filter(ItemAudit.score < 5)
+            elif sev == 'medium':
+                baseQuery = baseQuery.filter(between(ItemAudit.score, 5, 10))
+            elif sev == 'high':
+                baseQuery = baseQuery.filter(ItemAudit.score > 10)
+
+        if 'tech' in args:
+            tech = args['tech'].split(',')
+            baseQuery = baseQuery.join((Technology, Technology.id == Item.tech_id))
+            baseQuery = baseQuery.filter(Technology.name.in_(tech))
+
+        baseQuery = baseQuery.group_by('"Month"')
+        baseQuery = baseQuery.order_by('"Month"')
+
+        items = baseQuery.all()
+
+        marshaled_items = [{'Month':item.Month.strftime("%b"),'Count':int(item.Count)} for item in items]
+
+        marshaled_dict = {
+            'page': 1,
+            'total': marshaled_items.__len__(),
+            'count': marshaled_items.__len__(),
+            'auth': self.auth_dict,
+            'items': marshaled_items
+        }
+        return marshaled_dict, 200
