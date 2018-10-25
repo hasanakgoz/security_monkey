@@ -235,3 +235,61 @@ body {
     padding-right: 10px;
     padding-left: 12px;
 }
+
+.account-dropdown {
+    min-width: 0 !important;
+}
+
+.glyphicon-info-sign {
+    color: #FFB61E;
+}
+
+.large-info {
+    font-size: 18px;
+    position: relative;
+    top: -7px;
+    left: 4px;
+}
+
+.small-info {
+    font-size: 13px;
+    position: relative;
+    top: -5px;
+    left: 2px;
+}
+
+.tippy-tooltip {
+    font-size: 14px !important;
+    opacity: .8 !important;
+}
+
+.severity-card {
+    cursor: pointer;
+}
+
+.severity-card-high dl:hover {
+    background: rgb(255, 77, 62);
+}
+
+.severity-card-medium dl:hover {
+    background: #ff8e25;
+}
+
+.severity-card-low dl:hover {
+    background: #ffd00f;
+}
+
+.reset-filters {
+    position: relative;
+    top: -3px;
+    margin-left: 30px !important;
+}
+
+.btn-danger {
+    color: white !important;
+    background-color: #da4453 !important;
+}
+
+.btn-danger:hover {
+    background-color: #b63945 !important;
+}
