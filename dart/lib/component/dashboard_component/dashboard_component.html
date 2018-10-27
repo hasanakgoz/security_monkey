@@ -445,26 +445,26 @@
                                 <span class="pull-right">Reset filter(s)</span>
                             </button>
                         </div>
-                        <span class="badge badge-primary pull-right">{{ getFilterInfo }}</span>
+                        <span class="badge badge-primary pull-right" id="filter-info">{{ getFilterInfo }}</span>
                         <small></small>
-                        <h3 class="panel-title">
+                        <h3 class="panel-title" id="poam-title">
                             POA&M Items for
                             {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount }}</h3>
                     </div>
 
-                    <div class="panel-body" ng-switch="poamItemsLoaded">
-                        <div ng-switch-when="false">
+                    <div class="panel-body no-padding" ng-switch="poamItemsLoaded">
+                        <div ng-switch-when="false" class="text-center mt-20">
                             <p>Loading . . .</p>
                         </div>
-                        <table class="table table-striped" ng-switch-when="true">
+                        <table class="table table-striped" ng-switch-when="true" style="font-size: 14px;">
                             <thead>
                             <tr>
                                 <th ng-if="selectedAccount == '__all_accounts__'">Account</th>
                                 <th style="min-width: 105px">POA&M ID</th>
-                                <th>Control[s]</th>
+                                <th>Control(s)</th>
                                 <th>Weakness Name</th>
                                 <th>Weakness Description</th>
-                                <th style="min-width: 115px">Original Detection Date</th>
+                                <th>Original Detection Date</th>
                                 <th>Severity</th>
                                 <th>Comments</th>
                             </tr>
@@ -472,14 +472,18 @@
                             <tbody>
                             <tr ng-repeat="poamItem in poamItems">
                                 <td ng-if="selectedAccount == '__all_accounts__'">{{ poamItem.account }}</td>
-                                <td><span class="badge badge badge-info"><a
-                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a></span>
+                                <td><a class="btn btn-info btn-xs"
+                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a>
                                 </td>
                                 <td>{{ poamItem.control }}</td>
                                 <td>{{ poamItem.weakness_name }}</td>
                                 <td>{{ poamItem.weakness_description }}</td>
-                                <td>{{ poamItem.create_date | date:'short'}}</td>
-                                <td>{{ poamItem.sev }}</td>
+                                <td>{{ poamItem.create_date | date:'shortDate'}}</td>
+                                <td>
+                                    <span class="badge badge-high" ng-if="poamItem.sev == 'High'">{{ poamItem.sev }}</span>
+                                    <span class="badge badge-medium" ng-if="poamItem.sev == 'Medium'">{{ poamItem.sev }}</span>
+                                    <span class="badge badge-low" ng-if="poamItem.sev == 'Low'">{{ poamItem.sev }}</span>
+                                </td>
                                 <td>{{ poamItem.comments }}</td>
                             </tr>
                             </tbody>

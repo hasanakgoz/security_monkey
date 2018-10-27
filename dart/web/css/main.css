@@ -242,6 +242,7 @@ body {
 
 .glyphicon-info-sign {
     color: #FFB61E;
+    cursor: pointer;
 }
 
 .large-info {
@@ -292,4 +293,27 @@ body {
 
 .btn-danger:hover {
     background-color: #b63945 !important;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.badge-high {
+    background-color: #e74c3c !important;
+    color: white !important;
+}
+
+.badge-medium {
+    background-color: #e67e22 !important;
+    color: white !important;
+}
+
+.badge-low {
+    background-color: #f1c40f !important;
+    color: white !important;
+}
+
+.btn-info:hover {
+    background-color: #5bacdf !important;
 }
