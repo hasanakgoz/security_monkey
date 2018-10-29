@@ -95,7 +95,7 @@
         <div class="row">
             <div class="col-lg-12 text-right pull-right" ng-switch="isAccountSelectDisabled()">
 
-                <select data-toggle="select" class="form-control select select-primary mrs mbm"
+                <select data-toggle="select" class="form-control select select-primary mrs mbm account-dropdown"
                         id="AccountChooser" ng-change="newAccountSelected()" ng-click="newAccountSelected()">
                     <option value="__all_accounts__">All Accounts</option>
                     <option ng-repeat="account in accounts" value="{{ account.name }}">{{ account.name }}</option>
@@ -169,42 +169,42 @@
                             data-tippy-theme="translucent"
                             data-tippy-arrow="false"
                             data-tippy-content="Click on High/Medium/Low severity elements to apply filter to POA&M Items list."
-                            data-tippy-size="large"
-                            data-tippy-placement="left"
-                            class="glyphicon glyphicon-info-sign pull-right">
+                            data-tippy-size="jumbo"
+                            data-tippy-placement="right"
+                            class="glyphicon glyphicon-info-sign large-info">
                     </span>
 
                 </h4>
             </div>
-            <div class="col-md-4 text-center">
+            <div class="col-md-4 text-center severity-card severity-card-high">
                 <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('high');"
                    ng-click="filterBySev('high');"
                    title="High denotes the count of items with Audit Score over 10">
                     <dl class="palette palette-alizarin">
-                        <h3 class="mt-0">{{ vulnSevScores_n.high }}</h3>
+                        <h3 class="mt-0">{{ vulnSevScores_n.high| number: 0 }}</h3>
                         <span>High</span>
                     </dl>
                 </a>
             </div>
-            <div class="col-md-4 text-center">
+            <div class="col-md-4 text-center severity-card severity-card-medium">
                 <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('medium');"
                    ng-click="filterBySev('medium');"
                    title="Medium denotes the count of items with Audit Score between 4 and 10">
 
                     <dl class="palette palette-carrot">
-                        <h3 class="mt-0">{{ vulnSevScores_n.medium }}</h3>
+                        <h3 class="mt-0">{{ vulnSevScores_n.medium | number: 0 }}</h3>
                         <span>Medium</span>
                     </dl>
                 </a>
 
             </div>
 
-            <div class="col-md-4 text-center">
+            <div class="col-md-4 text-center severity-card severity-card-low">
                 <a data-toggle="tooltip" data-placement="bottom" onclick="filterBySev('low');"
                    ng-click="filterBySev('low');"
                    title="Low denotes the count of items with Audit Score below 5">
                     <dl class="palette palette-sun-flower">
-                        <h3 class="mt-0">{{ vulnSevScores_n.low }}</h3>
+                        <h3 class="mt-0">{{ vulnSevScores_n.low | number: 0 }}</h3>
                         <span>Low</span>
                     </dl>
                 </a>
@@ -219,34 +219,7 @@
 
         <div class="row">
             <div class="col-md-12"><h4>Threat Actors</h4></div>
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title" id="threatactors">Threat Actors Details
-                            <span
-                                    data-tippy-delay="0"
-                                    data-tippy-theme="translucent"
-                                    data-tippy-arrow="false"
-                                    data-tippy-content="Click on Map Pin to see threat details, including Source IP/ Target IP etc."
-                                    data-tippy-size="large"
-                                    data-tippy-target="#threatactors"
-                                    data-tippy-placement="bottom"
-                                    class="glyphicon glyphicon-info-sign pull-right">
 
-                            </span>
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <div class="wrapper" id="worldmap_wrapper">
-                            <!--World Map Component-->
-                            <div id="mapid" style="height: 100%;"></div>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
 
             <div class="col-lg-6">
                 <div class="panel panel-default">
@@ -258,9 +231,8 @@
                                     data-tippy-arrow="false"
                                     data-tippy-content="Click on Chart Bar to zoom into relevant area on the map."
                                     data-tippy-size="large"
-                                    data-tippy-target="#connectionvolume"
-                                    data-tippy-placement="bottom"
-                                    class="glyphicon glyphicon-info-sign pull-right">
+                                    data-tippy-placement="right"
+                                    class="glyphicon glyphicon-info-sign small-info">
                             </span>
                         </h3>
                     </div>
@@ -268,6 +240,34 @@
                         <div class="wrapper" id="countries_chart">
                             <!--Chart Component-->
                             <svg id="barchart" width="98%" height="98%" class="full-width"></svg>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" id="threatactors">Threat Actors Details
+                            <span
+                                    data-tippy-delay="0"
+                                    data-tippy-theme="translucent"
+                                    data-tippy-arrow="false"
+                                    data-tippy-content="Click on Map Pin to see threat details, including Source IP/ Target IP etc."
+                                    data-tippy-size="large"
+                                    data-tippy-placement="right"
+                                    class="glyphicon glyphicon-info-sign small-info">
+
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="wrapper" id="worldmap_wrapper">
+                            <!--World Map Component-->
+                            <div id="mapid" style="height: 100%;"></div>
 
                         </div>
                     </div>
@@ -392,8 +392,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="panel panel-default">
-                    <div  class="panel-heading"
-                    >
+                    <div  class="panel-heading">
                         <h3 class="panel-title" id="technology">Technologies
                             <span
                                     data-tippy-delay="0"
@@ -401,9 +400,8 @@
                                     data-tippy-arrow="false"
                                     data-tippy-content="Click on any pie slice to apply filter to POA&M Items list."
                                     data-tippy-size="large"
-                                    data-tippy-target="#technology"
-                                    data-tippy-placement="bottom"
-                                    class="glyphicon glyphicon-info-sign pull-right">
+                                    data-tippy-placement="right"
+                                    class="glyphicon glyphicon-info-sign small-info">
                             </span>
                         </h3>
                     </div>
@@ -441,31 +439,32 @@
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="btn-group pull-right" ng-if='selectedTech!="" || selectedSev!=""'>
-                            <button type="button" class="btn btn-primary btn-xs pull-right"
+                            <button type="button" class="btn btn-danger btn-xs pull-right reset-filters"
                                     ng-click='selectedTech="";selectedSev="";fetchPOAMItems();'
                                     onclick="js_filter_sev = '';js_filter_tech = '';">
-                                <span class="pull-right">Reset filter(s) [ {{ getFilterInfo }} ]</span>
+                                <span class="pull-right">Reset filter(s)</span>
                             </button>
                         </div>
+                        <span class="badge badge-primary pull-right" id="filter-info">{{ getFilterInfo }}</span>
                         <small></small>
-                        <h3 class="panel-title">
+                        <h3 class="panel-title" id="poam-title">
                             POA&M Items for
-                            {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount }}  </h3>
+                            {{ selectedAccount == '__all_accounts__' ? 'All Accounts' : selectedAccount }}</h3>
                     </div>
 
-                    <div class="panel-body" ng-switch="poamItemsLoaded">
-                        <div ng-switch-when="false">
+                    <div class="panel-body no-padding" ng-switch="poamItemsLoaded">
+                        <div ng-switch-when="false" class="text-center mt-20">
                             <p>Loading . . .</p>
                         </div>
-                        <table class="table table-striped" ng-switch-when="true">
+                        <table class="table table-striped" ng-switch-when="true" style="font-size: 14px;">
                             <thead>
                             <tr>
                                 <th ng-if="selectedAccount == '__all_accounts__'">Account</th>
                                 <th style="min-width: 105px">POA&M ID</th>
-                                <th>Control[s]</th>
+                                <th>Control(s)</th>
                                 <th>Weakness Name</th>
                                 <th>Weakness Description</th>
-                                <th style="min-width: 115px">Original Detection Date</th>
+                                <th>Original Detection Date</th>
                                 <th>Severity</th>
                                 <th>Comments</th>
                             </tr>
@@ -473,14 +472,18 @@
                             <tbody>
                             <tr ng-repeat="poamItem in poamItems">
                                 <td ng-if="selectedAccount == '__all_accounts__'">{{ poamItem.account }}</td>
-                                <td><span class="badge badge badge-info"><a
-                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a></span>
+                                <td><a class="btn btn-info btn-xs"
+                                        href="#/viewitem/{{ poamItem.item_id }}">{{ poamItem.poam_id }}</a>
                                 </td>
                                 <td>{{ poamItem.control }}</td>
                                 <td>{{ poamItem.weakness_name }}</td>
                                 <td>{{ poamItem.weakness_description }}</td>
-                                <td>{{ poamItem.create_date | date:'short'}}</td>
-                                <td>{{ poamItem.sev }}</td>
+                                <td>{{ poamItem.create_date | date:'shortDate'}}</td>
+                                <td>
+                                    <span class="badge badge-high" ng-if="poamItem.sev == 'High'">{{ poamItem.sev }}</span>
+                                    <span class="badge badge-medium" ng-if="poamItem.sev == 'Medium'">{{ poamItem.sev }}</span>
+                                    <span class="badge badge-low" ng-if="poamItem.sev == 'Low'">{{ poamItem.sev }}</span>
+                                </td>
                                 <td>{{ poamItem.comments }}</td>
                             </tr>
                             </tbody>
