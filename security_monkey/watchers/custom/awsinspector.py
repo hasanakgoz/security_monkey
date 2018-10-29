@@ -15,9 +15,9 @@ from security_monkey.watcher import Watcher
 
 
 class AwsInspector(Watcher):
-    index = 'aws-inspector'
-    i_am_singular = 'AWS AwsInspector Issue'
-    i_am_plural = 'AWS AwsInspector Issues'
+    index = 'awsinspector'
+    i_am_singular = 'AWS Inspector Issue'
+    i_am_plural = 'AWS Inspector Issues'
     honor_ephemerals = False
 
     def __init__(self, accounts=None, debug=False):

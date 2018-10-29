@@ -27,7 +27,9 @@ class AwsInspectorAuditor(Auditor):
             app.logger.debug("Adding {}/{}".format(self.index,
                                                    issue.get(u'title')))
             self.add_issue(score=int(issue.get(u'numericSeverity')),
-                           issue=issue.get(u'title'),
+                           # Score mapped to numericSeverity defined in AWS Inspector Finding
+                           issue=issue.get(u'title'),  # Title as defined in AWS Inspector Finding
                            item=item,
-                           notes=issue.get(u'description'),
-                           action_instructions=issue.get(u'recommendation'))
+                           notes=issue.get(u'description'),  # Description as defined in AWS Inspector Finding
+                           action_instructions=issue.get(
+                               u'recommendation'))  # Recommendation as defined in AWS Inspector Finding
