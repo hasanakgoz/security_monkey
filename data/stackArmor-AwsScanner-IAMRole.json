@@ -1,0 +1,235 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "stackArmor AWS Scanner - Create Role",
+
+  "Parameters" : {},
+  
+  "Mappings" : {
+    "Region2Principal" : {
+      "us-east-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-2": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "ca-central-1": {
+       "EC2Principal": "ec2.amazonaws.com",
+       "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      }
+    }
+  },
+
+  "Resources" : {
+    
+    "sataAwsScannerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        
+        "AssumeRolePolicyDocument": {
+          "Statement": [{
+            "Effect": "Allow",
+            
+            "Principal": { "Service": { "Fn::FindInMap" : [ "Region2Principal", {"Ref" : "AWS::Region"}, "EC2Principal"]},
+              "AWS" : "arn:aws:iam::726064622671:role/ThreatAlertInstanceProfile"
+                
+            },
+              "Action": [ "sts:AssumeRole" ]
+                        
+          }]
+        },
+        "Path": "/",
+        "RoleName":"ThreatAlert"
+      }
+    },
+
+    "sataAwsScannerPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        
+        "PolicyName": "ThreatAlertPolicy",
+        "PolicyDocument": {
+          "Statement": [ {
+            "Action": [
+                "acm:describecertificate",
+                "acm:listcertificates",
+                "cloudtrail:DescribeTrails",
+        	      "cloudtrail:GetTrailStatus",
+        	      "cloudtrail:LookupEvents",
+                "config:describeconfigrules",
+                "config:describeconfigurationrecorders",
+                "directconnect:describeconnections",
+		"guardduty:GetDetector",
+                "guardduty:GetMasterAccount",
+                "guardduty:GetInvitationsCount",
+                "guardduty:GetFindings",
+                "guardduty:ListDetectors",
+                "guardduty:GetIPSet",
+                "guardduty:GetFindingsStatistics",
+                "guardduty:ListThreatIntelSets",
+                "guardduty:GetThreatIntelSet",
+                "guardduty:ListInvitations",
+                "guardduty:ListIPSets",
+                "guardduty:GetMembers",
+                "guardduty:ListFindings",
+		"inspector:ListFindings",
+		"inspector:DescribeAssessmentRuns",
+		"inspector:ListAssessmentRunAgents",
+		"inspector:DescribeCrossAccountAccessRole",
+		"inspector:ListEventSubscriptions",
+                "inspector:ListAssessmentTargets",
+		"inspector:PreviewAgents",
+                "inspector:ListAssessmentRuns",
+		"inspector:DescribeResourceGroups",
+		"inspector:ListAssessmentTemplates",
+		"inspector:GetTelemetryMetadata",
+		"inspector:DescribeAssessmentTargets",
+		"inspector:DescribeAssessmentTemplates",
+		"inspector:ListTagsForResource",
+		"inspector:DescribeRulesPackages",
+		"inspector:ListRulesPackages",
+                "inspector:DescribeFindings",
+		"iam:GetCredentialReport",
+		"iam:GenerateCredentialReport",
+                "ec2:describeaddresses",
+                "ec2:describedhcpoptions",
+                "ec2:describeflowlogs",
+                "ec2:describeimages",
+                "ec2:describeinstances",
+                "ec2:describeinternetgateways",
+                "ec2:describekeypairs",
+                "ec2:describenatgateways",
+                "ec2:describenetworkacls",
+                "ec2:describenetworkinterfaces",
+                "ec2:describeregions",
+                "ec2:describeroutetables",
+                "ec2:describesecuritygroups",
+                "ec2:describesnapshots",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:describesubnets",
+                "ec2:describetags",
+                "ec2:describevolumes",
+                "ec2:describevpcendpoints",
+                "ec2:describevpcpeeringconnections",
+                "ec2:describevpcs",
+                "ec2:describevpnconnections",
+                "ec2:describevpngateways",
+                "elasticloadbalancing:describeloadbalancerattributes",
+                "elasticloadbalancing:describeloadbalancerpolicies",
+                "elasticloadbalancing:describeloadbalancers",
+                "elasticloadbalancing:describelisteners",
+                "elasticloadbalancing:describerules",
+                "elasticloadbalancing:describesslpolicies",
+                "elasticloadbalancing:describetags",
+                "elasticloadbalancing:describetargetgroups",
+                "elasticloadbalancing:describetargetgroupattributes",
+                "elasticloadbalancing:describetargethealth",
+                "es:describeelasticsearchdomainconfig",
+                "es:listdomainnames",
+                "glacier:DescribeVault",
+                "glacier:GetVaultAccessPolicy",
+                "glacier:ListTagsForVault",
+                "glacier:ListVaults",
+                "iam:GetAccountPasswordPolicy",
+                "iam:getaccesskeylastused",
+                "iam:getgroup",
+                "iam:getgrouppolicy",
+                "iam:getloginprofile",
+                "iam:getpolicyversion",
+                "iam:getrole",
+                "iam:getrolepolicy",
+                "iam:GetSAMLProvider",
+                "iam:getservercertificate",
+                "iam:getuser",
+                "iam:getuserpolicy",
+                "iam:listaccesskeys",
+                "iam:listattachedgrouppolicies",
+                "iam:listattachedrolepolicies",
+                "iam:listattacheduserpolicies",
+                "iam:listentitiesforpolicy",
+                "iam:listgrouppolicies",
+                "iam:listgroups",
+                "iam:listinstanceprofilesforrole",
+                "iam:listmfadevices",
+                "iam:listpolicies",
+                "iam:listrolepolicies",
+                "iam:listroles",
+                "iam:listsamlproviders",
+                "iam:listservercertificates",
+                "iam:listsigningcertificates",
+                "iam:listuserpolicies",
+                "iam:listusers",
+                "kms:describekey",
+                "kms:getkeypolicy",
+                "kms:getkeyrotationstatus",
+                "kms:listaliases",
+                "kms:listgrants",
+                "kms:listkeypolicies",
+                "kms:listkeys",
+                "lambda:getfunctionconfiguration",
+                "lambda:getpolicy",
+                "lambda:listaliases",
+                "lambda:listeventsourcemappings",
+                "lambda:listtags",
+                "lambda:listversionsbyfunction",
+                "lambda:listfunctions",
+                "logs:describemetricfilters",
+                "rds:describedbclusters",
+                "rds:describedbclustersnapshots",
+                "rds:describedbinstances",
+                "rds:describedbsecuritygroups",
+                "rds:describedbsnapshots",
+                "rds:describedbsnapshotattributes",
+                "rds:describedbsubnetgroups",
+                "redshift:describeclusters",
+                "route53:listhostedzones",
+                "route53:listresourcerecordsets",
+                "route53domains:listdomains",
+                "route53domains:getdomaindetail",
+                "s3:getaccelerateconfiguration",
+                "s3:getbucketacl",
+                "s3:getbucketcors",
+                "s3:getbucketlocation",
+                "s3:getbucketlogging",
+                "s3:getbucketnotification",
+                "s3:getbucketpolicy",
+                "s3:getbuckettagging",
+                "s3:getbucketversioning",
+                "s3:getbucketwebsite",
+                "s3:getlifecycleconfiguration",
+                "s3:listbucket",
+                "s3:listallmybuckets",
+                "s3:getreplicationconfiguration",
+                "s3:getanalyticsconfiguration",
+                "s3:getmetricsconfiguration",
+                "s3:getinventoryconfiguration",
+                "ses:getidentityverificationattributes",
+                "ses:listidentities",
+                "ses:listverifiedemailaddresses",
+                "ses:sendemail",
+                "sns:gettopicattributes",
+                "sns:listsubscriptionsbytopic",
+                "sns:listtopics",
+                "sqs:getqueueattributes",
+                "sqs:listqueues"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          } ]
+        },
+        "Roles": [ { "Ref": "sataAwsScannerRole" } ]
+      }
+    }
+
+  },
+
+  "Outputs": {
+    
+  }
+}
+
